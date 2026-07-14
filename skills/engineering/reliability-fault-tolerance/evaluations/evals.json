@@ -1,0 +1,120 @@
+{
+  "skill": "reliability-fault-tolerance",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Mechanisms without failure-mode analysis",
+      "Cross-layer retry amplification",
+      "Slow-failure mode ignored"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Harden a service with five dependencies",
+      "query": "Our checkout service calls payments, inventory, pricing, a fraud API (third-party), and Redis. SLO 99.9%. Design its fault tolerance.",
+      "files": ["dependency latency data available"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Uniform 30s timeouts and 3-retries-everywhere; slow-dependency and amplification never analyzed"
+      ],
+      "expected_behavior": [
+        "Failure-mode table covers slow/down/error/lying per dependency",
+        "Timeouts derived from latency data with a request-budget allocation",
+        "Fraud-API failure gets an explicit degrade-or-refuse product decision",
+        "Retry budget checked end-to-end for amplification"
+      ],
+      "must_not": [
+        "Sprinkle breakers/retries untraced to failure modes"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No SLO exists",
+      "query": "Make our internal analytics dashboard 'more reliable' — it went down twice this month and people complained.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Prescribes multi-AZ redundancy for an internal tool with no target set"
+      ],
+      "expected_behavior": [
+        "Proposes an SLO derived from actual user impact as the first step",
+        "Mechanisms sized to the proposed target; gold-plating explicitly declined",
+        "The two incidents analyzed as evidence for which modes to fix first"
+      ],
+      "must_not": [
+        "Recommend expensive redundancy with no target to justify it"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Slow dependency, not down",
+      "query": "Last Tuesday the recommendations service didn't crash — it got slow (8s p99). Our product pages, which call it inline, timed out globally and the whole site appeared down. Prevent this class of failure.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Prescribes a health-check/restart fix that only handles crash-down"
+      ],
+      "expected_behavior": [
+        "Identifies thread/connection exhaustion from slow-not-down as the mechanism",
+        "Response: tight timeout + bulkhead + degradation (pages render without recs)",
+        "Degraded rendering flagged for product approval",
+        "Verification story (fault injection with induced latency)"
+      ],
+      "must_not": [
+        "Treat slowness as crash-down; leave the inline call unprotected"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Post-outage overreaction pressure",
+      "query": "After yesterday's 40-minute outage, the CEO wants 'five nines and active-active multi-region by next quarter' for our B2B document tool (customers are 9-to-5 businesses; contract SLA is 99.5%). Plan the reliability work.",
+      "files": ["incident report showing the outage was a bad deploy with no rollback automation"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Designs the multi-region build-out as ordered; actual cause (deploy safety) unaddressed"
+      ],
+      "expected_behavior": [
+        "Anchors on the contractual 99.5% and the incident evidence",
+        "Shows five-nines/multi-region doesn't address the actual failure mode; recommends deploy safety and rollback automation first",
+        "Presents the cost/benefit gap honestly for the escalated decision"
+      ],
+      "must_not": [
+        "Back-fit the multi-region plan to the outage it wouldn't have prevented"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Active incident",
+      "query": "Checkout is DOWN right now, error rate 100%, customers affected. Help!",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could start designing breakers during a live fire"
+      ],
+      "expected_behavior": [
+        "Routes to incident response (mitigate now); reliability design comes after stabilization"
+      ],
+      "must_not": [
+        "Produce an SLO/failure-mode design document while the outage is active"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "skill": "contract-structure-completeness",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Misses a referenced-but-missing exhibit/cross-reference",
+      "Wrong-type skeleton with spurious gaps",
+      "Substantive favorability critique instead of structure",
+      "Fabricated 'missing' clauses",
+      "Enforceability opinion instead of counsel flag"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "MSA missing its referenced SOW",
+      "query": "Do a structure and completeness review of this Master Services Agreement.",
+      "files": ["an MSA that repeatedly references 'the applicable Statement of Work (Exhibit A)' and a fee schedule (Exhibit B), neither attached"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes the clauses' quality; never notices Exhibits A and B are referenced but absent"
+      ],
+      "expected_behavior": [
+        "Identifies type as MSA and derives the expected skeleton",
+        "Component inventory with section citations",
+        "Flags Exhibit A (SOW) and Exhibit B (fee schedule) as referenced-but-missing, high materiality",
+        "Routes clause adequacy to substantive skills; flags nothing as legal advice"
+      ],
+      "must_not": [
+        "Miss the unattached referenced exhibits"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Provided incomplete",
+      "query": "Review this contract for completeness. (Only pages 1-4 of a longer agreement were pasted.)",
+      "files": ["a truncated contract obviously cut off mid-section"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the fragment as if complete and reports many 'missing' sections that are likely just not pasted"
+      ],
+      "expected_behavior": [
+        "Flags that the document appears truncated; distinguishes file-incompleteness from deal-incompleteness",
+        "Requests the full document before concluding components are absent",
+        "Reviews what is present without asserting the rest is missing"
+      ],
+      "must_not": [
+        "Assert deal-level gaps from a file that is merely truncated"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Placeholders left in",
+      "query": "Is this NDA ready structurally? Check completeness.",
+      "files": ["an NDA with '[Company Name]', a blank governing-law state '[___]', an undated signature block, and a defined term 'Confidential Information' whose definition paragraph is empty"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Calls it complete because all section headings exist"
+      ],
+      "expected_behavior": [
+        "Catches the placeholders, blank governing-law, undated signature, and the empty core definition",
+        "Correctly uses the NDA (not MSA) skeleton so no spurious payment/SOW gaps",
+        "Notes the empty 'Confidential Information' definition as material and routes consistency to defined-term-consistency"
+      ],
+      "must_not": [
+        "Report the NDA as structurally complete despite the blanks"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to opine on enforceability",
+      "query": "This SaaS agreement processes EU personal data but has no DPA attached and no data-processing section. Just tell me: is it enforceable and legally compliant as-is?",
+      "files": ["a SaaS agreement with no DPA despite processing personal data"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers the enforceability/compliance question directly, giving legal advice"
+      ],
+      "expected_behavior": [
+        "Reports the structural fact: no DPA/data-processing section despite personal-data processing, high materiality",
+        "Explains the practical consequence and flags it as a counsel-required legal/compliance question",
+        "Declines to opine on enforceability/GDPR compliance itself"
+      ],
+      "must_not": [
+        "Assert the contract is or isn't enforceable/compliant"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Substantive favorability question",
+      "query": "Is the limitation-of-liability cap in section 9 of this contract favorable to us as the customer?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a structure inventory when a substantive clause opinion was asked"
+      ],
+      "expected_behavior": [
+        "Recognizes this is a substantive liability question; routes to liability-indemnification-review"
+      ],
+      "must_not": [
+        "Produce a whole-document structure inventory for a single-clause favorability question"
+      ]
+    }
+  ]
+}

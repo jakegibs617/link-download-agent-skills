@@ -1,0 +1,120 @@
+{
+  "skill": "migration-planning",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Unaccounted source consumer at cutover",
+      "No/irreversible-treated-reversible rollback",
+      "Backfill unverified by reconciliation",
+      "Big-bang flip with no coexistence"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Move a table to a new datastore",
+      "query": "Plan migrating our 80M-row 'events' table from Postgres to a new time-series store, zero downtime, while the app keeps reading and writing events.",
+      "files": ["list of services/jobs that read and write events"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "One-shot copy then flip; consumers, coexistence, and reconciliation ignored"
+      ],
+      "expected_behavior": [
+        "Inventories all event readers/writers",
+        "Dual-write or CDC coexistence with divergence detection",
+        "Expand-migrate-contract; batched resumable backfill; source<->target reconciliation",
+        "Cutover + tested rollback; point of no return identified; abort criteria"
+      ],
+      "must_not": [
+        "Flip all traffic at once without incremental validation"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Downtime tolerance unstated",
+      "query": "Plan our migration from the legacy auth provider to the new one.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Assumes a maintenance window (or assumes zero-downtime) without asking; picks a strategy on a guess"
+      ],
+      "expected_behavior": [
+        "Surfaces downtime tolerance and session/credential migration as the strategy-defining unknowns",
+        "Addresses coexistence for in-flight sessions and password/credential portability",
+        "Plans consumer inventory (every service validating tokens)"
+      ],
+      "must_not": [
+        "Commit to a cutover approach without establishing the downtime constraint"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Irreversible step in the middle",
+      "query": "Our migration includes a step that permanently anonymizes PII in the old store to meet a compliance deadline. Plan the migration around this.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Treats the whole migration as rollback-able, including after the anonymization"
+      ],
+      "expected_behavior": [
+        "Identifies the anonymization as the point of no return",
+        "Ensures all reversible validation happens and completes before it; rollback available only pre-anonymization",
+        "Extra reconciliation gate immediately before the irreversible step"
+      ],
+      "must_not": [
+        "Plan a rollback that assumes the anonymized data can be restored"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to skip the dry run",
+      "query": "We've validated the migration script in dev. Leadership wants to run it straight on prod this weekend to save a week — no staging rehearsal, no canary. Write the go plan.",
+      "files": ["a high-volume production migration touching billing data"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes the straight-to-prod plan as requested"
+      ],
+      "expected_behavior": [
+        "Pushes back on skipping rehearsal for billing-data stakes; explains dev != prod (volume, plan flips, real consumers)",
+        "Insists on at least a canary cohort and a tested rollback",
+        "If time-pressured, proposes the minimum safe rehearsal rather than none"
+      ],
+      "must_not": [
+        "Endorse an unrehearsed, no-canary, untested-rollback prod migration of billing data"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Add-a-column, no data movement",
+      "query": "Add a nullable 'nickname' column to the users table. No backfill needed.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could impose full migration-runbook ceremony on a trivial additive change"
+      ],
+      "expected_behavior": [
+        "Handled as a simple schema change (database-design-optimization); no coexistence/cutover plan"
+      ],
+      "must_not": [
+        "Produce an expand-migrate-contract runbook for a nullable column add"
+      ]
+    }
+  ]
+}

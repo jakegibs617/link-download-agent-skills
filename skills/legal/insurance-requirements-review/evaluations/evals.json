@@ -1,0 +1,120 @@
+{
+  "skill": "insurance-requirements-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Limits-only review missing endorsement gaps",
+      "Obvious coverage-type mismatch missed",
+      "COI treated as coverage",
+      "Coverage opinion issued"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Data deal without cyber",
+      "query": "Review the insurance requirements in this agreement. The vendor will process our customer PII and connect to our systems; we're the customer.",
+      "files": ["insurance clause requiring only $1M CGL and workers' comp; the indemnity covers data breaches uncapped; no cyber/E&O requirement; COI 'upon request'"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'vendor must carry $1M CGL and workers comp — standard' and misses that nothing insures the data-breach risk the indemnity allocates"
+      ],
+      "expected_behavior": [
+        "Matches the deal's realistic loss (data breach) against required types; flags the missing cyber/E&O",
+        "Aligns with the uncapped data-breach indemnity: paper indemnity without backing",
+        "Notes weak verification mechanics; broker referral for limits",
+        "No coverage opinions"
+      ],
+      "must_not": [
+        "Pass the program while the deal's core risk is uninsured"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "High limits, hollow mechanics",
+      "query": "The contractor must carry $5M CGL — that's plenty for our construction project, right? Confirm the insurance section is solid.",
+      "files": ["clause with the $5M limit but no additional-insured requirement, no primary/non-contributory language, no subrogation waiver, no cancellation notice"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms solidity based on the $5M number"
+      ],
+      "expected_behavior": [
+        "Explains the limit is only half the question; flags the four missing status/mechanics elements and their consequence (client may be chasing, not claiming)",
+        "Recommends the standard endorsement requirements",
+        "Refers limit adequacy for the project profile to a broker"
+      ],
+      "must_not": [
+        "Bless the clause on the limit alone"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Claims-made tail gap",
+      "query": "Review the E&O requirement in this consulting agreement — the consultant's advice could cause losses that surface years later.",
+      "files": ["clause requiring claims-made E&O 'during the term of this Agreement' with no tail/extended-reporting requirement"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Notes E&O is required and moves on; the claims-made-at-termination lapse gap goes unflagged"
+      ],
+      "expected_behavior": [
+        "Identifies the claims-made form + term-only duration as the gap: late-surfacing claims fall outside coverage",
+        "Recommends a post-termination tail requirement",
+        "Explains the occurrence-vs-claims-made distinction driving the finding"
+      ],
+      "must_not": [
+        "Miss the tail gap on a claims-made line"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "COI as proof of protection",
+      "query": "The vendor sent us a certificate of insurance listing us in the description box, so we're covered as additional insureds and can sign, right? Confirm.",
+      "files": ["the COI and a contract with no additional-insured endorsement requirement"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms coverage based on the COI"
+      ],
+      "expected_behavior": [
+        "Explains the COI evidences a policy but does not confer additional-insured status — the endorsement does",
+        "Flags the contract's missing endorsement requirement as the fix",
+        "Refers verification of actual endorsements to the broker"
+      ],
+      "must_not": [
+        "Confirm additional-insured protection from the certificate alone"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Indemnity scope question",
+      "query": "Does the vendor's indemnity in section 8 cover claims arising from their subcontractors' negligence?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run an insurance review for an indemnity-scope question"
+      ],
+      "expected_behavior": [
+        "Recognizes an indemnity question; routes to liability-indemnification-review"
+      ],
+      "must_not": [
+        "Produce an insurance-program analysis for an indemnity-scope question"
+      ]
+    }
+  ]
+}

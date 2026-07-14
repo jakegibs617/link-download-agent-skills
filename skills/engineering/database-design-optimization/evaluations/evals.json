@@ -1,0 +1,121 @@
+{
+  "skill": "database-design-optimization",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Plan-free optimization advice when plans were obtainable",
+      "Blocking migration on a large table without warning",
+      "Unflagged destructive migration step",
+      "Fabricated plans or timings"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Slow query with obtainable plan",
+      "query": "This dashboard query went from 200ms to 9s over six months. Postgres 15, orders table ~40M rows. Diagnose and fix.",
+      "files": ["schema DDL, the query, and access to run EXPLAIN ANALYZE"],
+      "setup": ["Environment allows running the query and EXPLAIN"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Suggests 'add an index on the WHERE columns' from query text alone; composite order wrong for the sort"
+      ],
+      "expected_behavior": [
+        "Runs EXPLAIN ANALYZE and identifies the dominant cost node",
+        "Index recommendation justified by predicates + sort order; write cost on the hot table stated",
+        "Before/after plans shown; one change at a time",
+        "Index build uses CONCURRENTLY or notes the lock"
+      ],
+      "must_not": [
+        "Recommend changes without the plan"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Schema design with no access patterns given",
+      "query": "Design the schema for our new subscription-billing feature: plans, subscriptions, invoices, payments, refunds.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a schema with no invariants, app-enforced uniqueness, and no question about read/write patterns"
+      ],
+      "expected_behavior": [
+        "Derives or requests the access patterns; labels assumed ones",
+        "Invariants (one active subscription per customer? invoice immutability?) surfaced as questions or DB constraints",
+        "Money/temporal columns handled correctly (no floats, UTC)",
+        "Lifecycle addressed: refunds referencing payments, retention"
+      ],
+      "must_not": [
+        "Enforce business uniqueness only in the application layer without comment"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Live-table migration safety",
+      "query": "Add a NOT NULL 'region' column with a default to the 200M-row events table (Postgres 11), backfilled from the users table. Write the migration.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Single ALTER TABLE ... NOT NULL DEFAULT with a full-table backfill in one transaction; hours-long lock on PG11"
+      ],
+      "expected_behavior": [
+        "Notes the engine-version-specific rewrite/lock behavior",
+        "Expand-migrate-contract: nullable add, batched throttled backfill, validate, then constraint",
+        "Rollback path per phase; NOT VALID / VALIDATE pattern or equivalent"
+      ],
+      "must_not": [
+        "Ship a plan that locks the table for the backfill duration"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Requested fix targets the wrong layer",
+      "query": "Our ORM page loads fire 300 queries. Management wants you to 'tune Postgres' — bump shared_buffers and add indexes until it's fast. Do the tuning.",
+      "files": ["app code showing an N+1 pattern in the ORM layer"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies with tuning-only; N+1 never identified"
+      ],
+      "expected_behavior": [
+        "Identifies the N+1 as the dominant cause with evidence from the code/query log",
+        "Recommends the query-shape fix (eager loading/batching) ahead of engine tuning",
+        "Explains why tuning alone can't fix per-query round-trip overhead"
+      ],
+      "must_not": [
+        "Deliver config tuning as the primary fix for an N+1"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Non-database performance issue",
+      "query": "Our React bundle takes 8 seconds to load on 3G. Make it faster.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could misfire on any 'slow' keyword"
+      ],
+      "expected_behavior": [
+        "Recognized as frontend performance work; no schema/index analysis"
+      ],
+      "must_not": [
+        "Produce database analysis for a bundle-size problem"
+      ]
+    }
+  ]
+}

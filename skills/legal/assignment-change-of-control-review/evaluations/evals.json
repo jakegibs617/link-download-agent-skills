@@ -1,0 +1,120 @@
+{
+  "skill": "assignment-change-of-control-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Bare-clause merger question answered instead of counsel-flagged",
+      "Consent qualifier erased",
+      "License-death/consent landmine missed",
+      "Scenario ignored when given"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Pre-acquisition contract sweep",
+      "query": "We're negotiating to be acquired next year. Review the assignment and change-of-control provisions in this key customer contract from our side (the vendor being acquired).",
+      "files": ["contract: neither party may assign without consent (customer's consent in its sole discretion); 'any change of control of Vendor shall be deemed an assignment'; customer may terminate within 60 days of an unconsented assignment"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes 'mutual anti-assignment, standard'; the CoC-deemed-assignment + sole-discretion consent + termination right combo (a deal landmine) is not connected to the acquisition scenario"
+      ],
+      "expected_behavior": [
+        "Connects the clauses to the acquisition: the sale itself is a deemed assignment requiring the customer's sole-discretion consent",
+        "Maps the consequence: customer termination right within 60 days — a diligence/critical-path item",
+        "Preserves the sole-discretion consent standard; ranks this as the top issue",
+        "Counsel flag for structuring; negotiation direction (merger carve-out) noted"
+      ],
+      "must_not": [
+        "Miss the CoC-deemed-assignment landmine in the client's stated exit scenario"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Bare clause, merger question",
+      "query": "Our anti-assignment clause just says 'neither party may assign this Agreement without the other's consent' — nothing about change of control. If we're acquired in a stock sale, does that violate it?",
+      "files": ["the bare clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers the doctrine question directly ('stock sales are never assignments' or the reverse)"
+      ],
+      "expected_behavior": [
+        "Explains that whether a stock sale/merger triggers a bare anti-assignment clause depends on jurisdictional doctrine and transaction structure",
+        "Flags it for counsel rather than answering; notes what facts/structure details counsel will need",
+        "Suggests the drafting fix (express carve-out or express CoC language) for the future"
+      ],
+      "must_not": [
+        "Assert the doctrinal answer either way"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Rights-vs-duties coverage gap",
+      "query": "Review assignment provisions in this services agreement. We're the customer and care about who actually performs the work.",
+      "files": ["clause barring assignment of 'this Agreement' but silent on delegation/subcontracting of duties; vendor is quietly planning to subcontract performance"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'assignment is prohibited, you're protected' — missing that delegation/subcontracting of the actual work isn't covered"
+      ],
+      "expected_behavior": [
+        "Distinguishes assignment of the agreement from delegation of duties; finds the clause covers only the former",
+        "Flags that performance could be subcontracted without breach as written",
+        "Recommends the anti-delegation/subcontracting-consent fix"
+      ],
+      "must_not": [
+        "Treat the bare anti-assignment clause as blocking subcontracted performance"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Asymmetry sold as mutual",
+      "query": "The counterparty says the assignment section is 'perfectly mutual — neither side can assign'. Sanity-check that for us before we sign.",
+      "files": ["clause: neither party may assign, EXCEPT that Party A may assign to any affiliate, successor, acquirer, or financing source without consent; Party B has no carve-outs; only Party B's change of control triggers Party A's termination right"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms mutuality from the opening sentence"
+      ],
+      "expected_behavior": [
+        "Reads past the mutual-looking opener to the one-sided carve-outs and one-sided CoC trigger",
+        "Rejects the 'perfectly mutual' framing with citations",
+        "Recommends mirror carve-outs or removal as the ask"
+      ],
+      "must_not": [
+        "Certify mutuality the carve-outs contradict"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Option acceleration question",
+      "query": "If we're acquired, does my stock option grant accelerate? Here's my grant agreement.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could analyze a commercial contract's CoC framework for an equity-acceleration question"
+      ],
+      "expected_behavior": [
+        "Recognizes an equity-acceleration question; routes to equity-incentive-review"
+      ],
+      "must_not": [
+        "Produce a commercial assignment analysis for an option-acceleration question"
+      ]
+    }
+  ]
+}

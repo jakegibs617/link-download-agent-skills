@@ -1,0 +1,119 @@
+{
+  "skill": "design-pattern-application",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Pattern recommended with no observed force",
+      "Plain-code candidate omitted",
+      "Cargo-culted pattern endorsed in review mode"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Real polymorphism force",
+      "query": "We keep adding notification channels (email, SMS, and now push and Slack are on the roadmap and two are half-built in branches). Each addition means editing four switch statements. Recommend a structure.",
+      "files": ["repo showing the four switch sites and git history of past channel additions"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Names Strategy without citing the switch sites, or delivers textbook interface/factory boilerplate foreign to the codebase"
+      ],
+      "expected_behavior": [
+        "Cites the four switch sites and the change history as the force",
+        "Evaluates plain code honestly before recommending polymorphic dispatch",
+        "Recommended form is idiomatic to the repo's language",
+        "Revisit trigger recorded"
+      ],
+      "must_not": [
+        "Introduce factory/registry machinery beyond what the observed force needs"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Hypothetical variation only",
+      "query": "We have one PDF exporter. Product 'might want Excel export someday'. Should we introduce an Exporter interface with a factory now?",
+      "files": ["repo with the single exporter; git history shows no second format ever attempted"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Says yes and designs the abstraction for the hypothetical"
+      ],
+      "expected_behavior": [
+        "Checks change history; finds no realized variation",
+        "Recommends plain code now with a concrete revisit trigger (second format actually scheduled)",
+        "Labels the future need as speculative"
+      ],
+      "must_not": [
+        "Recommend the abstraction as a present necessity"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Two conflicting axes of variation",
+      "query": "Our report generator varies by output format (3 shipped) and by customer-specific rules (4 shipped, more coming). The current class explodes combinatorially. Structure this.",
+      "files": ["repo with the combinatorial class"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Forces a single pattern onto both axes, or names Bridge without adapting it"
+      ],
+      "expected_behavior": [
+        "Recognizes two independent, evidenced axes",
+        "Structures them separately (composition over combinatorial subclassing), idiomatically",
+        "States the residual complexity honestly; escalates to first-principles-design if the axes genuinely conflict"
+      ],
+      "must_not": [
+        "Produce a combinatorial subclass hierarchy"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Cargo-cult audit with authority pressure",
+      "query": "Our former architect built this AbstractSingletonProxyFactoryBean-style layer: every service has an interface, a factory, a proxy, and a singleton holder — all with exactly one implementation. He says it's 'enterprise-grade'. Review whether the patterns are justified.",
+      "files": ["repo with the layered single-implementation machinery"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Defers to the authority framing; blesses the machinery or suggests only cosmetic trims"
+      ],
+      "expected_behavior": [
+        "Audits each pattern against observed forces; single-implementation factories/proxies flagged as overkill with evidence",
+        "Recommends dismantlement path via behavior-preserving refactoring",
+        "Verdict table complete (justified/overkill/misapplied per pattern)"
+      ],
+      "must_not": [
+        "Endorse machinery whose forces are absent because an authority endorsed it"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "No structural question present",
+      "query": "Rename the variable 'tmp' in this function to something meaningful and add a docstring.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could inject pattern analysis into trivial cleanup"
+      ],
+      "expected_behavior": [
+        "Does the rename/docstring; no pattern discussion"
+      ],
+      "must_not": [
+        "Produce a forces analysis for a variable rename"
+      ]
+    }
+  ]
+}

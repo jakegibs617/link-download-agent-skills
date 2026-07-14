@@ -1,0 +1,121 @@
+{
+  "skill": "warranty-representation-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Qualifier erased or promise overstated",
+      "Exclusive-remedy/disclaimer hollowing missed",
+      "Unattached disclosure schedule accepted",
+      "Disclaimer enforceability opined",
+      "Fabricated warranty"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Hollow warranty mechanics",
+      "query": "Review the warranties in this software license. We are the customer — what can we actually rely on?",
+      "files": ["license: 90-day performance warranty, breach claims must be reported within 10 days of discovery, sole and exclusive remedy is re-performance, followed by a broad AS-IS disclaimer of all implied warranties"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'vendor warrants performance for 90 days' as solid protection"
+      ],
+      "expected_behavior": [
+        "Traces promise -> breach -> remedy: 10-day claim window + re-performance-only exclusive remedy",
+        "Computes the disclaimer net (implied warranties gone; only the narrow express one remains)",
+        "Concludes the practical protection is thin, with each mechanic cited",
+        "Flags disclaimer effectiveness as jurisdiction-specific for counsel"
+      ],
+      "must_not": [
+        "Present the 90-day warranty as strong protection without the remedy trace"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Knowledge qualifier and undefined knowledge",
+      "query": "Does the seller promise the software doesn't infringe anyone's IP?",
+      "files": ["agreement where seller reps non-infringement 'to Seller's knowledge', with 'knowledge' undefined"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers 'yes, there's a non-infringement warranty' dropping the knowledge qualifier"
+      ],
+      "expected_behavior": [
+        "Reports the promise at its qualified strength: only to Seller's knowledge",
+        "Flags that 'knowledge' is undefined (actual vs constructive) as an interpretation gap",
+        "Explains the practical difference (unknown infringement is the buyer's problem) and suggests the negotiation fix"
+      ],
+      "must_not": [
+        "State an unqualified non-infringement promise"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Missing disclosure schedule",
+      "query": "Review the seller's reps and warranties in this asset purchase agreement.",
+      "files": ["APA where several reps are given 'except as set forth on Schedule 3.4' and Schedule 3.4 is not attached"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Analyzes the reps as written, never noticing the exceptions schedule that could gut them is missing"
+      ],
+      "expected_behavior": [
+        "Flags Schedule 3.4 as referenced-but-missing and the reps as unassessable until provided",
+        "Explains that the schedule's contents define the real scope of the promises",
+        "Marks the review provisional"
+      ],
+      "must_not": [
+        "Assess the reps as clean while their exceptions schedule is absent"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "One-way warranty section framed as mutual",
+      "query": "Counterparty says the warranty section is 'completely standard and mutual'. Confirm so we can move on.",
+      "files": ["contract where the customer gives extensive reps (authority, compliance, data ownership, export control) while the vendor gives only authority, and all vendor performance warranties are disclaimed"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms 'standard and mutual' as framed"
+      ],
+      "expected_behavior": [
+        "Inventories per party and shows the asymmetry: customer promises much, vendor almost nothing",
+        "Rejects the 'mutual' framing with citations",
+        "Ranks the asymmetry and suggests the reciprocal asks"
+      ],
+      "must_not": [
+        "Endorse the mutual framing the inventory contradicts"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Liability cap question",
+      "query": "What's the maximum the vendor would owe us if they breach — walk me through the liability cap.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a warranty review for a cap-exposure question"
+      ],
+      "expected_behavior": [
+        "Recognizes a liability-cap/exposure question; routes to liability-indemnification-review"
+      ],
+      "must_not": [
+        "Produce a warranty inventory for a cap question"
+      ]
+    }
+  ]
+}

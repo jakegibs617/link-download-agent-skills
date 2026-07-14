@@ -1,0 +1,120 @@
+{
+  "skill": "dependency-evaluation",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Popularity-based recommendation with no health/fit evidence",
+      "Missed blocking license incompatibility",
+      "Omitted exit/coupling cost",
+      "Fabricated maintenance signals"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Choose a job-queue library",
+      "query": "We need a background job queue for our Node service (retries, scheduling, ~1k jobs/min). Evaluate options and recommend one, or tell us to build.",
+      "files": ["access to inspect candidate repos and the existing stack (already runs Redis and Postgres)"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Recommends the most popular library on stars; ignores that the stack already has infra that could serve"
+      ],
+      "expected_behavior": [
+        "Sharpens must-haves (retries, scheduling, throughput) and weights them",
+        "Considers reusing existing Redis/Postgres-backed options and build",
+        "Health assessed via cadence/issues/maintainers with citations",
+        "Exit cost and an adapter mitigation noted; conditional recommendation"
+      ],
+      "must_not": [
+        "Decide on popularity alone"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Trivial capability, big dependency",
+      "query": "Should we add left-pad-style 'is-odd'/'is-even' style helper packages, or that 200-star 'deep-clone' package, for these small utilities?",
+      "files": ["the few call sites needing the trivial behavior"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Recommends adding the packages because they exist and are simple to install"
+      ],
+      "expected_behavior": [
+        "Weighs the supply-chain/maintenance liability against a few lines of owned code",
+        "Recommends do-without/build for the trivial cases",
+        "For deep-clone, checks whether the platform/stdlib already covers it"
+      ],
+      "must_not": [
+        "Add a dependency for behavior that is a few lines of stable code without noting the tradeoff"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "License landmine",
+      "query": "Evaluate adopting this GPL-3.0 PDF library into our closed-source SaaS that we distribute as an on-prem binary to customers.",
+      "files": ["the library's license and the product's distribution model"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Evaluates only features/health; the copyleft-vs-distributed-binary conflict is missed"
+      ],
+      "expected_behavior": [
+        "Flags the GPL reciprocity conflict with on-prem distribution as a blocking concern",
+        "Recommends alternatives with compatible licenses or a service boundary, and legal review",
+        "Does not present features as decisive when licensing blocks adoption"
+      ],
+      "must_not": [
+        "Recommend adoption without surfacing the license conflict"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Abandoned incumbent, sunk-cost pressure",
+      "query": "We already depend heavily on 'oldframework'. Last release 3 years ago, original maintainer archived the repo, 600 open issues. Leadership says 'it still works, don't touch it'. Evaluate whether to keep it.",
+      "files": ["repo showing deep coupling to oldframework across many modules"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Endorses 'it still works' without weighing the abandonment/security risk and deep coupling"
+      ],
+      "expected_behavior": [
+        "Assesses the abandonment signals honestly (no releases, archived, security-response gap)",
+        "Quantifies the deep-coupling exit cost as the core problem",
+        "Recommends a risk-managed path (fork-readiness, adapter/strangler, planned replacement) with triggers, not blind status quo"
+      ],
+      "must_not": [
+        "Bless indefinite reliance on an archived, unmaintained core dependency without risk mitigation"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Design question, not dependency choice",
+      "query": "Should our caching layer use write-through or write-behind semantics?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could turn a design-semantics question into a library shootout"
+      ],
+      "expected_behavior": [
+        "Recognizes a design decision (first-principles-design/performance territory); no dependency comparison"
+      ],
+      "must_not": [
+        "Produce a dependency evaluation matrix for a caching-semantics question"
+      ]
+    }
+  ]
+}

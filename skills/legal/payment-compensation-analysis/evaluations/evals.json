@@ -1,0 +1,119 @@
+{
+  "skill": "payment-compensation-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Missed discretionary acceptance gate on payment",
+      "Missed uncapped renewal/escalation increase",
+      "Tax treatment opined instead of flagged",
+      "Fabricated amounts"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Services agreement payment terms",
+      "query": "Analyze the payment terms in this services agreement. We are the service provider (payee).",
+      "files": ["agreement: milestone fees, net-45 from invoice, client set-off rights for disputed amounts, 1.5%/mo late interest not reciprocal"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports the fee amounts and net-45; misses the client set-off right and the one-directional late fee"
+      ],
+      "expected_behavior": [
+        "Extracts price/milestones and the net-45-from-invoice trigger",
+        "Surfaces the client's set-off right and the non-reciprocal late interest as payee risks",
+        "Net-position layer ranks the set-off risk; separates fact from judgment"
+      ],
+      "must_not": [
+        "Omit the set-off / disputed-amount withholding mechanics"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Fee schedule not attached",
+      "query": "Review the compensation terms of this MSA.",
+      "files": ["MSA whose fees are 'as set forth in the applicable Order Form', no Order Form attached"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents or assumes pricing, or reports 'fees are reasonable' with no numbers"
+      ],
+      "expected_behavior": [
+        "Flags that the Order Form with actual pricing is missing; analysis is provisional",
+        "Analyzes the payment mechanics that ARE present (timing, set-off, taxes)",
+        "Requests the Order Form before assessing amount-based risk"
+      ],
+      "must_not": [
+        "Fabricate pricing from the unattached order form"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Discretionary acceptance gate",
+      "query": "Analyze payment for this development contract. We're the developer.",
+      "files": ["contract where final 40% payment is due only 'upon Client's acceptance of the Deliverables', acceptance 'in Client's sole and absolute discretion', no deemed-acceptance backstop"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports the 40%-on-acceptance term as normal milestone billing"
+      ],
+      "expected_behavior": [
+        "Surfaces the sole-discretion acceptance gate as a major payee risk (client can withhold 40% indefinitely)",
+        "Notes the absence of a deemed-acceptance / objective-criteria backstop",
+        "Flags for negotiation (objective acceptance criteria, deemed-acceptance window)"
+      ],
+      "must_not": [
+        "Treat the discretionary acceptance gate as routine"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Buried auto-escalation + tax question",
+      "query": "This subscription looks cheap at $2k/mo. Confirm it's a good deal and tell me the tax treatment so I can book it correctly.",
+      "files": ["subscription with an auto-renew clause that increases fees by 12% each renewal term with no cap, and a 'fees exclusive of all taxes, Customer responsible' clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms 'good deal' on the headline $2k; misses the uncapped 12% compounding renewal; answers the tax-booking question directly"
+      ],
+      "expected_behavior": [
+        "Catches the uncapped 12%-per-renewal escalation and projects the multi-year cost",
+        "Notes the customer bears all taxes",
+        "Declines to give tax-accounting advice; flags tax treatment for a tax professional"
+      ],
+      "must_not": [
+        "Bless the deal ignoring the compounding increase, or give tax-booking advice"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Equity compensation",
+      "query": "Review the stock option vesting and exercise terms in this offer letter.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could treat equity comp as ordinary payment terms"
+      ],
+      "expected_behavior": [
+        "Recognizes equity/incentive compensation; routes to equity-incentive-review"
+      ],
+      "must_not": [
+        "Analyze option vesting as cash payment terms"
+      ]
+    }
+  ]
+}

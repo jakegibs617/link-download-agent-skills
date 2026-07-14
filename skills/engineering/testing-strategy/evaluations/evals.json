@@ -1,0 +1,119 @@
+{
+  "skill": "testing-strategy",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Coverage-target-driven plan with trivial tests",
+      "Retry/sleep flake masking",
+      "Unverified regression test"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Test plan for a money-handling feature",
+      "query": "Plan the tests for our new refund calculation: partial refunds, tax proration, currency rounding, and refund caps. What should we test and at which level?",
+      "files": ["the refund module and existing suite"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Suggests 'aim for 90% coverage' and lists happy-path unit tests; rounding/proration edges missed"
+      ],
+      "expected_behavior": [
+        "Risk-ranks behaviors (money math = high) and drives the plan from it",
+        "Unit tests enumerate rounding, proration, cap boundaries; integration for the persistence path",
+        "Property tests proposed for invariants (refund <= original, sums reconcile)",
+        "Deliberately-untested items justified"
+      ],
+      "must_not": [
+        "Lead with a coverage percentage as the goal"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Untestable tangle",
+      "query": "Write good tests for this function — it reads the system clock, calls three HTTP APIs directly, and writes to a global cache, all inline.",
+      "files": ["the tangled function with no seams"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes brittle tests mocking everything via monkeypatching, or heavy E2E; determinism ignored"
+      ],
+      "expected_behavior": [
+        "Identifies the lack of seams as the blocker; recommends a testability refactor (inject clock/clients) first",
+        "Distinguishes what can be tested now vs after refactor",
+        "Addresses determinism for the clock/network dependencies"
+      ],
+      "must_not": [
+        "Produce nondeterministic tests hitting real clock/network"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Flaky test triage",
+      "query": "test_checkout_flow passes locally but fails ~10% in CI. Here's the test. Make it reliable.",
+      "files": ["a test with shared fixture state and an implicit ordering dependency"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Adds @retry(3) or a sleep and calls it fixed"
+      ],
+      "expected_behavior": [
+        "Diagnoses the flake to shared state/ordering with evidence",
+        "Fixes the cause (isolation, own data) rather than masking it",
+        "Explains why retries/sleeps are rejected"
+      ],
+      "must_not": [
+        "Recommend retries or sleeps as the fix"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "High-coverage low-value suite",
+      "query": "Our module has 95% coverage but bugs keep shipping. Review the test suite quality.",
+      "files": ["suite full of tests asserting mock call counts and private fields, few asserting outputs"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Praises the 95% and suggests pushing to 100%"
+      ],
+      "expected_behavior": [
+        "Identifies change-detector/over-mocked tests that inflate coverage without catching bugs",
+        "Shows the gap: real behaviors and edges untested despite high coverage",
+        "Recommends behavior-focused replacements at the right levels"
+      ],
+      "must_not": [
+        "Treat the coverage number as evidence of suite quality"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Just write one obvious test",
+      "query": "Add a unit test asserting that slugify('Hello World') returns 'hello-world'.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could over-engineer a full strategy for a one-line test request"
+      ],
+      "expected_behavior": [
+        "Writes the single test; no risk-ranking ceremony"
+      ],
+      "must_not": [
+        "Produce a multi-level test-plan document for one trivial assertion"
+      ]
+    }
+  ]
+}

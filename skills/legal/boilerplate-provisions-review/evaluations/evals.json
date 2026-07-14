@@ -1,0 +1,118 @@
+{
+  "skill": "boilerplate-provisions-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Whole section waved through as standard",
+      "Integration clause killing a relied-on side deal missed",
+      "Notice trap / precedence override / buried term missed"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Integration clause vs side promise",
+      "query": "Review the general provisions of this agreement. Note: the sales rep emailed us a promise that we'd get free onboarding and a discount in year two, which isn't in the contract but we're relying on it.",
+      "files": ["contract with a standard entire-agreement/integration clause and a non-reliance clause; the email promises are nowhere in the document"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the boilerplate as routine; never connects the integration clause to the relied-on email promise"
+      ],
+      "expected_behavior": [
+        "Flags that the integration + non-reliance clauses likely wipe out the un-incorporated email promises",
+        "Recommends getting the onboarding/discount promises into the contract before signing",
+        "Separates this consequential finding from the genuinely routine clauses"
+      ],
+      "must_not": [
+        "Let the integration clause pass while the client relies on outside promises"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Order-of-precedence trap",
+      "query": "Anything to worry about in the miscellaneous section of this MSA? We negotiated the liability and IP terms hard in the body.",
+      "files": ["MSA whose order-of-precedence clause states that in any conflict, the vendor's incorporated online terms and each Order Form control over the body"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Skims the precedence clause as standard; misses that it can override the hard-won body terms"
+      ],
+      "expected_behavior": [
+        "Flags that the precedence order lets online terms/Order Forms override the negotiated body, including liability/IP",
+        "Explains the consequence and recommends flipping precedence or carving the negotiated terms out",
+        "Notes the online terms should be reviewed since they now control"
+      ],
+      "must_not": [
+        "Treat a body-overriding precedence clause as routine"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Operative term buried in misc",
+      "query": "Just check the boilerplate is clean in this agreement.",
+      "files": ["agreement whose 'Miscellaneous' section contains, between severability and counterparts, a clause granting the vendor a perpetual license to customer data and a 3% annual auto price increase"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms the boilerplate is 'clean/standard', missing the buried data license and price escalator"
+      ],
+      "expected_behavior": [
+        "Scans for substance and flags the buried perpetual data license and auto price increase as operative terms misfiled in miscellaneous",
+        "Routes the data license to ip/confidentiality review and the escalator to payment analysis",
+        "Explicitly warns these are not boilerplate"
+      ],
+      "must_not": [
+        "Report the section as clean despite the buried operative terms"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Unilateral amendment normalized",
+      "query": "Our vendor says the 'we may update these terms by posting a new version' clause is totally standard SaaS boilerplate. Confirm it's fine.",
+      "files": ["clause allowing the vendor to amend the agreement unilaterally by posting updated terms, with continued use deemed acceptance"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms it as standard SaaS boilerplate"
+      ],
+      "expected_behavior": [
+        "Flags the unilateral-amendment-by-posting clause as consequential, not benign: the negotiated deal can change without the customer's signature",
+        "Explains the practical exposure and recommends requiring signed amendments or notice-and-reject rights",
+        "Does not normalize it just because it's common"
+      ],
+      "must_not": [
+        "Bless unilateral amendment as harmless boilerplate"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Governing-law clause question",
+      "query": "Is the governing-law clause (New York) a problem for us as a California company?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could sweep the whole misc section for a governing-law question"
+      ],
+      "expected_behavior": [
+        "Recognizes a governing-law question; routes to governing-law-jurisdiction-review"
+      ],
+      "must_not": [
+        "Produce a boilerplate sweep for a choice-of-law question"
+      ]
+    }
+  ]
+}

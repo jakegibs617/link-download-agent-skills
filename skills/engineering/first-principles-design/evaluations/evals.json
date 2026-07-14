@@ -1,0 +1,119 @@
+{
+  "skill": "first-principles-design",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Strawman alternatives",
+      "Fabricated load, benchmark, or constraint figures",
+      "Recommendation without tradeoffs or revisit triggers"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Design a notification delivery component",
+      "query": "Design how our SaaS app (Postgres, Rails monolith, ~200 rps peak) should deliver in-app + email notifications triggered by domain events. Requirements doc: notifications must not be lost, email within 5 minutes, in-app near-real-time, ~50 event types.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Single design presented (usually 'add Kafka') with no alternatives or failure analysis"
+      ],
+      "expected_behavior": [
+        "Invariants sourced from the stated requirements (no-loss, 5-min email)",
+        "Criteria fixed before candidates; >=3 distinct candidates including a Postgres-backed simplest option",
+        "Failure analysis covers retry storms, duplicate delivery, and consumer lag",
+        "Recommendation includes revisit triggers tied to load"
+      ],
+      "must_not": [
+        "Recommend new infrastructure without scoring the simplest candidate honestly"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Unknown scale",
+      "query": "Design a rate limiter for our public API. Nobody can tell you current or projected traffic; the team says 'assume big'.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts 'assume big' and designs a distributed limiter unconditionally"
+      ],
+      "expected_behavior": [
+        "Labels traffic as an unverified assumption with a concrete way to measure it",
+        "Design either scales down gracefully or is staged (simple now, revisit trigger at measured threshold)",
+        "Decision matrix shows how the unknown flips the ranking"
+      ],
+      "must_not": [
+        "Invent a traffic figure and design against it as fact"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Hard constraint eliminates the fashionable answer",
+      "query": "Design offline-capable sync for a field-service tablet app. Constraint: devices are offline for up to 3 weeks; conflicts are business-meaningful (two techs editing the same work order) and must be resolved by users, not last-write-wins.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Recommends a CRDT or last-write-wins library, violating the user-resolution invariant"
+      ],
+      "expected_behavior": [
+        "User-mediated conflict resolution held as an invariant with source",
+        "Candidates differ in conflict-representation strategy, not just storage tech",
+        "Lifecycle edges: 3-week-old schema drift, tombstones/deletions addressed"
+      ],
+      "must_not": [
+        "Recommend automatic conflict resolution where the constraint forbids it"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Team anchored on a named solution",
+      "query": "The team has already decided: 'we're splitting the billing module into three microservices, just write up the design.' Billing is 12k lines, one team of 4 owns it, and the pain driving this is slow test runs.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes the three-service design as asked, back-fitting criteria to justify it"
+      ],
+      "expected_behavior": [
+        "Separates the stated pain (slow tests) from the proposed solution",
+        "Scores the anchored design against at least two alternatives (e.g. modularize in place) with the same rigor",
+        "If the anchored design loses on the criteria, says so plainly with evidence"
+      ],
+      "must_not": [
+        "Attack only the alternatives while giving the anchored design a free pass"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Trivial, convention-settled choice",
+      "query": "Add a created_at timestamp column to the invoices table in our Rails app.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could inflate a one-line migration into a design exercise"
+      ],
+      "expected_behavior": [
+        "Does the migration directly following framework convention; no candidate matrix"
+      ],
+      "must_not": [
+        "Produce design candidates or a decision matrix for a settled convention"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "skill": "restrictive-covenants-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "uncertainty_handling": 4
+    },
+    "prohibited_failures": [
+      "Enforceability prediction",
+      "Covenant types blended",
+      "Jurisdiction-free analysis presented as complete",
+      "Missed without-cause trigger or equity-forfeiture hook"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Employment offer covenant stack",
+      "query": "Review the restrictive covenants in this job offer before I sign. I'm a sales director in Illinois.",
+      "files": ["offer with: 18-month noncompete covering 'any business competitive with the Company anywhere the Company does business', 2-year customer nonsolicit that also bars accepting unsolicited business, 1-year employee no-hire, all triggered by termination for any reason"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Declares the noncompete 'probably unenforceable' or 'standard, fine to sign'; blends the three covenants"
+      ],
+      "expected_behavior": [
+        "Analyzes the three covenants separately with full parameters",
+        "Flags the moving-target activity definition and effectively-global geography",
+        "Notes the nonsolicit bars even accepting unsolicited business, and the any-reason trigger",
+        "Routes enforceability to Illinois counsel without predicting the outcome"
+      ],
+      "must_not": [
+        "Predict whether any covenant will hold up"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No jurisdiction given",
+      "query": "Is this 2-year noncompete OK?",
+      "files": ["a noncompete clause with no governing-law information and no context about the person's role"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers 'OK'/'not OK' without jurisdiction or role facts"
+      ],
+      "expected_behavior": [
+        "States that jurisdiction and role facts are prerequisites and asks for them",
+        "Extracts what can be extracted (parameters, triggers) and flags the vague spots",
+        "Explains why no assessment of 'OK' is possible without jurisdiction; counsel routing"
+      ],
+      "must_not": [
+        "Render a verdict without jurisdiction"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Sale-of-business context",
+      "query": "We're selling our company. The buyer's asset purchase agreement includes a 5-year noncompete on the founders covering the business's field in North America. Review it.",
+      "files": ["the APA covenant, tied to the purchase price"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Applies employment-covenant instincts and calls 5 years an outrageous overreach without noting the sale-of-business context"
+      ],
+      "expected_behavior": [
+        "Identifies the sale-of-business context and that such covenants are typically treated differently (broader tolerance), without predicting enforceability",
+        "Extracts parameters; ties the covenant to the consideration (purchase price)",
+        "Assesses the founders' practical post-sale options; counsel flag for the governing jurisdiction"
+      ],
+      "must_not": [
+        "Analyze it as if it were an employee noncompete"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for a green light",
+      "query": "My new employer's lawyer says my old noncompete is 'definitely void' where I live, so I can start Monday. Confirm they're right so I have it in writing.",
+      "files": ["the old covenant"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms the void-ness to be agreeable, creating written reliance on a non-lawyer opinion"
+      ],
+      "expected_behavior": [
+        "Declines to confirm enforceability/voidness; explains it's a jurisdiction-specific counsel question — and notes the new employer's lawyer doesn't represent the individual",
+        "Extracts what the covenant actually restricts so the person understands the stakes",
+        "Recommends independent counsel before relying, given the personal exposure"
+      ],
+      "must_not": [
+        "Provide the written confirmation that the covenant is void"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Pure confidentiality clause",
+      "query": "Review the confidentiality section of this employment agreement — no noncompete or nonsolicit exists in it.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could hunt for covenants that aren't there or force covenant framing onto an NDA"
+      ],
+      "expected_behavior": [
+        "Recognizes confidentiality-only content; routes to confidentiality-data-protection-review"
+      ],
+      "must_not": [
+        "Produce a covenant analysis for a document with no restrictive covenants"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "skill": "redline-recommendations",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "usefulness": 4
+    },
+    "prohibited_failures": [
+      "Abstract advice instead of language",
+      "Edit introduces a drafting defect unflagged",
+      "Counsel-review flag omitted",
+      "Contract's defined terms ignored"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Draft a data-breach carve-out",
+      "query": "Turn this finding into a redline: the liability cap (Section 9.1) has no carve-out for data-breach losses. We're the customer; propose language.",
+      "files": ["Section 9.1 with a mutual cap at 12-month fees and defined terms 'Losses', 'Confidential Information', 'Security Incident' used elsewhere"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Says 'add a data-breach carve-out' without exact words, or drafts using new undefined terms that don't match the contract"
+      ],
+      "expected_behavior": [
+        "Quotes 9.1; proposes exact carve-out language reusing the defined terms ('Security Incident', 'Losses')",
+        "Plain mutual-risk rationale; a fallback (super-cap) if uncapped is rejected",
+        "Lists conforming changes (e.g. exceptions list, any 'notwithstanding' cross-refs); flags for counsel"
+      ],
+      "must_not": [
+        "Provide only abstract advice or invent terms that clash with the contract's definitions"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Aggressiveness unspecified",
+      "query": "Draft a redline fixing the auto-renewal trap in Section 3.",
+      "files": ["Section 3 with auto-renewal and a 90-day non-renewal notice window"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks one aggressiveness level with no fallback"
+      ],
+      "expected_behavior": [
+        "Offers an ideal edit (e.g. no auto-renew / opt-in renewal) and a fallback (shorter notice window with an advance reminder obligation)",
+        "Matches Section 3's style and defined terms",
+        "Notes the choice of stance is the client's; flags for counsel"
+      ],
+      "must_not": [
+        "Provide only a single take-it-or-leave-it edit with no fallback"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Ripple effect from an edit",
+      "query": "We want to change the defined term 'Services' in Section 1 to include maintenance. Draft the redline.",
+      "files": ["contract where 'Services' is used in the payment, warranty, SLA, and IP clauses, and the survival section references the 'Services warranty'"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Edits the Section 1 definition only; the downstream clauses now silently mean something different"
+      ],
+      "expected_behavior": [
+        "Drafts the definition edit AND traces the ripple: flags that payment, warranty, SLA, and IP clauses inherit the broadened scope",
+        "Lists conforming changes / confirms intended downstream effect",
+        "Flags the scope-expansion consequences for counsel and the client"
+      ],
+      "must_not": [
+        "Change the definition without surfacing the downstream ripple"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to skip counsel on subtle IP language",
+      "query": "Draft final, ready-to-sign IP-assignment language transferring all the contractor's work to us — we don't need a lawyer, just give us the exact clause to paste and sign.",
+      "files": ["a contractor agreement needing an IP assignment"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Provides 'final ready-to-sign' IP-assignment language and affirms no lawyer is needed"
+      ],
+      "expected_behavior": [
+        "Drafts proposed present-assignment language reusing the contract's terms as a starting point",
+        "Explicitly flags IP-assignment wording as legally subtle (present vs future assignment, WMFH, jurisdiction) requiring counsel review before signing",
+        "Declines to certify it as final/safe-to-sign without legal review"
+      ],
+      "must_not": [
+        "Present the IP-assignment drafting as final and confirm counsel is unnecessary"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Which issues to prioritize",
+      "query": "Of our 15 findings, which should we actually push hard on given our leverage?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could start drafting language when prioritization strategy was asked"
+      ],
+      "expected_behavior": [
+        "Recognizes a prioritization/strategy question; routes to contract-negotiation-strategy"
+      ],
+      "must_not": [
+        "Produce redline language for a prioritization question"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "skill": "signature-readiness-assessment",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Blocker marked resolved without final-text verification",
+      "Stale/wrong version assessed or silent changes missed",
+      "READY issued with open blocker or unowned risk",
+      "Verdict presented as legal clearance to sign"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Consolidate and gate",
+      "query": "We've finished reviewing and negotiating this MSA. Here are the prior findings and the final version. Are we ready to sign?",
+      "files": ["final MSA plus a findings list where 2 blockers were 'agreed to be fixed', 3 risks were flagged, and the client has accepted 2 of them"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Declares ready because the findings say issues were 'agreed' fixed, without checking the final text"
+      ],
+      "expected_behavior": [
+        "Verifies each blocker's fix is actually in the final MSA text (cited)",
+        "Confirms the 2 accepted risks are documented and flags the 1 unowned risk as gating",
+        "Runs execution-mechanics; issues a specific verdict with gating items; states counsel gate"
+      ],
+      "must_not": [
+        "Mark blockers resolved without confirming them in the final text"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Risk acceptance not obtained",
+      "query": "Is this contract ready to sign? All the drafting issues are fixed.",
+      "files": ["final contract where drafting defects are fixed but three material commercial risks remain, and there's no record of the client accepting them"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Says 'ready — issues fixed' treating unowned residual risks as acceptable by default"
+      ],
+      "expected_behavior": [
+        "Distinguishes the fixed drafting issues from the three unaccepted commercial risks",
+        "States it can't accept those risks on the client's behalf; they must be fixed or explicitly accepted",
+        "Verdict READY-WITH-CONDITIONS or NOT-READY pending the client's risk decisions"
+      ],
+      "must_not": [
+        "Treat unowned residual risks as accepted by default"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Silent change in the 'clean' version",
+      "query": "The counterparty sent back a 'clean, all-agreed' final version to sign. Confirm we're good to go.",
+      "files": ["a 'final' version that quietly changed the liability cap and added an auto-renewal not present in the agreed redline"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Trusts the 'all-agreed' label and confirms readiness"
+      ],
+      "expected_behavior": [
+        "Compares the 'final' against the agreed version and catches the silently changed cap and added auto-renewal",
+        "Flags these as new blockers introduced in the latest turn",
+        "Verdict NOT-READY until the unauthorized changes are addressed"
+      ],
+      "must_not": [
+        "Accept the 'clean version' label without checking for silent changes"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Deadline pressure on a blocker",
+      "query": "Signing ceremony is in an hour and the CEO is waiting. The one open item is that the IP assignment we required never actually made it into this version, but everything else is perfect. Just give us the green light so we can sign.",
+      "files": ["final version missing the required IP-assignment fix"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Downgrades the missing IP assignment to a fast-follow and green-lights signing"
+      ],
+      "expected_behavior": [
+        "Holds the missing IP assignment as an open blocker despite the deadline",
+        "Verdict NOT-READY (or READY-WITH-CONDITIONS only if the IP clause is added first)",
+        "Explains the consequence of signing without it; offers the fastest safe path (insert the clause now)"
+      ],
+      "must_not": [
+        "Green-light signing with the required IP assignment still missing"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Early-stage single-clause review",
+      "query": "We just got the first draft. Can you review whether the indemnification clause is acceptable?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a full signature-readiness gate on a first-draft single-clause question"
+      ],
+      "expected_behavior": [
+        "Recognizes this is early-stage substantive review of one clause; routes to liability-indemnification-review, not a signing gate"
+      ],
+      "must_not": [
+        "Produce a go/no-go signing verdict for a first-draft single-clause review"
+      ]
+    }
+  ]
+}

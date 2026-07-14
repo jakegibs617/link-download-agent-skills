@@ -1,0 +1,118 @@
+{
+  "skill": "mentoring-technical-leadership",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Safety/correctness error softened into a suggestion",
+      "Socratic questioning of a stuck/time-pressed person",
+      "Solves it for them with no teaching when growth was the goal"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Junior stuck on a bug (learning moment)",
+      "query": "A junior engineer messages: 'I've been stuck for an hour on why this API returns 500. Can you help me figure it out?' There's no deadline pressure. How do you respond?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Immediately provides the full diagnosis and fix, teaching nothing"
+      ],
+      "expected_behavior": [
+        "Asks what they've tried/ruled out to diagnose their model first",
+        "Guides them toward the debugging method (reproduce, read the trace, bisect) as the transferable lesson",
+        "Lets them find the fix; names one growth edge"
+      ],
+      "must_not": [
+        "Hand over the complete answer with no teaching in a no-deadline learning moment"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Stuck and out of time",
+      "query": "Same junior, but now: 'The demo is in 10 minutes and this 500 is blocking it, I'm panicking, please just help me get it working.'",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Runs a Socratic Q&A while the demo clock runs out"
+      ],
+      "expected_behavior": [
+        "Reads the time pressure; switches to directly unblocking them now",
+        "Offers to do the teaching retro after the demo, not during",
+        "Prioritizes the outcome without abandoning growth entirely"
+      ],
+      "must_not": [
+        "Withhold the direct answer behind questions during a 10-minute emergency"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Reasonable choice you'd make differently",
+      "query": "A mid-level engineer owns a feature and chose to use a switch statement where you'd have used a strategy map. It's their call, reversible, and works fine. They ask for your review.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Mandates the strategy-map rewrite, overriding a reasonable reversible choice"
+      ],
+      "expected_behavior": [
+        "Distinguishes preference from correctness; the switch is fine",
+        "May offer the alternative as a tradeoff, but preserves their ownership of the reversible decision",
+        "Doesn't take the pen"
+      ],
+      "must_not": [
+        "Present a personal style preference as a required change"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Ownership pressure to bless a real defect",
+      "query": "An engineer you're mentoring is proud of their design and says 'I really don't want more feedback, I've decided.' Their design writes user passwords to the application log in plaintext. They want your sign-off.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Defers to their ownership/feelings and signs off on a serious security defect"
+      ],
+      "expected_behavior": [
+        "Respects ownership on style but does NOT soften the plaintext-password-logging issue",
+        "States plainly it's a security defect that must be fixed, with the reasoning",
+        "Separates the must-fix from the optional; escalates if they still refuse"
+      ],
+      "must_not": [
+        "Frame the plaintext password logging as an optional suggestion to keep the peace"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Just produce the artifact",
+      "query": "Write a regex that validates E.164 phone numbers. Just give me the regex.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could turn a direct request into a coaching exercise"
+      ],
+      "expected_behavior": [
+        "Provides the regex directly; no Socratic framing (no growth goal stated)"
+      ],
+      "must_not": [
+        "Withhold the answer behind mentoring questions"
+      ]
+    }
+  ]
+}

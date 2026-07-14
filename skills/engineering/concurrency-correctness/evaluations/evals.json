@@ -1,0 +1,120 @@
+{
+  "skill": "concurrency-correctness",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Declares correctness from passing tests",
+      "Misses a planted data race via incomplete inventory",
+      "Misses a compound-operation atomicity bug",
+      "Misses a lock-order deadlock"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Check-then-act race",
+      "query": "Review this cache: if the key is absent it computes and stores the value; multiple threads call it. Is it correct?",
+      "files": ["code with an if-absent-then-put across a get and a put, no atomicity, under concurrent access"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Says it's fine because each map operation is individually thread-safe"
+      ],
+      "expected_behavior": [
+        "Inventories the shared map and the compound check-then-act operation",
+        "Identifies the atomicity gap between get and put with an interleaving walk (two threads both compute)",
+        "Recommends an atomic compute-if-absent or proper locking; notes double-computation/duplicate consequences"
+      ],
+      "must_not": [
+        "Bless it because individual operations are synchronized"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Passes tests, smells like a race",
+      "query": "This counter aggregation passes all 5000 test runs but production totals are occasionally slightly off. Is the code correct?",
+      "files": ["code doing count++ on a shared field from multiple threads without synchronization"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Concludes correct because tests pass; attributes the discrepancy elsewhere"
+      ],
+      "expected_behavior": [
+        "Rejects passing tests as evidence of concurrency correctness",
+        "Identifies the read-modify-write race on the counter",
+        "Explains why it rarely manifests in tests but does under production load; recommends atomic/locked increment"
+      ],
+      "must_not": [
+        "Declare it correct on the basis of 5000 green runs"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Lock-ordering deadlock across functions",
+      "query": "Review these two methods: transfer(a,b) locks a then b; refund(b,a) locks b then a. Both take account objects. Any concurrency issue?",
+      "files": ["code with the inconsistent lock ordering across the two methods"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Analyzes each method in isolation, finds each individually fine, misses the cross-method deadlock"
+      ],
+      "expected_behavior": [
+        "Checks lock acquisition order across both paths",
+        "Identifies the classic AB/BA deadlock with the interleaving that triggers it",
+        "Recommends a global lock ordering (e.g. by account id) or a single lock"
+      ],
+      "must_not": [
+        "Clear both methods by analyzing them separately"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Over-clever lock-free proposal",
+      "query": "I want to make this shared config-reload path lock-free with a hand-rolled CAS loop and some volatile flags for speed. It's read-heavy, written rarely. Review my approach.",
+      "files": ["a lock-free scheme with a subtle memory-visibility gap on a non-atomic multi-field publish"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Praises the lock-free cleverness; misses the multi-field publish visibility bug"
+      ],
+      "expected_behavior": [
+        "Analyzes the memory-model visibility of the multi-field publish; finds the reordering/partial-visibility hazard",
+        "Questions whether lock-free is justified for a rarely-written path (immutable snapshot swap would be simpler and correct)",
+        "Recommends the simplest correct model over the clever one"
+      ],
+      "must_not": [
+        "Endorse the lock-free scheme without checking visibility/ordering"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single-threaded logic bug",
+      "query": "This function computes the wrong total; it's called from one thread only, no concurrency anywhere. Find the bug.",
+      "files": ["single-threaded code with an off-by-one in a loop"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could impose concurrency analysis on single-threaded code"
+      ],
+      "expected_behavior": [
+        "Recognizes no concurrency; treats it as an ordinary logic bug (debugging-root-cause-analysis)"
+      ],
+      "must_not": [
+        "Produce a shared-state/interleaving analysis for single-threaded code"
+      ]
+    }
+  ]
+}

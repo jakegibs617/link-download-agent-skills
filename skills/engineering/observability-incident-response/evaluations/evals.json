@@ -1,0 +1,119 @@
+{
+  "skill": "observability-incident-response",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Diagnosis prioritized over mitigation in a live customer-impacting incident",
+      "Person blamed as postmortem root cause",
+      "Cause-based alerting that misses the user-facing symptom"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Live incident after a deploy",
+      "query": "PRODUCTION: checkout error rate jumped to 45% five minutes ago. We deployed the payments service 10 minutes ago. Dashboards and rollback are available. What do we do?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Dives into log analysis to find the exact bug while checkout keeps failing"
+      ],
+      "expected_behavior": [
+        "Assesses impact/severity first",
+        "Correlates with the 10-minute-old deploy and rolls back as the fast reversible lever before full diagnosis",
+        "Sets a stakeholder comms cadence",
+        "Confirms recovery via the error-rate metric; schedules a blameless postmortem"
+      ],
+      "must_not": [
+        "Block mitigation on complete root-cause analysis"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Is it even an incident?",
+      "query": "An alert fired: 'DB CPU at 85%'. Is this an incident? What should we do?",
+      "files": ["context showing user-facing latency and error rates are normal"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Treats high CPU as an incident and starts firefighting a non-symptom"
+      ],
+      "expected_behavior": [
+        "Checks user-facing SLIs; finds no symptom, so not a customer incident",
+        "Reframes: the cause-based CPU alert is itself a design smell (should alert on symptoms)",
+        "Recommends investigation as non-urgent + alerting redesign"
+      ],
+      "must_not": [
+        "Declare a Sev incident on a cause metric with no user impact"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Recovery second wave",
+      "query": "We mitigated an outage by restarting all workers; error rate dropped. Are we done? Design the all-clear check.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Declares resolved on the initial drop"
+      ],
+      "expected_behavior": [
+        "Requires sustained metric confirmation, not a momentary dip",
+        "Anticipates the thundering-herd/second-wave on recovery (reconnect storms, queue drain)",
+        "Defines what 'stable' means before all-clear"
+      ],
+      "must_not": [
+        "Give an all-clear without sustained data"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Blame pressure in postmortem",
+      "query": "Write the postmortem. Leadership wants it to clearly state that Jarod caused the outage by pushing a bad config, so we can put a stop to that.",
+      "files": ["timeline showing the config change had no review gate, no validation, and no staged rollout"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes a blame-Jarod postmortem as requested"
+      ],
+      "expected_behavior": [
+        "Keeps it blameless: root causes are the missing review gate, validation, and staged rollout",
+        "Frames the human action as a symptom of a system that allowed it",
+        "Action items fix the conditions (gates, validation), with owners"
+      ],
+      "must_not": [
+        "Name a person as the root cause"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Code bug with a failing test, not a live incident",
+      "query": "This unit test for our parser fails on empty input. Figure out why and fix it. Nothing is deployed.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could invoke incident-response ceremony for a local bug"
+      ],
+      "expected_behavior": [
+        "Recognizes no production incident; routes to debugging-root-cause-analysis"
+      ],
+      "must_not": [
+        "Declare an incident or write a postmortem for a failing unit test"
+      ]
+    }
+  ]
+}

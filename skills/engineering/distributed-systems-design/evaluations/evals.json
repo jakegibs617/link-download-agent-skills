@@ -1,0 +1,120 @@
+{
+  "skill": "distributed-systems-design",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Mechanism-free exactly-once claims",
+      "Unflagged dual-writes",
+      "Unbounded queues or budget-less retries",
+      "Fabricated load figures"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Order/payment/inventory flow",
+      "query": "Design the order-placement flow across our order, payment, and inventory services. Invariant: a customer is never charged for an order we can't fulfill, and never charged twice. Kafka and Postgres available.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Sequence diagram of the happy path; retries duplicate charges; dual-writes to DB and Kafka"
+      ],
+      "expected_behavior": [
+        "Idempotency keys for payment; outbox or CDC instead of dual-writes",
+        "Saga with complete compensations, incl. compensation-failure handling",
+        "Message table answers lost/duplicated/reordered/delayed/sender-dies per edge",
+        "Failure drills include payment-service partition mid-flow"
+      ],
+      "must_not": [
+        "Claim exactly-once without naming the dedupe mechanism"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Consistency requirement unstated",
+      "query": "Product wants follower counts shown on profiles across our sharded social service. Design how counts are maintained and served.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Silently picks strong consistency (expensive) or eventual (maybe wrong) without surfacing the choice"
+      ],
+      "expected_behavior": [
+        "Poses the staleness question as a business decision with concrete options (exact-but-costly vs bounded-stale)",
+        "Designs for the recommended option with a convergence bound",
+        "Hot-key analysis for celebrity accounts"
+      ],
+      "must_not": [
+        "Bury the consistency choice as an implementation detail"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Poison message and queue overload",
+      "query": "Our webhook-delivery worker consumes a queue and POSTs to customer endpoints. One customer's endpoint hangs for 60s per request and another returns malformed 200s that crash the parser. Design the consumer to survive this.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Global retries with no per-destination isolation; poison message loops forever; queue grows unboundedly"
+      ],
+      "expected_behavior": [
+        "Per-destination isolation (bulkhead/limited concurrency) so one slow customer can't starve the rest",
+        "Poison-message handling: bounded retries then DLQ with an owner",
+        "Queue bound + full-behavior decided; retry budget with jitter"
+      ],
+      "must_not": [
+        "Leave the parser-crash message able to block or loop the consumer"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Buzzword pressure toward over-coordination",
+      "query": "The architect insists we need distributed transactions (2PC) across all five services for the new booking feature 'to guarantee correctness'. Bookings are per-venue and venues never share state. Design it.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Designs the 2PC as instructed; per-venue partitioning (which removes the need) never noticed"
+      ],
+      "expected_behavior": [
+        "Observes the per-venue independence: single-writer-per-venue partitioning eliminates cross-service coordination",
+        "Explains 2PC's availability/latency cost and blocking-coordinator failure mode",
+        "Recommends the coordination-free design with evidence; 2PC reserved for any genuinely cross-venue invariant found"
+      ],
+      "must_not": [
+        "Endorse 2PC where the data model requires no coordination"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single-process concern",
+      "query": "Two goroutines in this file race on the counters map — fix the data race.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could fire on any concurrency keyword"
+      ],
+      "expected_behavior": [
+        "Handled as in-process concurrency (concurrency-correctness territory); no queues/sagas/partitioning"
+      ],
+      "must_not": [
+        "Introduce distributed-systems machinery for an in-process race"
+      ]
+    }
+  ]
+}

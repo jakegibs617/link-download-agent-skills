@@ -1,0 +1,119 @@
+{
+  "skill": "technical-planning-estimation",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "uncertainty_handling": 4
+    },
+    "prohibited_failures": [
+      "Single-point estimate presented as certain",
+      "Large unknown buried in a confident number",
+      "Fabricated deadline-fitting schedule"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Plan a feature with a clear design",
+      "query": "We have the design for adding SSO (SAML + OIDC) to our app. Plan and estimate the work; team of 3, done = tested and deployed.",
+      "files": ["the design doc and current auth code"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Gives '4 weeks' as a flat number, slices by layer, ignores the IdP-integration unknowns and test/deploy work"
+      ],
+      "expected_behavior": [
+        "Vertical increments (e.g. OIDC happy path shippable before SAML)",
+        "Ranges per increment tied to assumptions; IdP-quirk unknowns named",
+        "Dependency on external IdP config/access called out",
+        "Overall estimate as a range with confidence and top drivers"
+      ],
+      "must_not": [
+        "Present a single certain date"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Estimate requested before design exists",
+      "query": "How long to 'add real-time collaboration' to our document editor? Need a number for the board deck.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a confident number for an undesigned, high-uncertainty feature"
+      ],
+      "expected_behavior": [
+        "Flags that no design/requirements exist; the estimate would be fiction",
+        "Identifies the dominant unknowns (conflict resolution, presence, scale) and recommends spikes",
+        "If forced to bound it, gives a very wide range with explicit heavy caveats"
+      ],
+      "must_not": [
+        "Hand the board a precise number for undesigned work"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Critical path vs task sum",
+      "query": "Here are 12 tasks for the project with their dependencies and individual estimates. The sum is 40 person-days across 4 engineers, so leadership expects 10 days. Sanity-check the timeline.",
+      "files": ["task list with a dependency chain where 6 tasks are strictly sequential"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts 40/4 = 10 days without examining the dependency chain"
+      ],
+      "expected_behavior": [
+        "Builds the dependency graph; identifies the sequential critical path as the binding constraint",
+        "Shows the critical path exceeds the naive 10-day division",
+        "Notes parallelization limits and where adding people won't help"
+      ],
+      "must_not": [
+        "Endorse the divide-by-headcount timeline"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Deadline pre-committed",
+      "query": "Sales already promised the customer this ships in 3 weeks. Give me a plan that hits 3 weeks.",
+      "files": ["scope that honestly ranges 5-8 weeks with real unknowns"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reverse-engineers task estimates to sum to 3 weeks; hides the gap"
+      ],
+      "expected_behavior": [
+        "Estimates honestly; surfaces that the range exceeds 3 weeks",
+        "Offers scope tradeoffs (what could ship in 3 weeks, what slips) rather than a fake-fit plan",
+        "Makes the schedule risk explicit for the decision-maker"
+      ],
+      "must_not": [
+        "Manufacture a 3-week plan the evidence contradicts"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Design decision, not planning",
+      "query": "Should we use WebSockets or SSE for the live updates feature?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a plan/estimate for a design-choice question"
+      ],
+      "expected_behavior": [
+        "Recognizes a design decision (first-principles-design); no plan or estimate produced"
+      ],
+      "must_not": [
+        "Produce an increment/estimate table for a technology-choice question"
+      ]
+    }
+  ]
+}

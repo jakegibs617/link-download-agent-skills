@@ -1,0 +1,120 @@
+{
+  "skill": "dispute-resolution-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Missed shortened limitations period or class/jury waiver",
+      "Missed one-way mechanism",
+      "Enforceability ruling",
+      "Label-only arbitration review"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Asymmetric architecture",
+      "query": "Review the dispute-resolution provisions of this vendor agreement. We're a 20-person startup; the vendor is a large enterprise.",
+      "files": ["clause: all customer claims must go to 3-arbitrator ICC arbitration seated abroad with each side bearing own costs, while the vendor may litigate payment claims in its home courts; claims must be brought within 12 months; class and jury waivers"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes 'disputes go to ICC arbitration' and misses the one-way litigation door, the 12-month claims deadline, and the cost asymmetry for a small client"
+      ],
+      "expected_behavior": [
+        "Extracts the full architecture and the vendor's one-way litigation right",
+        "Surfaces the 12-month shortened limitations period and the waivers, counsel-flagged",
+        "Models the 3-arbitrator foreign-seat cost from the startup's seat",
+        "Walks a realistic dispute showing the leverage tilt"
+      ],
+      "must_not": [
+        "Miss the one-way mechanism or the shortened claims period"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Undeadlined ladder",
+      "query": "This contract requires 'good-faith executive negotiation, then mediation, before any arbitration'. Sounds reasonable — confirm it's fine.",
+      "files": ["escalation ladder with no deadlines on any step and each step a condition precedent"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms the ladder as a reasonable ADR provision"
+      ],
+      "expected_behavior": [
+        "Identifies that no step has a deadline while each is a condition precedent -> a counterparty can stall claims indefinitely",
+        "Explains the practical consequence for time-sensitive claims (esp. with any limitations period running)",
+        "Recommends deadlines per step and an injunctive-relief carve-out as fixes"
+      ],
+      "must_not": [
+        "Bless the undeadlined condition-precedent ladder as harmless"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Missing injunctive carve-out where it matters",
+      "query": "We're licensing our core source code under this agreement. Review dispute resolution with that in mind.",
+      "files": ["agreement routing ALL disputes to arbitration with no equitable/injunctive-relief carve-out, in a deal where source-code leakage is the realistic catastrophic dispute"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the arbitration clause generically; the absence of an emergency-relief path for code leakage goes unnoticed"
+      ],
+      "expected_behavior": [
+        "Connects the deal's realistic worst dispute (code leakage needing immediate injunction) to the missing carve-out",
+        "Explains the consequence: emergency relief may be slow/unavailable through the arbitral path (counsel flag on specifics)",
+        "Recommends the mutual injunctive-relief carve-out as a priority ask"
+      ],
+      "must_not": [
+        "Overlook the missing equitable-relief path in an IP-critical deal"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Enforceability ruling pressure",
+      "query": "Our counterparty insists class-action waivers like this one are 'ironclad everywhere in the US'. Tell me definitively if this waiver is enforceable so we can decide today.",
+      "files": ["a consumer-facing terms-of-service class waiver"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Issues the definitive enforceability ruling"
+      ],
+      "expected_behavior": [
+        "Explains what the waiver purports to do and that enforceability is context- and jurisdiction-specific (esp. consumer contexts)",
+        "Declines the definitive ruling; routes to counsel",
+        "Notes the practical stakes either way so the decision isn't blocked on false certainty"
+      ],
+      "must_not": [
+        "Declare the waiver enforceable or unenforceable"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Governing-law question",
+      "query": "Which country's law governs this contract, and is that choice good for us?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run the dispute-mechanism analysis for a governing-law question"
+      ],
+      "expected_behavior": [
+        "Recognizes a governing-law/forum question; routes to governing-law-jurisdiction-review"
+      ],
+      "must_not": [
+        "Produce an arbitration-architecture review for a choice-of-law question"
+      ]
+    }
+  ]
+}

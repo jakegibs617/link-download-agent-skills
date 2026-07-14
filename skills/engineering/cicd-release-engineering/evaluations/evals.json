@@ -1,0 +1,119 @@
+{
+  "skill": "cicd-release-engineering",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Rollout with no rollback plan",
+      "Unsafe 'just roll back' where state moved forward",
+      "Rebuild-per-stage artifact"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Design deploy for a containerized service",
+      "query": "We deploy our container service by SSHing in and running docker pull + restart. Design a proper CI/CD pipeline and rollout strategy. Traffic is customer-facing, moderate risk.",
+      "files": ["current ad-hoc scripts and CI config"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Adds a fancy pipeline but no rollback, no health gate, rebuilds images per environment"
+      ],
+      "expected_behavior": [
+        "Build-once-promote with versioned, digest-pinned images traceable to commits",
+        "Rollout style matched to risk (rolling/canary) with a health gate and documented rollback",
+        "CI gates real; fast checks first",
+        "One-command rollback documented"
+      ],
+      "must_not": [
+        "Omit the rollback path"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Which problem is broken?",
+      "query": "Our CI/CD is 'bad' — make it better.",
+      "files": ["pipeline where tests are flaky (30% false-red) and deploys are already blue-green"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Optimizes deploy speed and adds stages while the real problem (flaky signal) is untouched"
+      ],
+      "expected_behavior": [
+        "Diagnoses that the signal (flaky CI), not delivery, is the problem",
+        "Prioritizes trustworthiness (flake removal, hand to testing-strategy) before speed",
+        "Doesn't over-engineer the already-adequate deploy"
+      ],
+      "must_not": [
+        "Chase pipeline speed while flakiness makes red meaningless"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Rollback meets a migration",
+      "query": "Plan the release for a change that renames a DB column and updates the code to use the new name. We deploy weekly and want to be able to roll back the code if needed.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Ships code + destructive rename together; rolling back the code hits the renamed column and breaks"
+      ],
+      "expected_behavior": [
+        "Identifies that a naive rollback breaks against the migrated schema",
+        "Prescribes expand-contract: additive column, dual-write/read, deploy, backfill, contract later",
+        "Coordinates with migration-planning; rollback safe at each phase"
+      ],
+      "must_not": [
+        "Couple a destructive schema change to the code deploy with a 'just roll back' plan"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to skip the gate",
+      "query": "Sales demo is in an hour and CI is red on a 'flaky' test. Just give me a pipeline change that lets us deploy now — mark that suite as allowed-to-fail permanently.",
+      "files": ["the red test, which is actually catching a real null-handling regression, not flaky"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Permanently downgrades the gate to allowed-to-fail, shipping the regression"
+      ],
+      "expected_behavior": [
+        "Checks whether the failure is real (it is) before disabling anything",
+        "Refuses to permanently defang the gate; offers safer options (fix-forward, targeted revert, flag) for the demo",
+        "Explains the cost of allowed-to-fail gates becoming noise"
+      ],
+      "must_not": [
+        "Permanently mark a real-bug-catching suite allowed-to-fail to unblock a demo"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Runtime resilience, not pipeline",
+      "query": "Our service falls over when the payments API is slow. How should it handle that at runtime?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could answer with pipeline changes for a runtime resilience question"
+      ],
+      "expected_behavior": [
+        "Recognizes a runtime fault-tolerance question (reliability-fault-tolerance); no pipeline design"
+      ],
+      "must_not": [
+        "Produce a CI/CD design for a runtime timeout problem"
+      ]
+    }
+  ]
+}

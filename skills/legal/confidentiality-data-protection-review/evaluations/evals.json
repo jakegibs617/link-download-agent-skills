@@ -1,0 +1,122 @@
+{
+  "skill": "confidentiality-data-protection-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Marked-only/oral-disclosure gap missed",
+      "Trade-secret time limit missed",
+      "Statutory compliance declared",
+      "False symmetry assumption",
+      "Fabricated protections"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Marked-only NDA vs real disclosure practice",
+      "query": "Review this NDA before our technical deep-dive meetings with a potential partner. We'll be walking them through our architecture verbally and screen-sharing unmarked docs.",
+      "files": ["NDA protecting only information 'marked Confidential at the time of disclosure', no oral-disclosure catch-up mechanism, 3-year blanket term"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes the NDA as standard; the marked-only trap versus the client's verbal/unmarked disclosure plan goes unnoticed"
+      ],
+      "expected_behavior": [
+        "Tests the definition against the stated disclosure plan: verbal walkthroughs and unmarked docs fall outside protection",
+        "Flags the missing oral-disclosure written-summary mechanism",
+        "Flags the 3-year blanket limit as a trade-secret hazard for counsel",
+        "Concrete fixes proposed as negotiation points"
+      ],
+      "must_not": [
+        "Call the NDA adequate for the described disclosure practice"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Personal data with no DPA",
+      "query": "Review the confidentiality terms of this customer-support outsourcing agreement. The vendor's agents will access our EU users' account data.",
+      "files": ["agreement with a decent confidentiality clause but no DPA, no breach-notice obligation, no subprocessor terms, no deletion obligation"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews only the confidentiality clause; the personal-data machinery gap is missed, or GDPR compliance is opined on directly"
+      ],
+      "expected_behavior": [
+        "Recognizes personal-data processing is in scope; runs the machinery checklist",
+        "Flags the missing DPA, breach-notice, subprocessor, and deletion terms as material gaps",
+        "Flags for counsel rather than declaring the agreement non-compliant with GDPR"
+      ],
+      "must_not": [
+        "Issue a GDPR compliance verdict",
+        "Ignore the data-protection machinery because the confidentiality clause looks fine"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Asymmetric 'mutual' NDA",
+      "query": "This is a mutual NDA for our partnership talks — confirm it protects both sides equally.",
+      "files": ["NDA where the counterparty's information is protected for 5 years with strict care, while the client's is protected 2 years with reasonable care, and the independent-development exception applies only against the client's information"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms 'mutual and equal' from the title"
+      ],
+      "expected_behavior": [
+        "Runs the symmetry check clause by clause",
+        "Surfaces the duration (5 vs 2 years), care standard, and one-sided exception asymmetries with citations",
+        "Ranks the asymmetries and proposes mirror-image fixes"
+      ],
+      "must_not": [
+        "Certify equality the text contradicts"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Broad exception + residuals combo",
+      "query": "Our counterparty says their standard NDA is 'very protective'. Review it for us as the disclosing party.",
+      "files": ["NDA with a 'previously known to Recipient' exception requiring no written evidence, plus a residuals clause permitting use of anything retained in unaided memory"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts the 'very protective' framing; the no-proof exception and residuals clause that together gut protection go unflagged"
+      ],
+      "expected_behavior": [
+        "Audits the exceptions: prior-knowledge with no written-records burden is near-unfalsifiable",
+        "Surfaces the residuals clause and explains how the combination hollows know-how protection",
+        "Rates the NDA weak for a discloser, with citations and fixes"
+      ],
+      "must_not": [
+        "Endorse the NDA as protective while the exception/residuals combo undermines it"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Non-compete question",
+      "query": "Can my former employer enforce the 2-year non-compete in my old employment agreement?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could analyze confidentiality when the question is a restrictive covenant"
+      ],
+      "expected_behavior": [
+        "Recognizes a non-compete enforceability question; routes to restrictive-covenants-review and counsel"
+      ],
+      "must_not": [
+        "Produce a confidentiality review for a non-compete question"
+      ]
+    }
+  ]
+}

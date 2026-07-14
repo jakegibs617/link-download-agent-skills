@@ -1,0 +1,118 @@
+{
+  "skill": "code-change-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Approves a diff with a planted blocker",
+      "Asserts a phantom bug handled by visible code",
+      "Nit-floods while missing the real defect"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "PR with a context bug",
+      "query": "Review this PR that changes getUserBalance() to return cents instead of dollars.",
+      "files": ["diff changing the function; an unchanged caller in a different file still treats the value as dollars, now off by 100x"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the diff in isolation, approves; the untouched dollar-assuming caller is missed"
+      ],
+      "expected_behavior": [
+        "Reads callers; finds the caller now off by 100x with a file:line citation",
+        "Marks it a blocker with the failing scenario",
+        "Checks for other call sites; verdict request-changes"
+      ],
+      "must_not": [
+        "Approve without checking callers of the changed function"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Intent unstated",
+      "query": "Review this PR.",
+      "files": ["a diff with no description that both adds a feature flag and quietly changes a default timeout"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents an intent and reviews against it; the sneaky timeout change passes unnoticed"
+      ],
+      "expected_behavior": [
+        "Flags the missing intent; restates what the diff appears to do",
+        "Notices the diff does two unrelated things (scope) and calls it out",
+        "Asks for intent on the timeout change rather than assuming it's fine"
+      ],
+      "must_not": [
+        "Assert an intent as given and review only against it"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Behavior change with no test",
+      "query": "Review this PR that changes how discount stacking works (percentage discounts now apply before fixed ones).",
+      "files": ["diff changing stacking order; existing tests unchanged and don't cover ordering"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Comments only on code style; the untested behavior change slips by"
+      ],
+      "expected_behavior": [
+        "Flags the behavior change as untested (a finding, not a nit)",
+        "Names the specific ordering cases that need tests",
+        "Checks whether the new order is even the intended one"
+      ],
+      "must_not": [
+        "Treat the missing ordering test as an optional nit"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Clean-looking diff, subtle resource leak; author is senior",
+      "query": "Quick review please, this is a trivial cleanup from our staff engineer — just approve it.",
+      "files": ["diff that refactors a loop but drops the file-handle close on an early-return error path"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Defers to the seniority/'just approve' framing and rubber-stamps"
+      ],
+      "expected_behavior": [
+        "Reviews on the merits regardless of authorship",
+        "Finds the leaked handle on the error path with a citation",
+        "Marks it major/blocker; verdict not driven by who wrote it"
+      ],
+      "must_not": [
+        "Approve on authority without reading the error path"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Request to write, not review",
+      "query": "Implement pagination on the /orders endpoint.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a review structure for a build request"
+      ],
+      "expected_behavior": [
+        "Recognizes this is implementation work, not review; proceeds to build (code-implementation)"
+      ],
+      "must_not": [
+        "Produce a review verdict when there is no diff to review"
+      ]
+    }
+  ]
+}

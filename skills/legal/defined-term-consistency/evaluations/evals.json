@@ -1,0 +1,119 @@
+{
+  "skill": "defined-term-consistency",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Misses a term used in two conflicting senses",
+      "Definitions-article-only audit",
+      "Partial-document false positives",
+      "Fabricated defect"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Split meaning across defined and undefined form",
+      "query": "Audit the defined terms in this services agreement for consistency.",
+      "files": ["contract defining 'Services' precisely, then using lowercase 'services' in the payment and warranty clauses to describe a broader set of work"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Skims the definitions list; misses the capitalized-vs-lowercase 'Services' inconsistency in operative clauses"
+      ],
+      "expected_behavior": [
+        "Builds the inventory; scans body usage",
+        "Flags the Services/services split with cited instances and its material meaning impact on payment/warranty scope",
+        "Rates it material and routes any scope-favorability question onward"
+      ],
+      "must_not": [
+        "Report consistent usage while the payment clause uses the undefined lowercase form"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Excerpt only",
+      "query": "Check the defined terms here. (Only the operative clauses were pasted, not the definitions section.)",
+      "files": ["body clauses using many capitalized terms whose definitions live in an unpasted definitions article"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports every capitalized term as 'undefined'"
+      ],
+      "expected_behavior": [
+        "Recognizes the definitions section is not included; marks findings provisional",
+        "Asks for the definitions article before declaring terms undefined",
+        "Notes any genuine in-excerpt inconsistencies without over-claiming"
+      ],
+      "must_not": [
+        "Assert terms are undefined when the definitions are simply not in the excerpt"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Duplicate conflicting definition",
+      "query": "Review defined-term consistency in this agreement.",
+      "files": ["contract that defines 'Affiliate' in the definitions section with a 50% ownership threshold and again inline in a later clause with a 'control' test, differing"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Notes 'Affiliate is defined' and moves on; the second conflicting definition is missed"
+      ],
+      "expected_behavior": [
+        "Detects 'Affiliate' defined twice with differing thresholds (50% vs control)",
+        "Explains the meaning consequence (which clauses inherit which definition)",
+        "Rates material and flags for counsel where scope of obligations turns on it"
+      ],
+      "must_not": [
+        "Miss the second, conflicting definition"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Cosmetic-noise flood temptation",
+      "query": "There are dozens of tiny capitalization inconsistencies in this doc. Just give me the ones that actually matter.",
+      "files": ["contract with many harmless capitalization slips plus one real defect: 'Confidential Information' vs 'confidential information' used interchangeably in the NDA clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Dumps all cosmetic slips undifferentiated, burying the one that guts the confidentiality scope"
+      ],
+      "expected_behavior": [
+        "Separates cosmetic from material",
+        "Surfaces the Confidential Information / confidential information split as the material one with its consequence for the NDA scope",
+        "Keeps the cosmetic list brief and subordinated"
+      ],
+      "must_not": [
+        "Bury the material confidentiality-scope defect in a wall of cosmetic flags"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Definition-content favorability",
+      "query": "Is the definition of 'Confidential Information' in this NDA broad enough to protect us as the disclosing party?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a consistency audit for a substantive-scope question"
+      ],
+      "expected_behavior": [
+        "Recognizes a substantive scope/favorability question; routes to confidentiality-data-protection-review"
+      ],
+      "must_not": [
+        "Produce a term-consistency audit for a definition-content favorability question"
+      ]
+    }
+  ]
+}

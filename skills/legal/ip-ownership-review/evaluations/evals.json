@@ -1,0 +1,122 @@
+{
+  "skill": "ip-ownership-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "IP categories collapsed",
+      "Conditional/future assignment reported as completed ownership",
+      "License reported without parameters",
+      "Residuals/feedback clause missed",
+      "WMFH/assignment validity decided instead of counsel-flagged"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Development agreement ownership",
+      "query": "We're the client paying for custom software under this development agreement. Do we own what we're paying for?",
+      "files": ["agreement: deliverables 'shall be assigned' upon final payment; developer retains background IP per an unattached Schedule B; developer gets a perpetual license to 'generic components' (undefined); no open-source clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers 'yes, the IP clause assigns you the work' — missing the promise-to-assign, the payment condition, the missing schedule, and the undefined generic-components license"
+      ],
+      "expected_behavior": [
+        "Distinguishes promise-to-assign-on-final-payment from present ownership; flags the payment condition",
+        "Flags Schedule B (background IP) as referenced-but-missing",
+        "Flags the undefined 'generic components' carve-back license as a scope gap",
+        "Notes the open-source silence; counsel flags for assignment formalities"
+      ],
+      "must_not": [
+        "Report completed ownership of the deliverables as things stand"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Which category does the model fall in?",
+      "query": "Under this agreement, who owns the machine-learning models our vendor trains on our data?",
+      "files": ["agreement assigning 'Deliverables' (defined as reports and documentation) to the client, granting the vendor rights to use 'aggregated data' and silent on trained models"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Asserts an owner for the models despite the contract being silent"
+      ],
+      "expected_behavior": [
+        "Maps the categories: models fall outside the defined 'Deliverables' and outside the data clause — the contract is silent",
+        "States the silence as the finding, with the practical consequence (default rules, dispute risk)",
+        "Flags for counsel and as a must-fix negotiation item"
+      ],
+      "must_not": [
+        "Declare an owner for an asset the contract doesn't address"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Feedback and residuals clauses",
+      "query": "Review the IP terms of this SaaS agreement for us as the enterprise customer.",
+      "files": ["agreement with (a) a feedback clause assigning all customer suggestions to the vendor with a perpetual right to use them in any product, and (b) a residuals clause letting vendor personnel use anything retained in unaided memory"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews only the license to the SaaS product; the feedback assignment and residuals carve-out go unnoticed"
+      ],
+      "expected_behavior": [
+        "Surfaces the feedback clause (customer ideas assigned to vendor) with its practical consequence",
+        "Surfaces the residuals clause and its tension with confidentiality of know-how",
+        "Rates both as material for an enterprise customer sharing roadmap ideas"
+      ],
+      "must_not": [
+        "Miss the feedback/residuals clauses"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Work-made-for-hire overconfidence",
+      "query": "Our contractor agreement says the deliverables are 'work made for hire', so we're fully covered for the software, right? Confirm ownership is airtight.",
+      "files": ["contractor agreement with only a WMFH recital, no backup present-assignment language"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms airtight ownership based on the WMFH recital"
+      ],
+      "expected_behavior": [
+        "Explains the structure: WMFH recital only, no backup assignment",
+        "Flags that WMFH coverage for software by independent contractors is a jurisdiction-specific doctrine question -> counsel",
+        "Recommends the standard fix (belt-and-suspenders present assignment) without opining on WMFH validity"
+      ],
+      "must_not": [
+        "Declare the WMFH recital sufficient/airtight"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Confidentiality question",
+      "query": "How long do the confidentiality obligations in this NDA last, and do they cover our source code?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run an IP-ownership review for a confidentiality question"
+      ],
+      "expected_behavior": [
+        "Recognizes a confidentiality-scope question; routes to confidentiality-data-protection-review"
+      ],
+      "must_not": [
+        "Produce an ownership/license map for a confidentiality-duration question"
+      ]
+    }
+  ]
+}

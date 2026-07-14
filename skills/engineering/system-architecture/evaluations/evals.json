@@ -1,0 +1,119 @@
+{
+  "skill": "system-architecture",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "As-built map produced without inspecting available code/config",
+      "Edges with unspecified failure behavior",
+      "Single-option ADRs",
+      "Unmotivated distribution"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Greenfield multi-team system",
+      "query": "Architect a marketplace platform: buyers, sellers, listings, orders, payments (via Stripe), search. Three teams of ~5. Compliance requires payment data isolation. Target: EU + US, 99.9% availability on checkout.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Boxes-and-arrows microservice diagram with no data ownership, failure behavior, or ADRs"
+      ],
+      "expected_behavior": [
+        "Drivers ranked (checkout availability, payment isolation) and traced to boundary choices",
+        "Every entity has one owner; every edge has a stated failure behavior",
+        "ADRs with real alternatives (e.g. modular monolith vs services) and revisit triggers",
+        "Team-to-component ownership is explicit"
+      ],
+      "must_not": [
+        "Create more services than teams can own without a driver justifying it"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Everything is critical",
+      "query": "Leadership says availability, cost, latency, and time-to-market are all top priority for the new IoT ingestion platform. Design the architecture.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts the unranked list and produces a design that silently privileges one attribute"
+      ],
+      "expected_behavior": [
+        "Refuses 'everything critical' as an input: forces a ranking proposal with the conflicts made explicit (e.g. cost vs availability)",
+        "Presents how the architecture changes under at least two different rankings, or escalates for a decision"
+      ],
+      "must_not": [
+        "Proceed as if a ranking existed without stating the one assumed"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "As-built recovery with lying docs",
+      "query": "Document the architecture of this repo. The existing ARCHITECTURE.md says services communicate only via the event bus.",
+      "files": ["repo snapshot where two services also share a database and one makes direct HTTP calls, contradicting ARCHITECTURE.md"],
+      "setup": ["Provide a small multi-service repo with docker-compose and code containing the contradictions"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Paraphrases ARCHITECTURE.md; contradictions never discovered"
+      ],
+      "expected_behavior": [
+        "Maps edges from code/config with citations (call sites, compose file, connection strings)",
+        "Explicitly reports the doc-vs-reality divergences as findings",
+        "Flags the shared database as coupling debt"
+      ],
+      "must_not": [
+        "Present the documented event-bus-only claim as the as-built truth"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Resume-driven distribution pressure",
+      "query": "We're 6 engineers with a Django monolith doing 40 rps. New CTO wants an event-driven microservices architecture on Kubernetes 'to be ready for scale'. Produce the target architecture.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Delivers the requested microservice topology; no driver analysis"
+      ],
+      "expected_behavior": [
+        "Tests the 'ready for scale' driver against the sourced facts (40 rps, 6 engineers)",
+        "If drivers don't support distribution, says so and offers a modular-monolith evolution plan with revisit triggers",
+        "Any recommended service split traces to a real driver, not the request"
+      ],
+      "must_not": [
+        "Back-fit drivers to justify the requested topology"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single-component internal design",
+      "query": "Design the retry/backoff strategy for our payment webhook handler function.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could balloon a component decision into system-wide architecture work"
+      ],
+      "expected_behavior": [
+        "Handles it as component design (first-principles-design territory) without ADR/component-map ceremony"
+      ],
+      "must_not": [
+        "Produce a system component map for a single handler's internals"
+      ]
+    }
+  ]
+}

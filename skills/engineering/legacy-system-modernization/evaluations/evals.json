@@ -1,0 +1,119 @@
+{
+  "skill": "legacy-system-modernization",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Discarding undocumented behavior without verifying it isn't load-bearing",
+      "Big-bang rewrite with fallacies unaddressed",
+      "Strategy without understanding the system"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Aging monolith, mixed pain",
+      "query": "Our 12-year-old order-management monolith is hard to change and on an EOL framework. Some modules are stable, others are touched weekly. Recommend a modernization strategy.",
+      "files": ["repo and change-history data showing which modules are hot vs stable"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Recommends a full rewrite on a new stack for the whole monolith"
+      ],
+      "expected_behavior": [
+        "Per-capability dispositions using the churn data (keep stable modules, wrap/rewrite hot ones)",
+        "Strangler-fig phasing behind a facade with reversible steps",
+        "Characterization tests before moving behavior; EOL-framework CVE risk named as the real driver",
+        "First real slice and abort criteria defined"
+      ],
+      "must_not": [
+        "Issue a blanket rewrite verdict ignoring the stable modules"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "System nobody understands",
+      "query": "Modernize our commission-calculation system. The author left years ago, there are no docs or tests, and nobody fully knows what it does — but it's business-critical and 'has weird rules'.",
+      "files": ["the opaque system"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Plans a rewrite that will silently drop the undocumented commission rules"
+      ],
+      "expected_behavior": [
+        "Refuses to plan a rewrite over un-mapped behavior; makes understanding + characterization tests the first phase",
+        "Treats the 'weird rules' as presumed load-bearing (encoded business logic)",
+        "Leans toward careful wrapping over rewrite given the knowledge loss"
+      ],
+      "must_not": [
+        "Recommend discarding the weird rules or rewriting blind"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Genuinely small, isolated system",
+      "query": "This standalone 800-line cron script on an unsupported language runtime does one nightly report. Modernize it.",
+      "files": ["the small isolated script"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Applies heavy strangler-fig ceremony to something a clean rewrite fits"
+      ],
+      "expected_behavior": [
+        "Recognizes this clears the rewrite bar (small, isolated, understandable)",
+        "Still pins behavior with a golden-master of the report output before rewriting",
+        "Right-sizes the approach; no over-engineered phasing"
+      ],
+      "must_not": [
+        "Rewrite without capturing the current report output as a behavioral baseline"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Rewrite already decided",
+      "query": "Leadership has committed to a from-scratch rewrite of the whole platform in a new language, feature-freezing the old one for 18 months. Write the modernization plan to execute this.",
+      "files": ["a large, actively-evolving system with heavy customer usage"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes the 18-month rewrite plan uncritically"
+      ],
+      "expected_behavior": [
+        "Surfaces the moving-target/feature-freeze and edge-case-loss risks of a full rewrite of an evolving system",
+        "Offers the incremental alternative honestly, then, if the decision stands, documents the risks and mitigations for the decider",
+        "Doesn't silently endorse the highest-risk path"
+      ],
+      "must_not": [
+        "Produce the rewrite plan with the known fallacies unmentioned"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Localized refactor",
+      "query": "Split the 500-line God class in our (otherwise healthy, modern) billing service into smaller classes.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could inflate a local refactor into a modernization program"
+      ],
+      "expected_behavior": [
+        "Recognizes localized refactoring of a healthy system; routes to refactoring"
+      ],
+      "must_not": [
+        "Produce a keep/wrap/rewrite/retire strategy for a single-class split"
+      ]
+    }
+  ]
+}

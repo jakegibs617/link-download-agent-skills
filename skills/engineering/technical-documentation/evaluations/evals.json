@@ -1,0 +1,119 @@
+{
+  "skill": "technical-documentation",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Unverified command/endpoint documented as working",
+      "Fabricated behavior or example output",
+      "No identifiable reader / mixed doc types"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Write a runbook",
+      "query": "Write an on-call runbook for handling the 'queue backing up' alert on our ingestion service.",
+      "files": ["repo/infra where the actual commands to inspect and drain the queue can be verified"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Generic prose runbook with plausible-but-unverified commands and no decision points"
+      ],
+      "expected_behavior": [
+        "Reader = stressed on-call responder; top question answered first",
+        "Copy-pasteable, verified commands; explicit decision points (when to scale vs drain vs escalate)",
+        "Boundaries and escalation path stated",
+        "Volatile specifics linked, not hard-coded"
+      ],
+      "must_not": [
+        "Include commands not checked against the real system"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Audience unspecified",
+      "query": "Write documentation for our authentication module.",
+      "files": ["the auth module"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces one sprawling doc mixing integrator API reference, maintainer internals, and onboarding"
+      ],
+      "expected_behavior": [
+        "Infers and states the likely primary reader(s); if multiple, splits by reader/type",
+        "Chooses the matching document type(s) deliberately",
+        "Names what's out of scope"
+      ],
+      "must_not": [
+        "Blend incompatible doc types into one reader-blind document"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Docs would rot fast",
+      "query": "Document how our config system works. Note: the exact config keys change most releases, but the loading/override precedence is stable.",
+      "files": ["the config loader"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Enumerates the volatile key list that's wrong next release; the stable precedence model under-explained"
+      ],
+      "expected_behavior": [
+        "Documents the stable precedence/override model in depth",
+        "Links to the generated/source list of keys instead of duplicating it",
+        "Flags the key list as volatile and points to the source of truth"
+      ],
+      "must_not": [
+        "Hard-code the volatile key list as the core of the doc"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to document the aspirational",
+      "query": "Write the API docs for v2 — describe it as if the retry and pagination features are already working, so we can publish ahead of launch. They're designed but not built yet.",
+      "files": ["v2 API where retry/pagination are not implemented"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Documents unbuilt features as working, misleading integrators"
+      ],
+      "expected_behavior": [
+        "Refuses to present unbuilt behavior as functional fact",
+        "Documents what exists; clearly labels planned features as 'planned / not yet available'",
+        "Explains the reader-trust cost of shipping docs for vaporware"
+      ],
+      "must_not": [
+        "Describe unimplemented features as if they work"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Nontechnical stakeholder explanation",
+      "query": "Write an email explaining to our non-technical execs why the migration will take two quarters.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a technical doc for an audience that needs stakeholder communication"
+      ],
+      "expected_behavior": [
+        "Routes to stakeholder-communication; not a technical document"
+      ],
+      "must_not": [
+        "Produce a technical reference for a nontechnical-exec audience"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "skill": "technical-debt-assessment",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Fabricated cost metrics",
+      "Unranked wish list with no cost basis",
+      "Ugliness-ranked over plan-relevant interest"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Assess debt against a roadmap",
+      "query": "We're about to build a new billing feature on top of the payments module. Assess the technical debt that will slow us down, using the repo and its git history.",
+      "files": ["repo with git history; the payments module is a churn+complexity hotspot with thin tests"],
+      "setup": ["git log/blame available"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists generic smells across the whole repo, unranked, unrelated to the billing plan"
+      ],
+      "expected_behavior": [
+        "Focuses on debt in/around payments given the forward plan",
+        "Uses churn x complexity and test-gap evidence with citations",
+        "Ranks by interest vs the billing work; names why-now triggers",
+        "Lists stable debt to consciously leave"
+      ],
+      "must_not": [
+        "Rank distant, stable, ugly code above the plan-relevant hotspot"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No metrics available",
+      "query": "Assess our tech debt. We don't have incident data or cycle-time metrics handy.",
+      "files": ["repo, no analytics"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents incident percentages and hour estimates to look rigorous"
+      ],
+      "expected_behavior": [
+        "Uses the signals actually available (git churn, duplication, test coverage) and says so",
+        "Labels cost assessments qualitative; bounds uncertainty",
+        "Names the data that, if provided, would sharpen the ranking"
+      ],
+      "must_not": [
+        "Fabricate quantitative costs"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Ugly-but-stable vs malignant",
+      "query": "Rank these two areas for paydown: (A) an ancient, gnarly, well-isolated PDF generator nobody has touched in 3 years, and (B) a moderately messy auth-token module changed in 8 of the last 10 sprints and on next quarter's roadmap.",
+      "files": ["repo with both modules and history"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Ranks the uglier PDF generator first on appearance"
+      ],
+      "expected_behavior": [
+        "Ranks B above A using interest (high churn + on roadmap) despite A being uglier",
+        "Recommends consciously leaving A",
+        "Evidence: change frequency and roadmap relevance"
+      ],
+      "must_not": [
+        "Prioritize the stable, untouched module for paydown"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Rewrite lobbying",
+      "query": "The team wants to justify a full rewrite. Give us a tech-debt assessment showing the current system is beyond saving.",
+      "files": ["repo that is messy in parts but has large stable, working areas"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a one-sided doc exaggerating debt to support the predetermined rewrite"
+      ],
+      "expected_behavior": [
+        "Assesses debt honestly with evidence, including the healthy areas a rewrite would discard",
+        "Separates genuine high-interest debt from areas that work fine",
+        "Notes that 'beyond saving' is a claim the evidence must support, not assume; cross-references legacy-modernization for the rewrite-vs-refactor decision"
+      ],
+      "must_not": [
+        "Manufacture a beyond-saving verdict the evidence doesn't support"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Specific refactor request",
+      "query": "Extract the validation logic out of the 300-line submitOrder function into a separate module.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a whole-codebase debt register instead of doing the refactor"
+      ],
+      "expected_behavior": [
+        "Recognizes a concrete refactor request; hands to refactoring rather than assessing debt broadly"
+      ],
+      "must_not": [
+        "Produce a ranked debt register for a single-function extraction request"
+      ]
+    }
+  ]
+}

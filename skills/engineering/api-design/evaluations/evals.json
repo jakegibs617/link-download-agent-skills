@@ -1,0 +1,119 @@
+{
+  "skill": "api-design",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Mutating operation without idempotency/retry semantics",
+      "Breaking change misclassified as non-breaking",
+      "No machine-readable error contract"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Extend an existing REST surface",
+      "query": "Design endpoints for 'saved searches': create, list, run, delete. Here's our existing OpenAPI spec — match it.",
+      "files": ["OpenAPI spec with cursor pagination, snake_case, RFC7807-style errors"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Generic REST design that forks conventions (camelCase, offset pagination, ad-hoc errors); no idempotency for create/run"
+      ],
+      "expected_behavior": [
+        "Example calls written first",
+        "Conventions matched to the provided spec with citations",
+        "Create and run have explicit idempotency semantics; run addresses long-running execution",
+        "Full error table incl. 404-vs-403 decision"
+      ],
+      "must_not": [
+        "Fork pagination or error conventions without acknowledgment"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Unknown consumers",
+      "query": "Design a public API for our internal tagging engine. We don't know yet who will consume it or from where.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Designs a sprawling surface for imagined consumers, marking many fields required"
+      ],
+      "expected_behavior": [
+        "Flags unknown consumers as the central risk",
+        "Recommends a minimal surface with conservative forever-promises (few required fields, opaque IDs)",
+        "Evolution rules do the heavy lifting; open questions list what consumer discovery must answer"
+      ],
+      "must_not": [
+        "Present invented consumer patterns as known"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Batch operation partial failure",
+      "query": "Add a bulk-import endpoint accepting up to 10,000 contacts per request. Design the contract.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "All-or-nothing 200/500 with no per-item results, no idempotency, no async consideration"
+      ],
+      "expected_behavior": [
+        "Partial-failure semantics decided explicitly (per-item results or transactional, justified)",
+        "Idempotency key for retried batches",
+        "Sync-vs-async decision addressed for the 10k size; limits and error shape defined"
+      ],
+      "must_not": [
+        "Leave retry-of-a-half-succeeded-batch undefined"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Innocent-looking breaking change",
+      "query": "Small change request: rename 'expires' to 'expires_at' in the token response, and make the previously optional 'scope' field required in create-token requests. Ship it in the next minor release — review the plan.",
+      "files": ["current API spec and a note that external consumers exist"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Approves it as cosmetic; both changes are breaking for existing consumers"
+      ],
+      "expected_behavior": [
+        "Classifies both changes as breaking with the consumer-impact mechanism explained",
+        "Proposes a compatible path (additive field + deprecation window; server-side default for scope)",
+        "States the deprecation signal and window"
+      ],
+      "must_not": [
+        "Bless shipping either change as non-breaking"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Internal helper signature",
+      "query": "Should this private helper take (userId, options) or an options object with userId inside? It has two internal callers.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could impose versioning/error-contract ceremony on an internal function signature"
+      ],
+      "expected_behavior": [
+        "Answers as ordinary code style/design judgment; no contract artifacts"
+      ],
+      "must_not": [
+        "Produce pagination/versioning/error-contract analysis for a private helper"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "skill": "knowledge-transfer-verification",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Accepts 'makes sense' as verification",
+      "Only yes/no checks",
+      "Never probes failure modes for an operating role",
+      "Gap closed without re-verification"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Handoff of on-call ownership",
+      "query": "I just finished building the new billing-retry system and I'm handing on-call ownership to a teammate who'll operate it. Help me make sure they actually understand it before I go on leave.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Suggests walking them through it and asking 'make sense?'; no real verification of operating knowledge"
+      ],
+      "expected_behavior": [
+        "Targets job-critical understanding (failure modes, invariants, safe changes)",
+        "Uses application probes ('a retry storm starts at 2am - what do you check and do?')",
+        "Probes failure modes specifically; closes and re-verifies gaps",
+        "Names residual risks before the leave starts"
+      ],
+      "must_not": [
+        "Treat 'makes sense' as sufficient for an on-call handoff"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Recall vs understanding",
+      "query": "My teammate can perfectly repeat my explanation of why we use optimistic locking here, almost word for word. Are they good to own this?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Concludes yes because they repeated it accurately"
+      ],
+      "expected_behavior": [
+        "Distinguishes verbatim recall from understanding",
+        "Proposes a novel-case probe (a scenario not covered in the original explanation) to test real comprehension",
+        "Only concludes readiness after they reason about the new case"
+      ],
+      "must_not": [
+        "Accept accurate recall as proof of understanding"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Low-stakes handoff",
+      "query": "I added a small internal script that renames exported files. Handing it to a teammate. How much verification do I need?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Applies a heavy multi-probe verification protocol to a trivial script"
+      ],
+      "expected_behavior": [
+        "Right-sizes to the low stakes: a light check, not an exam",
+        "Focuses on the one or two things that could actually go wrong",
+        "Avoids over-verification/distrust signaling"
+      ],
+      "must_not": [
+        "Impose exhaustive failure-mode interrogation on a trivial script"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "False confidence under pressure",
+      "query": "The person I'm handing off to keeps saying 'yeah yeah I get it, don't worry about it' and seems to want to end the session quickly. They're about to become the sole owner of our auth system. What do I do?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Takes the confident 'I get it' at face value and ends the handoff"
+      ],
+      "expected_behavior": [
+        "Recognizes the reflexive-yes/exam-anxiety pattern; does not accept it",
+        "Reframes as jointly de-risking (not a test), then uses concrete application probes on auth failure modes",
+        "If real gaps surface and can't be closed, flags that the sole-owner handoff isn't ready"
+      ],
+      "must_not": [
+        "Rubber-stamp sole ownership of auth on 'I get it'"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Teaching a stuck learner",
+      "query": "My junior doesn't understand how JWT signatures work and asked me to explain. Help me teach them.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could start verifying understanding of work that wasn't handed off"
+      ],
+      "expected_behavior": [
+        "Recognizes this is teaching a stuck learner (mentoring-technical-leadership), not verifying a handoff"
+      ],
+      "must_not": [
+        "Run a handoff-verification protocol instead of teaching"
+      ]
+    }
+  ]
+}

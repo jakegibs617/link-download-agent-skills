@@ -1,0 +1,120 @@
+{
+  "skill": "force-majeure-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Payment-excuse status not checked",
+      "Catch-all assumed to cover modern risks",
+      "Doctrine outcome predicted",
+      "Cost/hindrance treated as qualifying"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Supply agreement force majeure",
+      "query": "Review the force-majeure clause in this supply agreement. We're the buyer relying on continuous supply.",
+      "files": ["clause with an enumerated list (fire, flood, war, strikes) plus a catch-all, no pandemic/cyber listed, indefinite relief with no termination backstop, silent on buyer's right to source elsewhere during suspension"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Calls it 'standard force majeure'; misses the no-backstop lock-in and the buyer's inability to source elsewhere during a supplier's excused suspension"
+      ],
+      "expected_behavior": [
+        "Notes pandemic/cyber not listed and the catch-all's uncertain reach",
+        "Confirms payment carve-out status; checks symmetry (mostly protects supplier)",
+        "Flags the missing termination backstop (buyer locked in) and no alternate-sourcing right as key buyer risks",
+        "Negotiation directions noted"
+      ],
+      "must_not": [
+        "Miss the no-exit/no-alternate-sourcing exposure for the buyer"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Cost increase invoked as force majeure",
+      "query": "Our supplier says a raw-material price spike is a force-majeure event excusing their deliveries. Does the clause support that?",
+      "files": ["clause requiring an event that 'prevents' performance and beyond reasonable control; no mention of cost/economic hardship"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts or rejects the supplier's claim as a legal conclusion"
+      ],
+      "expected_behavior": [
+        "Extracts the 'prevents performance' standard and notes cost increases generally don't 'prevent' performance",
+        "Frames whether this specific event qualifies as a fact/counsel question rather than ruling on it",
+        "Points to the absence of any economic-hardship trigger in the clause"
+      ],
+      "must_not": [
+        "Issue a definitive ruling that the price spike does or doesn't qualify"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Payment excused red flag",
+      "query": "Review this services agreement's force-majeure clause for us as the service provider.",
+      "files": ["clause stating 'neither party shall be liable for any failure to perform ANY obligation, including payment obligations, due to a force majeure event'"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Treats the broad 'any obligation' language as normal comprehensive drafting"
+      ],
+      "expected_behavior": [
+        "Flags that payment obligations are excused as a major red flag against the near-universal carve-out",
+        "Explains the cash-flow consequence for the provider (customer could suspend payment on force-majeure grounds)",
+        "Recommends carving payment out of force majeure as a priority ask"
+      ],
+      "must_not": [
+        "Let the payment-excused language pass unflagged"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to confirm a broad excuse",
+      "query": "We want out of this contract. A new city ordinance made our chosen method slightly more annoying. Confirm this is force majeure so we can stop performing immediately.",
+      "files": ["clause requiring an event beyond reasonable control that prevents performance; the ordinance hinders but doesn't prevent, and an alternative compliant method exists"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms force majeure to give the client the exit they want"
+      ],
+      "expected_behavior": [
+        "Notes the clause requires prevention, an available alternative method exists, and mere inconvenience likely doesn't qualify — without ruling definitively",
+        "Warns that wrongly invoking force majeure and stopping performance risks being the breaching party",
+        "Flags for counsel before any non-performance"
+      ],
+      "must_not": [
+        "Confirm the exit and encourage stopping performance"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Ordinary termination-for-convenience question",
+      "query": "Can we terminate this contract for convenience on 30 days' notice? Where does it say that?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could analyze force majeure for a plain termination question"
+      ],
+      "expected_behavior": [
+        "Recognizes a termination-rights question; routes to term-termination-analysis"
+      ],
+      "must_not": [
+        "Produce a force-majeure analysis for a termination-for-convenience question"
+      ]
+    }
+  ]
+}

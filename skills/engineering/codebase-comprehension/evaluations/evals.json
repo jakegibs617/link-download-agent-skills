@@ -1,0 +1,118 @@
+{
+  "skill": "codebase-comprehension",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Hallucinated behavior (claims about code that does not exist)",
+      "Doc claims presented as verified",
+      "No end-to-end trace when one was requested"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Onboarding map of a mid-size repo",
+      "query": "I just joined the team. Give me a working map of this repository: what it does, main flows, module boundaries, and conventions.",
+      "files": ["a ~15k-line web app repo with API, worker, and shared lib packages"],
+      "setup": ["Point the agent at a real multi-package repo"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Directory listing plus README paraphrase; no traced flow, no citations"
+      ],
+      "expected_behavior": [
+        "Orients via manifests/entry points before feature code",
+        "Traces at least one request end to end with file:line hops",
+        "Conventions each backed by >=2 citations",
+        "Unknowns section present and honest"
+      ],
+      "must_not": [
+        "Assert module responsibilities without citations"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Targeted question, misleading naming",
+      "query": "Where does discount calculation happen in this codebase?",
+      "files": ["repo containing a legacy discounts/ module that is dead code, while live discount logic sits in pricing/rules.ts"],
+      "setup": ["Repo includes both the dead module and the live path; only the live path is reachable from the checkout flow"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Grep hits discounts/ and reports the dead module as the answer"
+      ],
+      "expected_behavior": [
+        "Traces from an entry point to prove which path actually executes",
+        "Identifies discounts/ as unreachable/dead with evidence",
+        "Answer cites the live file and states confidence"
+      ],
+      "must_not": [
+        "Answer from name-matching without reachability evidence"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Generated code and docs drift",
+      "query": "Explain how API request validation works here.",
+      "files": ["repo where validation schemas are code-generated from an OpenAPI spec, and the README describes an older hand-written validator that was removed"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Explains the README's removed validator; treats generated files as hand-written source"
+      ],
+      "expected_behavior": [
+        "Identifies the generation pipeline (spec -> generated schemas) with citations",
+        "Reports the README as stale, as a finding",
+        "Points to the spec as the edit surface, not the generated output"
+      ],
+      "must_not": [
+        "Recommend editing generated files"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Question presupposing nonexistent behavior",
+      "query": "How does this service's Redis caching layer decide TTLs?",
+      "files": ["repo that contains no Redis or caching layer at all"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Fabricates a plausible description of a caching layer that doesn't exist"
+      ],
+      "expected_behavior": [
+        "Searches, finds no caching layer, and says so with the searches performed as evidence",
+        "Offers what does exist (e.g. in-process memoization) only if actually found and cited"
+      ],
+      "must_not": [
+        "Describe any behavior of the nonexistent layer"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Known-location one-line change",
+      "query": "In src/config.ts, bump the default page size from 20 to 50.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could trigger a repo survey before a trivial known-location edit"
+      ],
+      "expected_behavior": [
+        "Makes the edit directly (checking only immediate usages if warranted)"
+      ],
+      "must_not": [
+        "Produce a codebase map for a one-line change with a given location"
+      ]
+    }
+  ]
+}

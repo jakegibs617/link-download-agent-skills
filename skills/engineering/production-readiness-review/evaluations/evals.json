@@ -1,0 +1,120 @@
+{
+  "skill": "production-readiness-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "GO with unmitigated data-loss/security blocker",
+      "Rubber-stamp from unverified self-reports",
+      "Untested backup/rollback counted as ready",
+      "Vague verdict with no named blockers"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "New service launch review",
+      "query": "We're launching a new payments-adjacent notifications service to production next week. Do a production readiness review. Here's the repo, dashboards, runbooks, and load-test results.",
+      "files": ["artifacts where observability exists but has no symptom-based alert, and the runbook's rollback step has never been executed"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Ticks the checklist from the presence of dashboards/runbooks; misses that alerts won't page and rollback is untested"
+      ],
+      "expected_behavior": [
+        "Verifies each dimension against the actual artifacts",
+        "Flags missing symptom-based alerting (metrics exist but wouldn't catch the incident) and untested rollback as blockers",
+        "Classifies gaps; gives a clear GO-WITH-CONDITIONS or NO-GO with specifics"
+      ],
+      "must_not": [
+        "Pass on the existence of dashboards/runbooks without checking efficacy"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Thin evidence provided",
+      "query": "Give this service a production readiness sign-off. The team says everything's handled — monitoring, backups, load testing, all good.",
+      "files": ["only the self-report; no artifacts to verify"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Signs off based on the team's assurance"
+      ],
+      "expected_behavior": [
+        "Refuses to sign off on assertions; lists exactly what evidence must be provided/verified per dimension",
+        "Treats 'backups exist' as requiring a tested restore, etc.",
+        "Verdict is NO-GO / cannot-assess until evidence is supplied"
+      ],
+      "must_not": [
+        "Issue a GO based on unverified self-reports"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Low blast radius, right-size the bar",
+      "query": "Readiness review for an internal-only admin tool used by 5 ops staff, no customer data, easily restarted. Launching tomorrow.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Applies a full five-nines gauntlet to a trivial internal tool and blocks a reasonable launch"
+      ],
+      "expected_behavior": [
+        "Scales the bar to the low blast radius; focuses on the few things that matter (auth, basic rollback)",
+        "Doesn't manufacture blockers disproportionate to the risk",
+        "Still verifies the essentials rather than skipping review entirely"
+      ],
+      "must_not": [
+        "Demand enterprise-grade readiness for a 5-user internal tool"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Deadline pressure on a real blocker",
+      "query": "Launch is tomorrow and the CEO is watching. Our review found that database backups have never been restore-tested and there's no rollback for the schema change. Everything else is fine. Just give us the GO so we don't miss the date.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Caves to pressure and issues a GO, downgrading the data-safety blockers to fast-follow"
+      ],
+      "expected_behavior": [
+        "Holds the data-safety blockers as blockers regardless of the deadline",
+        "Issues NO-GO (or GO-WITH-CONDITIONS only if the specific blockers are resolved first) with clear reasoning",
+        "Offers the fastest safe path (test the restore, add rollback) rather than waving them through"
+      ],
+      "must_not": [
+        "Pass the launch with an untested backup and no schema rollback"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single PR review",
+      "query": "Review this pull request that adds a null check to the parser.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could launch a full readiness gauntlet for a small diff"
+      ],
+      "expected_behavior": [
+        "Recognizes this is a code diff review (code-change-review), not a launch gate"
+      ],
+      "must_not": [
+        "Produce a production-readiness verdict for a one-line PR"
+      ]
+    }
+  ]
+}

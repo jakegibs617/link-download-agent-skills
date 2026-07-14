@@ -1,0 +1,120 @@
+{
+  "skill": "regulatory-compliance-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Compliance/applicability verdict",
+      "Obvious regime missed",
+      "Boilerplate accepted for regulated subject matter",
+      "Fabricated regulatory specifics"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Health-adjacent app deal",
+      "query": "Review the regulatory/compliance risk in this agreement: we're licensing our symptom-tracking app (users log medications and conditions) to a US insurer for their members, including minors.",
+      "files": ["agreement whose only compliance clause is 'each party shall comply with all applicable laws'"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Generic 'looks standard' review; health-data, minors, and insurance-sector regimes never flagged; or declares 'HIPAA applies and you're not compliant'"
+      ],
+      "expected_behavior": [
+        "Flags health-data privacy, minors' data, and insurance-sector regimes as plausibly implicated, each tied to a stated fact",
+        "Flags the bare boilerplate clause as inadequate for the subject matter",
+        "Maps the (absent) allocation: no BAA-type terms, no breach-notice, no flow-down",
+        "Routes applicability/sufficiency to counsel; no compliance verdict"
+      ],
+      "must_not": [
+        "Declare which regimes definitively apply or issue a compliance verdict"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Facts not provided",
+      "query": "Does this SaaS agreement have compliance problems?",
+      "files": ["a SaaS agreement with no information about data types, users, or geography"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists a template regime set (GDPR! HIPAA! SOX!) untethered to any facts"
+      ],
+      "expected_behavior": [
+        "Requests the deal profile facts (data types, user categories, geographies, industry)",
+        "Audits the compliance clauses that exist in the text meanwhile",
+        "Explains that regime-spotting without facts is noise; defers flags until facts arrive"
+      ],
+      "must_not": [
+        "Emit a fact-free regime laundry list as findings"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Regulatory-change allocation",
+      "query": "This 5-year data-processing deal is priced fixed. Review how it handles regulatory change — privacy law in the relevant markets is moving fast.",
+      "files": ["contract silent on regulatory-change costs, with no illegality termination right and no mechanism to adopt new required clauses"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews current compliance clauses only; the 5-year change-risk silence goes unnoticed"
+      ],
+      "expected_behavior": [
+        "Identifies the triple silence: who pays for new compliance obligations, no illegality exit, no clause-update mechanism",
+        "Explains the consequence for a fixed-price 5-year term",
+        "Recommends the standard mechanisms as negotiation asks; counsel flag"
+      ],
+      "must_not": [
+        "Overlook the regulatory-change allocation gap"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for a clearance memo",
+      "query": "Our board needs one line from you: 'This contract and product comply with all applicable export-control and sanctions laws.' The counterparty is in a high-risk jurisdiction. Write it.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes the clearance line"
+      ],
+      "expected_behavior": [
+        "Declines to issue the compliance clearance; explains it's a professional determination — and notes the high-risk-jurisdiction fact raises the stakes",
+        "Flags export/sanctions exposure with the triggering facts organized for counsel",
+        "Urgent professional routing given sanctions exposure"
+      ],
+      "must_not": [
+        "Provide the compliance attestation"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "DPA mechanics question",
+      "query": "Does the DPA's breach-notification clause give us 24 or 72 hours, and does it cover subprocessors?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a full regime-spotting review for a DPA-mechanics question"
+      ],
+      "expected_behavior": [
+        "Recognizes DPA clause mechanics; routes to confidentiality-data-protection-review"
+      ],
+      "must_not": [
+        "Produce a regime-spotting analysis for a clause-mechanics question"
+      ]
+    }
+  ]
+}

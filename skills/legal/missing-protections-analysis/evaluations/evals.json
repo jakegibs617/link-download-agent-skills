@@ -1,0 +1,119 @@
+{
+  "skill": "missing-protections-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "False-absence flag (protection actually present)",
+      "Role-blind gaps (only help counterparty)",
+      "Every silence treated as a defect",
+      "Obvious material gap missed"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "SaaS customer gaps",
+      "query": "What protections are we missing in this SaaS agreement? We're the enterprise customer putting our operations-critical data in their platform.",
+      "files": ["agreement with pricing, IP, and confidentiality but no SLA/uptime commitment, no data-export/return on termination, no security standard, and no data-breach liability floor"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists generic 'missing' items including vendor-side protections; misses the specific customer gaps (SLA, data return, breach floor)"
+      ],
+      "expected_behavior": [
+        "Builds a customer-role model and diffs it: flags missing SLA/credits, data-return-on-exit, security commitments, data-breach protection",
+        "Verifies these are genuinely absent (not in an exhibit)",
+        "Ranks the operations-critical data gaps highest; routes to redline/negotiation"
+      ],
+      "must_not": [
+        "Flag vendor-favoring protections as gaps for the customer"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Deliberate AS-IS silence",
+      "query": "This open-source-style software grant is explicitly AS-IS and free. What protections are we missing as the user?",
+      "files": ["a genuine no-fee AS-IS license with no warranties, no indemnity, no SLA — by design"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Flags the missing warranty, indemnity, and SLA as defects without recognizing the AS-IS free bargain makes those silences expected"
+      ],
+      "expected_behavior": [
+        "Recognizes that for a free AS-IS grant, the absence of warranties/indemnity/SLA is conventional, not a defect",
+        "Distinguishes acceptable silences from any genuine gap (e.g. an IP-infringement risk the user still bears)",
+        "Frames the real question as risk acceptance, flagged for the user's decision"
+      ],
+      "must_not": [
+        "Treat expected AS-IS silences as must-fix gaps"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Fact-driven gap beyond the checklist",
+      "query": "Find missing protections in this manufacturing supply agreement. We're the buyer; this component is single-sourced and our whole product depends on it.",
+      "files": ["agreement with price, quality warranty, and delivery terms but no business-continuity/second-source provisions, no minimum-supply commitment, and no step-in/escrow if the supplier fails"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Runs a generic supply checklist; misses the single-source continuity risk specific to these facts"
+      ],
+      "expected_behavior": [
+        "Adds the fact-driven gap: single-source dependency with no continuity/second-source/supply-guarantee protection",
+        "Explains the catastrophic consequence (production stops if the supplier fails)",
+        "Ranks it as the top material gap; routes to negotiation"
+      ],
+      "must_not": [
+        "Limit the analysis to a generic checklist and miss the single-source continuity gap"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "False-absence temptation",
+      "query": "Confirm quickly: this contract is missing any confidentiality protection and any limitation of liability, right? We only read the first few pages.",
+      "files": ["contract that DOES contain confidentiality (in a later section) and a liability cap (in an exhibit), both easy to miss if only the front is read"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms both are missing based on the client's partial reading"
+      ],
+      "expected_behavior": [
+        "Checks the whole document before confirming absence; finds the confidentiality section and the exhibit liability cap",
+        "Corrects the premise: these are present, not missing",
+        "Only flags genuinely absent protections after full-document verification"
+      ],
+      "must_not": [
+        "Confirm the protections are missing without checking the full document"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Present-clause favorability question",
+      "query": "Is the indemnity clause we DO have strong enough? Analyze section 8.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a gap analysis for a present-clause quality question"
+      ],
+      "expected_behavior": [
+        "Recognizes this is about a clause that IS present; routes to liability-indemnification-review"
+      ],
+      "must_not": [
+        "Produce a missing-protections model for a present-clause adequacy question"
+      ]
+    }
+  ]
+}

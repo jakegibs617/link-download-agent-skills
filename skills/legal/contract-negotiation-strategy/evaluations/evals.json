@@ -1,0 +1,120 @@
+{
+  "skill": "contract-negotiation-strategy",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "usefulness": 4
+    },
+    "prohibited_failures": [
+      "Leverage inflation / BATNA-less walk-aways",
+      "Unprioritized flat demand list",
+      "Invented client priorities",
+      "Relationship-blind aggression on a needed deal"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Prioritize from review findings",
+      "query": "We've reviewed this vendor MSA and found ~15 issues (uncapped data-breach exposure, auto-renewal trap, weak SLA, one-sided IP feedback clause, plus minor ones). We're a mid-size customer, this vendor is one of several options, long-term relationship intended. Build our negotiation strategy.",
+      "files": ["the list of 15 findings with materiality notes"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Returns all 15 as equal demands with no positions, leverage read, or trades"
+      ],
+      "expected_behavior": [
+        "Ranks by materiality x leverage (data-breach exposure top; minor items as chips)",
+        "Sets ideal/acceptable/walk-away per priority issue",
+        "Uses the 'several options' fact as real leverage; designs trades and low-cost gives",
+        "Sequences the asks; frames tone for a long-term relationship; plan as recommendations"
+      ],
+      "must_not": [
+        "Treat all issues as equally worth fighting"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Priorities/BATNA not provided",
+      "query": "Give us a negotiation plan for this contract's issues.",
+      "files": ["a set of findings, but nothing about the client's priorities, risk tolerance, or alternatives"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents the client's priorities and walk-away points"
+      ],
+      "expected_behavior": [
+        "Requests the client's priorities, risk tolerance, BATNA, and relationship goals as prerequisites",
+        "Provides a provisional materiality ranking while flagging leverage/walk-aways as pending those inputs",
+        "Does not fabricate deal-breakers"
+      ],
+      "must_not": [
+        "Assert walk-away points without the client's stated alternatives/tolerance"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Weak-party situation",
+      "query": "We're a tiny startup and this is the only enterprise customer that will make our year. Their contract is one-sided but we can't walk. Strategy?",
+      "files": ["findings showing several one-sided terms; the client has minimal leverage and no real BATNA"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Pretends the startup has leverage and prescribes aggressive walk-away threats"
+      ],
+      "expected_behavior": [
+        "Acknowledges the weak position and absent BATNA honestly",
+        "Focuses fire on the 1-2 existential issues, seeks non-price concessions and mitigations, accepts-with-eyes-open elsewhere",
+        "Avoids bluffed walk-aways; frames asks as low-friction, mutual risk-management"
+      ],
+      "must_not": [
+        "Manufacture leverage the startup doesn't have"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to hardball a partner",
+      "query": "Draft us an aggressive take-it-or-leave-it strategy demanding we win all 15 points — this counterparty is our most important long-term partner but I want to dominate this negotiation.",
+      "files": ["the 15 findings; context of a critical ongoing partnership"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces the maximalist take-it-or-leave-it plan as requested"
+      ],
+      "expected_behavior": [
+        "Flags that winning-all-15 hardball risks the critical relationship and likely backfires",
+        "Recommends prioritizing the few that matter, trading the rest, and a collaborative frame for a key partner",
+        "Presents the tradeoff and lets the client decide, rather than executing the counterproductive ask blindly"
+      ],
+      "must_not": [
+        "Deliver an all-or-nothing hardball plan for a critical long-term partner without surfacing the relationship cost"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Draft the clause language",
+      "query": "Write the exact revised indemnification clause language we should propose.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a strategy doc when specific redline language was requested"
+      ],
+      "expected_behavior": [
+        "Recognizes a drafting request; routes to redline-recommendations"
+      ],
+      "must_not": [
+        "Produce a negotiation strategy when asked for specific clause language"
+      ]
+    }
+  ]
+}

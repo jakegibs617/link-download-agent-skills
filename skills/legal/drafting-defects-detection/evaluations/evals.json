@@ -1,0 +1,119 @@
+{
+  "skill": "drafting-defects-detection",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Missed cross-clause contradiction",
+      "Missed broken cross-reference or numeric inconsistency",
+      "Ambiguity resolution asserted as legal fact",
+      "Material defects buried under trivia"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Non-adjacent contradiction",
+      "query": "Do a drafting-consistency sweep of this agreement.",
+      "files": ["contract where section 4 says invoices are due net-30 and a payment schedule in Exhibit C says net-60, and section 11 references 'the indemnity in Section 9' but Section 9 is the confidentiality clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reads linearly; reports the doc as internally consistent, missing the net-30/net-60 conflict and the misdirected indemnity reference"
+      ],
+      "expected_behavior": [
+        "Cross-compares payment terms and finds the net-30 vs net-60 contradiction (body vs exhibit)",
+        "Resolves cross-references and flags Section 11's pointer to the wrong section",
+        "Ranks both as material; gives fix directions; notes precedence question for the payment conflict"
+      ],
+      "must_not": [
+        "Miss the cross-clause payment contradiction or the broken indemnity reference"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Consequential ambiguity vs noise",
+      "query": "Flag drafting ambiguities in this clause-heavy agreement — only the ones that matter.",
+      "files": ["contract with many harmless stylistic ambiguities plus one real one: 'the Company may terminate and it shall pay the fee' where 'it' could refer to either party"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists dozens of trivial ambiguities, burying the 'it' antecedent ambiguity that changes who pays"
+      ],
+      "expected_behavior": [
+        "Surfaces the pronoun-antecedent ambiguity that changes a payment obligation as material",
+        "Keeps trivial ambiguities clustered/minimal",
+        "Flags the resolution as a drafting fix (name the party), not a legal ruling on which reading wins"
+      ],
+      "must_not": [
+        "Drown the obligation-changing ambiguity in stylistic noise"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Numbers that don't add up",
+      "query": "Check this revenue-share agreement for internal consistency.",
+      "files": ["agreement allocating 60% to Party A, 30% to Party B, and 20% to Party C 'for a total of 100%', and defining the cap as '$50,000' in section 7 and '$500,000' in the signature-page summary"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Doesn't recompute; misses that 60+30+20=110 and the two different cap figures"
+      ],
+      "expected_behavior": [
+        "Recomputes the split (110%) and flags the impossibility",
+        "Flags the $50,000 vs $500,000 cap discrepancy as high-severity",
+        "Gives fix directions; notes which figure governs is a question needing clarification"
+      ],
+      "must_not": [
+        "Pass the arithmetic and the conflicting cap figures"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to resolve an ambiguity as law",
+      "query": "There's an ambiguous indemnity trigger in section 8. Just tell me definitively which interpretation a court will adopt so we can rely on it and skip the redraft.",
+      "files": ["genuinely ambiguous indemnity-trigger language"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Provides a definitive prediction of the court's interpretation"
+      ],
+      "expected_behavior": [
+        "Pinpoints the ambiguity and both plausible readings with their different consequences",
+        "Declines to predict the judicial resolution; flags it as an interpretive question for counsel",
+        "Recommends redrafting to remove the ambiguity rather than relying on a predicted reading"
+      ],
+      "must_not": [
+        "Assert which interpretation a court will definitively adopt"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Is this term favorable question",
+      "query": "Is the 25% termination fee in this contract reasonable and favorable to us?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a consistency sweep for a favorability question"
+      ],
+      "expected_behavior": [
+        "Recognizes a substantive favorability question; routes to the relevant substantive skill (payment/term-termination) and negotiation strategy"
+      ],
+      "must_not": [
+        "Produce a drafting-defects sweep for a term-favorability question"
+      ]
+    }
+  ]
+}

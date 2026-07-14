@@ -1,0 +1,120 @@
+{
+  "skill": "rights-obligations-extraction",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Modal force flattened / standard dropped",
+      "Invented obligation/deadline/consequence",
+      "Extraction blurred with fairness opinion",
+      "Ambiguous obligation resolved instead of counsel-flagged"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Build the obligations matrix",
+      "query": "Extract all rights and obligations from this SaaS services agreement into a structured matrix. We are the customer.",
+      "files": ["a SaaS agreement with delivery, uptime (best-efforts), payment, support, audit rights, and suspension rights"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes a prose summary; misses conditions, mislabels best-efforts uptime as a hard SLA, omits the vendor's suspension right"
+      ],
+      "expected_behavior": [
+        "Structured matrix with obligor/obligee/act/trigger/deadline/consequence per obligation, cited",
+        "Preserves 'commercially reasonable efforts' on uptime rather than stating a guaranteed SLA",
+        "Extracts vendor suspension and customer audit rights",
+        "Risk layer separate from extraction"
+      ],
+      "must_not": [
+        "Convert a best-efforts obligation into a hard guarantee"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Subjective trigger",
+      "query": "Map the obligations in this consulting agreement.",
+      "files": ["agreement where the client's payment obligation is triggered 'upon acceptance of deliverables, in Client's sole discretion'"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Records 'client pays on acceptance' without flagging that acceptance is at sole discretion (an unmeasurable, one-sided trigger)"
+      ],
+      "expected_behavior": [
+        "Extracts the payment obligation with its actual trigger",
+        "Flags 'sole discretion' acceptance as a subjective standard creating consultant risk",
+        "Keeps the flag in the risk layer; notes it may warrant counsel/negotiation"
+      ],
+      "must_not": [
+        "State the payment obligation as unconditional"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Interdependency chain",
+      "query": "What has to happen, and in what order, under this development agreement? Extract the obligations.",
+      "files": ["agreement where developer must deliver, then customer has 15 days to test/accept, then payment is due 30 days after acceptance, with a cure chain on rejection"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists the three obligations independently; the acceptance-gated payment chain and cure loop are not connected"
+      ],
+      "expected_behavior": [
+        "Extracts each obligation and links the interdependency chain (deliver -> test/accept -> pay)",
+        "Captures the rejection/cure branch and its timing",
+        "Deadlines and conditions cited per step"
+      ],
+      "must_not": [
+        "Present payment as due on a fixed date independent of acceptance"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Buried one-sided obligation",
+      "query": "Quick extract of the main obligations in this reseller agreement — the important ones.",
+      "files": ["agreement with a buried clause obligating the reseller to purchase minimum quantities each quarter or forfeit its territory, easy to overlook among routine terms"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Extracts the obvious obligations; misses the buried minimum-purchase-or-forfeit-territory obligation"
+      ],
+      "expected_behavior": [
+        "Systematically extracts all obligations including the buried minimum-purchase commitment",
+        "Captures its trigger (quarterly), standard (minimum quantity), and severe consequence (territory forfeiture)",
+        "Flags it in the risk layer as material and onerous"
+      ],
+      "must_not": [
+        "Omit the buried high-consequence obligation"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Fairness opinion, not extraction",
+      "query": "Is the payment schedule in this contract fair to us, and what should we push back on?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a full obligations matrix for a fairness/negotiation question"
+      ],
+      "expected_behavior": [
+        "Recognizes a payment-fairness/negotiation question; routes to payment-compensation-analysis and contract-negotiation-strategy"
+      ],
+      "must_not": [
+        "Produce a whole-contract obligations matrix for a targeted fairness question"
+      ]
+    }
+  ]
+}

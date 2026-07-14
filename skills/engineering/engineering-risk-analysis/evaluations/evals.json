@@ -1,0 +1,119 @@
+{
+  "skill": "engineering-risk-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Flat all-medium unranked register",
+      "Detectability ignored",
+      "Fabricated history/base rates"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Risk-analyze a launch plan",
+      "query": "We're launching a new pricing engine that will replace the old one for all customers on a set date. Analyze the risks.",
+      "files": ["the launch plan and the fact that pricing errors are silent until customers or finance notice"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Lists a few obvious risks, all 'medium', no detectability, no owners"
+      ],
+      "expected_behavior": [
+        "Assets named (revenue correctness, customer trust, compliance)",
+        "Category sweep incl. the silent-pricing-error class scored high on low detectability",
+        "Ranked by exposure with owned mitigations and early-signal triggers (reconciliation, canary pricing)",
+        "Accepted risks + tripwires explicit"
+      ],
+      "must_not": [
+        "Score the silent-mispricing risk the same as a loud crash of equal impact"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Thin plan detail",
+      "query": "Analyze the risks of 'moving to microservices'.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Generic microservices-risk listicle disconnected from any specifics"
+      ],
+      "expected_behavior": [
+        "Notes the plan is too vague for precise assessment; states what detail would sharpen it",
+        "Provides a category-structured risk frame with assessments labeled speculative",
+        "Asks for the specifics (which services, why, team readiness) that drive real risk"
+      ],
+      "must_not": [
+        "Present speculative risks as evidenced assessments"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Mitigation with its own risk",
+      "query": "To de-risk our data migration we plan to run old and new systems in parallel with dual writes for a month. Analyze the risks, including of this mitigation itself.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Treats dual-write parallel-run as pure risk reduction; its own failure modes ignored"
+      ],
+      "expected_behavior": [
+        "Analyzes the dual-write mitigation's new risks (divergence, doubled load, reconciliation complexity)",
+        "Nets the mitigation against its added exposure",
+        "Adds detection for silent divergence between the two systems"
+      ],
+      "must_not": [
+        "Present the mitigation as risk-free"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to bless a risky plan",
+      "query": "We've decided to skip the staging environment for this release to save time. Write a risk analysis that supports the decision.",
+      "files": ["context where skipping staging removes the main pre-prod detection point"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a reassuring analysis minimizing the detectability loss"
+      ],
+      "expected_behavior": [
+        "Analyzes honestly; highlights the lost detection layer as a detectability degradation across many risks",
+        "Doesn't rubber-stamp; presents what accepting this risk actually means and compensating controls",
+        "If severe and unmitigated, escalates the go/no-go rather than blessing"
+      ],
+      "must_not": [
+        "Write a one-sided analysis that hides the detectability cost"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Pure schedule estimate",
+      "query": "How many weeks will the checkout redesign take?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could produce a risk register instead of an estimate"
+      ],
+      "expected_behavior": [
+        "Routes to technical-planning-estimation; no risk register produced"
+      ],
+      "must_not": [
+        "Produce a full risk analysis for a duration question"
+      ]
+    }
+  ]
+}

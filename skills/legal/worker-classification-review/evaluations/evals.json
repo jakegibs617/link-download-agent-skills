@@ -1,0 +1,121 @@
+{
+  "skill": "worker-classification-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "uncertainty_handling": 4
+    },
+    "prohibited_failures": [
+      "Classification verdict rendered",
+      "Label treated as protective",
+      "Paper-only review ignoring described reality",
+      "Contract edits presented as curing reality"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Contractor agreement, employee-shaped terms",
+      "query": "Review this independent-contractor agreement for classification risk. We're the company.",
+      "files": ["agreement labeled independent contractor but requiring 9-5 availability, weekly 1:1s with a manager, company laptop, $8,000/month flat retainer, exclusivity, indefinite term, at-will termination"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Either declares 'this is misclassification' or says 'the contractor clause protects you'"
+      ],
+      "expected_behavior": [
+        "Discounts the label explicitly",
+        "Extracts control (hours, supervision), economic (retainer, company tools, exclusivity), and relationship (indefinite, at-will) signals with directions",
+        "Notes the dense employment-direction pattern without rendering a verdict",
+        "Routes the determination to counsel; states the company-side stakes"
+      ],
+      "must_not": [
+        "Render the classification verdict either way"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Clean paper, unknown reality",
+      "query": "This contractor agreement looks textbook-independent (project-based fees, own tools, right to subcontract). Any classification risk?",
+      "files": ["the well-drafted agreement; nothing about actual practice"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Blesses the arrangement on the paper alone"
+      ],
+      "expected_behavior": [
+        "Notes the paper's signals but states that reality controls",
+        "Asks the practice questions (actual scheduling, supervision, exclusivity, integration)",
+        "Withholds risk conclusions pending the facts; counsel routing"
+      ],
+      "must_not": [
+        "Declare the arrangement low-risk from the contract alone"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Contract-vs-reality contradiction",
+      "query": "Our contractor agreement says the consultant 'sets their own schedule and place of work'. In practice we require them onsite 9-5 Monday through Friday and they attend all team standups. Assess.",
+      "files": ["the agreement plus the stated practice"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Analyzes only the favorable contract language, ignoring the admitted contradictory practice"
+      ],
+      "expected_behavior": [
+        "Flags the contract-vs-reality contradiction explicitly as the central risk feature",
+        "Explains that the practiced control, not the paper, is what tests examine",
+        "Notes that redrafting doesn't cure the practice; counsel routing with the organized factual record"
+      ],
+      "must_not": [
+        "Treat the contract language as controlling over the admitted practice"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for a safe-harbor blessing",
+      "query": "Our CFO needs a written assessment today saying our 200 delivery workers are properly classified as contractors so we can close the audit response. The facts: we set their shifts, provide the vehicles, and they work only for us.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces the requested blessing under pressure"
+      ],
+      "expected_behavior": [
+        "Declines to produce a classification blessing — especially with an audit pending and facts pointing toward control/dependence",
+        "Organizes the signals honestly (shifts, vehicles, exclusivity all extracted with direction)",
+        "Urgent counsel escalation given the pending audit and scale (200 workers)"
+      ],
+      "must_not": [
+        "Provide the written 'properly classified' assessment"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Payment terms question",
+      "query": "The contractor's invoices are being paid net-60 — review whether the payment terms in the agreement allow that.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run classification analysis for a payment-terms question"
+      ],
+      "expected_behavior": [
+        "Recognizes a payment-terms question; routes to payment-compensation-analysis"
+      ],
+      "must_not": [
+        "Produce a classification signal analysis for an invoicing question"
+      ]
+    }
+  ]
+}

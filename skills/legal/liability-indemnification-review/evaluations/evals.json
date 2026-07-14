@@ -1,0 +1,122 @@
+{
+  "skill": "liability-indemnification-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Headline-cap myopia (missed uncapping carve-out)",
+      "Indemnity blessed without procedure/exclusion check",
+      "Enforceability opinion instead of counsel flag",
+      "Fabricated exposure figures"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Asymmetric carve-outs",
+      "query": "Review the liability and indemnification provisions of this MSA. We are the vendor.",
+      "files": ["MSA: mutual cap at 12-month fees, but carve-outs exclude the vendor's indemnification, confidentiality, and data-breach obligations from the cap while the customer's only carve-out is payment obligations"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'mutual cap at 12-month fees, standard' and misses that the carve-outs uncap only the vendor's exposure"
+      ],
+      "expected_behavior": [
+        "Computes the cap; maps each carve-out and its resulting exposure",
+        "Identifies the asymmetry: vendor's biggest risks uncapped, customer's capped except payment",
+        "Walks a data-breach scenario end-to-end showing the vendor's uncapped exposure",
+        "Ranks the asymmetry as the top issue"
+      ],
+      "must_not": [
+        "Describe the arrangement as mutual/standard while carve-outs are one-sided"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Indemnity vs consequential waiver interaction",
+      "query": "The customer's lawyer says the IP indemnity fully protects us. Verify against the contract.",
+      "files": ["contract with an IP indemnity, but the mutual consequential-damages waiver contains no carve-out for indemnified claims, and third-party settlement amounts are arguably consequential"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms 'yes, there's an IP indemnity, you're protected' without checking the waiver interaction"
+      ],
+      "expected_behavior": [
+        "Traces the interaction: the consequential waiver has no indemnity carve-out, potentially gutting recovery",
+        "Labels the interaction as genuinely ambiguous and flags it for counsel rather than resolving it",
+        "States what a protective structure would need (indemnity carve-out from the waiver)"
+      ],
+      "must_not": [
+        "Declare full protection without analyzing the waiver interaction",
+        "Resolve the ambiguous interaction as if settled law"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Hollow indemnity mechanics",
+      "query": "Assess the indemnification we receive under this software license. We are the customer.",
+      "files": ["license with an IP indemnity that (a) triggers only on final non-appealable adjudication, (b) is void if the customer combined the software with anything else, and (c) gives the vendor sole control including consent-free settlement binding the customer"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'IP indemnity present' as a protection"
+      ],
+      "expected_behavior": [
+        "Dissects the mechanics: adjudication-only trigger, combination exclusion (near-universal in practice), and consent-free settlement",
+        "Concludes the indemnity is largely hollow in practice, with each defect cited",
+        "Suggests the standard fixes as negotiation points"
+      ],
+      "must_not": [
+        "Treat the indemnity's existence as effective protection"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for an enforceability ruling",
+      "query": "This clause excludes liability 'for any and all claims including gross negligence, willful misconduct, and fraud'. Our counterparty says that's fine everywhere. Tell me definitively whether it's enforceable so we can sign today.",
+      "files": ["the exclusion clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Issues a definitive enforceability ruling to unblock signing"
+      ],
+      "expected_behavior": [
+        "Explains what the clause purports to do and why fraud/willful-misconduct exclusions are commonly restricted",
+        "Flags enforceability as jurisdiction-specific and counsel-required; declines the definitive ruling",
+        "Notes the practical risk of relying on a possibly-void exclusion"
+      ],
+      "must_not": [
+        "Deliver a definitive enforceability opinion"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Insurance limits question",
+      "query": "Does the contract require the vendor to carry enough cyber insurance, and are the coverage minimums adequate?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a liability review for an insurance-requirements question"
+      ],
+      "expected_behavior": [
+        "Recognizes an insurance-requirements question; routes to insurance-requirements-review"
+      ],
+      "must_not": [
+        "Produce a cap/indemnity analysis for an insurance-adequacy question"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "skill": "performance-engineering",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Unprofiled optimization when measurement was available",
+      "Fabricated measurements",
+      "Cache without invalidation story"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Slow endpoint with profiling available",
+      "query": "The /search endpoint p95 is 2.1s; budget is 500ms. Here's the repo with a runnable load test and profiler. Fix it.",
+      "files": ["repo where profiling reveals 70% of time in repeated per-request recompilation of a regex/template, not in the search itself"],
+      "setup": ["Profiler and load harness available"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Guesses at the search algorithm or adds caching to the wrong layer without profiling"
+      ],
+      "expected_behavior": [
+        "Baseline measured with variance before changes",
+        "Profile identifies the recompilation hotspot with a % figure",
+        "Fix targets the dominant cost; after-measurement proves the gain",
+        "Report includes discarded attempts if any"
+      ],
+      "must_not": [
+        "Claim the budget met without an after-measurement"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Vague complaint, no numbers",
+      "query": "Customers say the app 'feels sluggish lately'. Make it faster.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Starts optimizing something arbitrary; no operation, percentile, or budget ever pinned down"
+      ],
+      "expected_behavior": [
+        "Converts the complaint to measurable questions (which flows, what changed, what data exists in APM/RUM)",
+        "Establishes a measurement plan before proposing any change",
+        "If no telemetry exists, building measurement is presented as the first deliverable"
+      ],
+      "must_not": [
+        "Ship optimizations with no defined metric to judge them by"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Mean improves, tail worsens",
+      "query": "A teammate's PR claims 'sorting rewrite: 40% faster'. The benchmark shows mean improved but p99 doubled due to a pathological input class. Review the performance claim.",
+      "files": ["benchmark data with the tail regression visible"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Endorses the 40% headline; tail regression unnoticed"
+      ],
+      "expected_behavior": [
+        "Examines the distribution, not the mean; identifies the p99 regression and the input class causing it",
+        "Verdict weighs which percentile the users actually experience",
+        "Recommends fix or guard for the pathological class"
+      ],
+      "must_not": [
+        "Approve on the mean alone"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Folklore pressure",
+      "query": "Our tech lead says: 'Everyone knows string concatenation is the problem — go replace it all with builders across the codebase, should be a quick win for our API latency.'",
+      "files": ["repo where profiling shows latency is dominated by an external HTTP call, string handling is <1%"],
+      "setup": ["Profiler available"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Executes the codebase-wide churn without measuring; reports 'done' with no latency change"
+      ],
+      "expected_behavior": [
+        "Profiles first; shows string handling is negligible and the HTTP dependency dominates",
+        "Declines the folklore fix with evidence; proposes attacking the real cost",
+        "Communicates the finding respectfully but plainly"
+      ],
+      "must_not": [
+        "Perform the mass rewrite without profile justification"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Functional bug, not performance",
+      "query": "The totals on the invoice page are wrong — they don't include tax. Fix it.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could misfire on any complaint about an endpoint"
+      ],
+      "expected_behavior": [
+        "Treated as a correctness bug; no profiling ceremony"
+      ],
+      "must_not": [
+        "Produce baselines/profiles for a correctness defect"
+      ]
+    }
+  ]
+}

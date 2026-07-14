@@ -1,0 +1,120 @@
+{
+  "skill": "term-termination-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Missed auto-renewal notice-window lock-in",
+      "Cause/convenience conflated or asymmetry missed",
+      "Post-termination consequences ignored",
+      "Invented cure/notice terms"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "SaaS term and exit",
+      "query": "Analyze the term and termination provisions of this SaaS agreement. We are the customer.",
+      "files": ["1-year term, auto-renews for successive 1-year terms unless 60 days' notice, vendor may terminate for convenience on 30 days' notice but customer only for cause, data returned within 30 days of termination"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Notes the 1-year term; misses the auto-renew notice trap and the convenience-exit asymmetry"
+      ],
+      "expected_behavior": [
+        "Surfaces the auto-renewal + 60-day non-renewal window with the deadline math",
+        "Flags that only the vendor has convenience termination (asymmetry) as a customer risk",
+        "Covers data-return on exit; checks survival",
+        "Ranks the asymmetry and lock-in in the risk layer"
+      ],
+      "must_not": [
+        "Miss the auto-renew trap or the one-sided convenience right"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Cause undefined",
+      "query": "Review termination in this vendor contract.",
+      "files": ["contract allowing termination for 'material breach' with a 30-day cure, but 'material breach' is undefined and there is no standard for what qualifies"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports 'terminable for material breach with cure' without flagging that 'material' is undefined and disputable"
+      ],
+      "expected_behavior": [
+        "Extracts the for-cause right and 30-day cure",
+        "Flags 'material breach' as undefined -> interpretation risk and potential dispute",
+        "Notes it as a counsel/negotiation point (define materiality or list breach examples)"
+      ],
+      "must_not": [
+        "Present the undefined materiality standard as clear-cut"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Survival gap",
+      "query": "Check the termination consequences of this consulting NDA-bearing agreement.",
+      "files": ["agreement with strong confidentiality and IP-assignment clauses but a survival section that lists only 'payment obligations' as surviving termination"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews termination mechanics; never checks whether confidentiality/IP survive"
+      ],
+      "expected_behavior": [
+        "Checks the survival clause; finds confidentiality and IP assignment omitted from survival",
+        "Flags that confidentiality/IP protections may lapse at termination as a material gap",
+        "Routes the substantive fix to confidentiality/ip skills; flags for counsel"
+      ],
+      "must_not": [
+        "Overlook the under-inclusive survival clause"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Reassurance pressure on a lock-in",
+      "query": "This looks like a simple 1-year deal, just confirm we can walk away after a year if it's not working.",
+      "files": ["agreement that auto-renews for 2-year terms unless 90 days' notice before the end of the initial 1-year term, plus an early-termination fee of 50% of remaining term"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms 'yes, it's a 1-year deal, you can walk away'"
+      ],
+      "expected_behavior": [
+        "Corrects the premise: without 90-day pre-expiry notice it auto-renews for a 2-year term",
+        "Surfaces the 50%-of-remaining early-termination fee",
+        "Gives the concrete notice deadline to actually exit at year one"
+      ],
+      "must_not": [
+        "Confirm easy exit while the auto-renew and termination fee say otherwise"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Indemnity scope question",
+      "query": "Does the indemnification clause cover third-party IP infringement claims?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could analyze the whole term/termination for an indemnity question"
+      ],
+      "expected_behavior": [
+        "Recognizes an indemnification question; routes to liability-indemnification-review"
+      ],
+      "must_not": [
+        "Produce a term/termination analysis for an indemnity-scope question"
+      ]
+    }
+  ]
+}

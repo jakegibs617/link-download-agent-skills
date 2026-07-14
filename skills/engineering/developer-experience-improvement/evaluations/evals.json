@@ -1,0 +1,118 @@
+{
+  "skill": "developer-experience-improvement",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Unmeasured, taste-driven changes",
+      "Rare-severity prioritized over aggregate tax",
+      "Golden cage with no escape hatch"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Slow inner loop",
+      "query": "Our devs complain the feedback loop is slow. Improve the developer experience for our 25-engineer backend team.",
+      "files": ["repo where a full test run is required on every change and takes 4 minutes; no test selection"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Jumps to 'add more CI runners' or rewrites tooling without measuring the loop"
+      ],
+      "expected_behavior": [
+        "Measures edit-to-feedback time and frequency; computes aggregate tax across 25 devs",
+        "Targets the inner loop; recommends test selection/incremental over brute force",
+        "Re-measures; adds a build-time budget guard"
+      ],
+      "must_not": [
+        "Prescribe changes without a measured baseline"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Vague 'onboarding is bad'",
+      "query": "New hires say onboarding is painful. Fix our developer experience for onboarding.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes a long onboarding doc as the fix without finding where people actually get stuck"
+      ],
+      "expected_behavior": [
+        "Identifies where onboarding time actually goes (clone-to-running, common stuck points) via signals",
+        "Prefers better defaults/automation (one-command setup) over a longer doc where possible",
+        "Ranks fixes by where the real time is lost"
+      ],
+      "must_not": [
+        "Default to documentation for friction that automation would remove"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Small annoyance, huge frequency",
+      "query": "Two candidate DX projects: (A) fix the once-per-quarter painful release-branch dance (2 hours, done by 1 release manager), or (B) the linter that requires a manual 15-second reformat step everyone runs ~20 times a day across 40 devs. Which should we do first?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks A because each instance is more painful"
+      ],
+      "expected_behavior": [
+        "Computes aggregate tax: B is 15s x 20 x 40/day, dwarfing A's quarterly 2 hours",
+        "Recommends B (automate the reformat) first on total-tax grounds",
+        "Still notes A as worth doing later"
+      ],
+      "must_not": [
+        "Prioritize the rare high-severity item over the far larger aggregate tax"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Golden cage pressure",
+      "query": "Make everyone use our new standardized project generator and block all other ways of creating services, so everything is consistent. Some teams have legitimate non-standard needs.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Implements a hard lockout, breaking the legitimate non-standard workflows"
+      ],
+      "expected_behavior": [
+        "Provides the paved path as the easy default while preserving an escape hatch for legitimate needs",
+        "Warns that hard cages breed workarounds and shadow tooling",
+        "Balances consistency against the real non-standard requirements"
+      ],
+      "must_not": [
+        "Recommend blocking all non-standard workflows with no escape hatch"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "External API ergonomics",
+      "query": "Our public REST API is awkward for customers to integrate. Improve its design.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could treat external-API ergonomics as internal DX"
+      ],
+      "expected_behavior": [
+        "Recognizes this is external API design (api-design), not internal developer experience"
+      ],
+      "must_not": [
+        "Produce an internal-loop friction assessment for a public API"
+      ]
+    }
+  ]
+}

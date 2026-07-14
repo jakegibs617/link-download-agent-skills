@@ -1,0 +1,150 @@
+# Composition Workflows
+
+Worked multi-skill workflows for common scenarios. Each stage names the skill
+to invoke and what its output feeds into. Stages marked **(gate)** must pass
+before the workflow continues.
+
+Conventions: skill names are directories under `engineering/` or `legal/`.
+Outputs referenced between stages are the structured sections defined in each
+skill's Output Format.
+
+---
+
+## 1. Understanding an unfamiliar repository
+
+1. `codebase-comprehension` — map entry points, module boundaries, data flow,
+   and conventions; output: repo map + evidence-cited findings.
+2. `system-architecture` — recover the as-built architecture from the repo
+   map; output: component/dependency view with identified seams.
+3. `technical-debt-assessment` — rank debt hotspots found during mapping;
+   output: prioritized debt register.
+4. Optional: `technical-documentation` — write the missing onboarding doc from
+   stages 1–3 so the next reader starts warm.
+
+## 2. Designing and implementing a new feature
+
+1. `requirements-analysis` — resolve ambiguity, produce testable acceptance
+   criteria. **(gate: open questions either answered or explicitly deferred)**
+2. `first-principles-design` — candidate designs with tradeoffs; pick one.
+3. As needed in parallel: `api-design` (external surface),
+   `database-design-optimization` (schema/queries),
+   `distributed-systems-design` (if cross-service).
+4. `technical-planning-estimation` — slice into increments with estimates.
+5. `code-implementation` — build increment by increment.
+6. `testing-strategy` — define and fill the test pyramid for the feature.
+7. `code-change-review` **(gate)** — review the diff before merge.
+8. `knowledge-transfer-verification` — confirm the humans who own this code
+   next actually understand it.
+
+## 3. Diagnosing a production incident
+
+1. `observability-incident-response` — stabilize first: assess impact,
+   mitigate, communicate; output: timeline + mitigation state. **(gate:
+   user impact stopped or bounded)**
+2. `debugging-root-cause-analysis` — reproduce, bisect, and prove the root
+   cause with evidence; output: cause chain, not just the proximate trigger.
+3. `code-implementation` — implement the fix; `code-change-review` before
+   deploy.
+4. `reliability-fault-tolerance` — harden the failure path (retries,
+   timeouts, isolation) so the class of failure, not the instance, is closed.
+5. `observability-incident-response` (postmortem mode) — blameless
+   postmortem with tracked action items.
+
+## 4. Reviewing a pull request
+
+1. `code-change-review` — correctness, tests, security-sensitive paths;
+   output: findings ranked by severity with evidence.
+2. Escalate targeted concerns to specialists as findings warrant:
+   `security-engineering` (auth/crypto/input handling),
+   `performance-engineering` (hot paths), `concurrency-correctness`
+   (shared state), `database-design-optimization` (query/schema changes).
+3. `stakeholder-communication` — only if the review outcome (e.g. "this
+   needs a redesign") must be explained to non-engineers.
+
+## 5. Planning a legacy-system migration
+
+1. `codebase-comprehension` — map the legacy system as it actually is.
+2. `legacy-system-modernization` — assess what to keep, wrap, rewrite, or
+   retire; output: target state + strangler-fig seams.
+3. `migration-planning` — phased plan with reversible steps, data migration
+   strategy, cutover and rollback criteria. **(gate: every phase has a
+   rollback path)**
+4. `engineering-risk-analysis` — enumerate failure modes per phase; feed
+   mitigations back into the plan.
+5. `stakeholder-communication` — translate the plan, cost, and risk for
+   decision-makers.
+6. During execution, per phase: `code-implementation` → `code-change-review`
+   → `production-readiness-review` **(gate)**.
+
+## 6. Reviewing an independent-contractor agreement
+
+1. `contract-structure-completeness` — inventory what's present/missing.
+2. `defined-term-consistency` — verify the defined terms actually work.
+3. Substantive fan-out: `worker-classification-review` (misclassification
+   risk), `ip-ownership-review` (work product actually assigned?),
+   `payment-compensation-analysis`, `term-termination-analysis`,
+   `restrictive-covenants-review`, `confidentiality-data-protection-review`.
+4. `missing-protections-analysis` — what a contractor/client in this position
+   should have but doesn't.
+5. `redline-recommendations` — concrete edits ranked by importance.
+6. `plain-english-contract-explanation` — client-readable summary, with
+   counsel-required items flagged.
+
+## 7. Reviewing a software-development agreement
+
+1. `contract-structure-completeness` → `defined-term-consistency`.
+2. Substantive fan-out: `ip-ownership-review` (deliverables, background IP,
+   licenses), `rights-obligations-extraction` (who must do what, when),
+   `payment-compensation-analysis` (milestones, acceptance, holdbacks),
+   `warranty-representation-review`, `liability-indemnification-review`
+   (caps vs. IP-infringement carve-outs), `term-termination-analysis`
+   (what happens to work-in-progress), `confidentiality-data-protection-review`.
+3. `drafting-defects-detection` — cross-reference and contradiction sweep.
+4. `missing-protections-analysis` → `contract-negotiation-strategy` →
+   `redline-recommendations`.
+5. `signature-readiness-assessment` **(gate)** — consolidated go/no-go with
+   counsel-required items.
+
+## 8. Reviewing an employment or equity agreement
+
+1. `contract-structure-completeness` — including referenced-but-missing
+   documents (plan documents, handbooks, prior inventions exhibits).
+2. Substantive fan-out: `payment-compensation-analysis`,
+   `equity-incentive-review` (vesting, acceleration, exercise windows,
+   repurchase), `restrictive-covenants-review`, `ip-ownership-review`
+   (invention assignment scope), `term-termination-analysis` (cause
+   definitions, severance triggers), `assignment-change-of-control-review`.
+3. `missing-protections-analysis` — from the employee's position.
+4. `plain-english-contract-explanation` — what the person is actually
+   agreeing to, with tax/securities questions flagged as counsel-required.
+
+## 9. Preparing a contract negotiation brief
+
+1. Inputs: completed substantive reviews (any subset of the legal skills)
+   plus client goals and constraints.
+2. `missing-protections-analysis` — gaps become potential asks.
+3. `contract-negotiation-strategy` — rank issues by leverage and materiality;
+   define walk-away points, trade packages, and fallback positions per issue.
+4. `redline-recommendations` — proposed language for each negotiating
+   position, primary and fallback.
+5. `plain-english-contract-explanation` — brief the client on the strategy in
+   plain language.
+6. `signature-readiness-assessment` — re-run after the counterparty responds,
+   to confirm what was actually won or conceded.
+
+---
+
+## Composition rules
+
+- **Structure first, substance second, synthesis last.** In legal workflows,
+  structural skills (1–2) run before substantive fan-out; synthesis skills
+  (`missing-protections-analysis`, `signature-readiness-assessment`) run last
+  because they consume the others' outputs.
+- **Gates stop the pipeline.** A failed gate produces findings, not a pass —
+  loop back to the producing stage.
+- **Don't re-derive; hand off.** Each stage consumes the prior stage's output
+  format. If a stage's needed input is missing, invoke the producing skill
+  rather than improvising the analysis inline.
+- **Escalation is part of the pipeline.** Counsel-required items (legal) and
+  human-authorization items (engineering) accumulate across stages and must
+  appear in the final deliverable, whichever workflow produced them.

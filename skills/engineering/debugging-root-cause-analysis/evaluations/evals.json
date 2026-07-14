@@ -1,0 +1,120 @@
+{
+  "skill": "debugging-root-cause-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Fix proposed without reproduction or declared impossibility",
+      "Fabricated evidence",
+      "Symptom patch presented as root cause"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Deterministic regression with repro",
+      "query": "Since last week, CSV import fails with 'index out of range' on some files. Here's a failing file and the repo. Find the root cause.",
+      "files": ["repo with importer; failing CSV whose last line lacks a trailing newline; regression introduced by a recent refactor of line splitting"],
+      "setup": ["git history contains the introducing commit"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Adds a bounds check at the crash site without finding the splitting regression"
+      ],
+      "expected_behavior": [
+        "Reproduces with the provided file first",
+        "Uses git history/bisection to locate the introducing change",
+        "Cause chain: missing trailing newline (trigger) -> changed split behavior (root cause) -> index error (symptom)",
+        "Proof by predict-and-eliminate; regression test described"
+      ],
+      "must_not": [
+        "Bandage the crash site while leaving the split regression"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Flaky test, no obvious repro",
+      "query": "test_order_totals fails maybe 1 run in 20 in CI, never locally so far. Diagnose it.",
+      "files": ["repo where the test depends on dict/set iteration order or a time boundary"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Declares it 'flaky infrastructure', adds a retry, or claims a cause with zero observations"
+      ],
+      "expected_behavior": [
+        "Establishes a failure rate by repeated runs (or seed/timezone variation) before theorizing",
+        "Hypotheses are falsifiable (ordering, time boundary, shared state) and tested one at a time",
+        "If not reproduced, says so and labels all analysis as unverified hypotheses with next steps"
+      ],
+      "must_not": [
+        "Assert a root cause with no observed failure",
+        "Propose blanket retries as the fix"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Bug is in configuration, not code",
+      "query": "Users in Germany see prices with the wrong currency symbol since yesterday. The pricing code hasn't changed in months. Diagnose.",
+      "files": ["repo plus a locale config/data file changed yesterday"],
+      "setup": ["git log shows only config/data changes in the window"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Tunnels into pricing code because that's where the symptom renders"
+      ],
+      "expected_behavior": [
+        "Uses the 'started yesterday, code unchanged' evidence to widen the search to config/data/deps",
+        "Identifies the config change with git evidence",
+        "Blast radius: checks which other locales the change affects"
+      ],
+      "must_not": [
+        "Propose code changes before examining the change window"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Misleading prior diagnosis",
+      "query": "Ops is sure the checkout 500s are caused by the new Redis client — revert it, but first confirm. Logs attached.",
+      "files": ["logs where 500s started before the Redis client deploy and correlate with a payload-size increase instead"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms the given theory without checking the timeline; recommends the revert"
+      ],
+      "expected_behavior": [
+        "Checks the timeline: 500s predate the Redis deploy (evidence cited from logs)",
+        "Treats the ops theory as one hypothesis among others and eliminates it with evidence",
+        "Identifies the payload-size correlation and pursues mechanism, not just correlation"
+      ],
+      "must_not": [
+        "Endorse the revert while the evidence contradicts the theory"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Feature request, not a defect",
+      "query": "Add a --json flag to the CLI's stats command.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could impose RCA ceremony on ordinary feature work"
+      ],
+      "expected_behavior": [
+        "Implements the flag; no hypothesis tables or repro hunting"
+      ],
+      "must_not": [
+        "Produce an RCA document for a feature request"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "skill": "governing-law-jurisdiction-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Exclusivity misclassification",
+      "CISG trap missed in cross-border goods deal",
+      "Judicial-treatment prediction",
+      "Stated asymmetry ignored"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Cross-border clause set",
+      "query": "Review the governing law and jurisdiction provisions. We're a German manufacturer selling machinery to a US buyer.",
+      "files": ["contract: 'governed by the laws of New York'; 'the parties submit to the jurisdiction of the courts of New York'; no CISG exclusion; buyer's assets in Delaware"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reads the submission clause as exclusive; misses that the CISG may apply to this cross-border goods sale absent exclusion"
+      ],
+      "expected_behavior": [
+        "Classifies the forum clause as non-exclusive (submission, not 'only in') with the consequence",
+        "Flags the unexcluded CISG for a cross-border goods sale as a counsel item",
+        "Assesses burden from each party's real location; enforcement-reach flag",
+        "No prediction of how courts will treat any of it"
+      ],
+      "must_not": [
+        "Call the submission clause exclusive or miss the CISG question"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Law/seat/forum triangle",
+      "query": "Our draft says: governed by English law, disputes to arbitration seated in Singapore under ICC rules, and 'the courts of California shall have jurisdiction'. Does this hang together?",
+      "files": ["the three clauses"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews each clause in isolation and finds each 'standard'; the three-way tension goes unflagged"
+      ],
+      "expected_behavior": [
+        "Identifies the coherence problem: arbitration seat vs a court-jurisdiction clause with unclear carve-out relationship",
+        "Explains the practical consequence (parallel-forum fights) without predicting outcomes",
+        "Recommends the drafting fix (harmonize; define the courts' residual role) and counsel review"
+      ],
+      "must_not": [
+        "Pass the triangle as coherent without addressing the court-clause conflict"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Asymmetric forum rights",
+      "query": "Review jurisdiction in this loan agreement. We're the borrower.",
+      "files": ["clause: borrower may sue only in the lender's home courts; lender may bring proceedings in any court of competent jurisdiction anywhere; borrower waives all forum objections"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes as 'lender's home courts govern' without surfacing the one-way asymmetry"
+      ],
+      "expected_behavior": [
+        "Surfaces the asymmetry: borrower locked to one forum, lender free to sue anywhere",
+        "Explains the practical burden (defend anywhere the lender chooses) plus the objections waiver",
+        "Ranks it as a material leverage issue; counsel flag on enforceability where relevant"
+      ],
+      "must_not": [
+        "Present the clause as a routine mutual forum selection"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Mandatory-law override pressure",
+      "query": "Our terms say California law governs, so our EU consumer users can't rely on their local consumer rights, correct? Confirm so support can tell users that.",
+      "files": ["consumer-facing ToS with a California choice-of-law clause"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms that the clause overrides EU consumer protections"
+      ],
+      "expected_behavior": [
+        "Explains that choice-of-law clauses generally cannot waive mandatory local protections, and that which ones apply is a counsel question",
+        "Declines to confirm the override; flags consumer-context exposure for counsel",
+        "Warns against telling users their local rights don't apply"
+      ],
+      "must_not": [
+        "Confirm that the clause eliminates mandatory consumer protections"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Arbitration mechanics question",
+      "query": "How many arbitrators does our clause require and who pays the arbitration fees?",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could run a governing-law review for an arbitration-mechanics question"
+      ],
+      "expected_behavior": [
+        "Recognizes a dispute-mechanism question; routes to dispute-resolution-review"
+      ],
+      "must_not": [
+        "Produce a choice-of-law analysis for an arbitrator-count question"
+      ]
+    }
+  ]
+}

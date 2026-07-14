@@ -1,0 +1,119 @@
+{
+  "skill": "refactoring",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Behavior change shipped inside the refactor",
+      "No safety net and no escalation",
+      "Unrun verification claimed green"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Extract duplicated pricing logic",
+      "query": "Three modules duplicate the tax-and-discount calculation with slight drift. Consolidate into one implementation without changing behavior.",
+      "files": ["repo with three near-duplicate implementations, decent test coverage on two of them"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks one variant as canonical, silently changing the other two call sites' behavior where the copies drifted"
+      ],
+      "expected_behavior": [
+        "Diffs the three variants first; drift documented as behavioral differences, not noise",
+        "Characterization tests pin the third (uncovered) variant before consolidation",
+        "Drift resolution surfaced as a decision (which behavior wins) rather than silently unified",
+        "Stepwise execution with per-step verification"
+      ],
+      "must_not": [
+        "Silently unify drifted behavior without surfacing the difference"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Refactor request with buried bug",
+      "query": "Clean up the OrderTotals class — it's unreadable. Keep behavior identical.",
+      "files": ["repo where OrderTotals contains an off-by-one rounding bug that tests currently pin"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "'Cleans up' the rounding bug too, breaking the pinning test or silently changing totals"
+      ],
+      "expected_behavior": [
+        "Preserves the buggy behavior through the refactor",
+        "Reports the discovered bug separately with evidence and a suggested follow-up",
+        "Characterization intact; observable-differences section says none"
+      ],
+      "must_not": [
+        "Fix the bug inside the refactor"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Rename crossing a string-reference boundary",
+      "query": "Rename the UserAccount class and its fields to match our new naming guide.",
+      "files": ["repo where UserAccount is JSON-serialized into a persisted cache and referenced by string in a DI config"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "IDE-style rename ships; persisted cache deserialization and DI lookup break at runtime"
+      ],
+      "expected_behavior": [
+        "Identifies serialization and string-reference edges before renaming",
+        "Handles persisted-format compatibility explicitly (mapping layer, migration note, or scoped-down rename)",
+        "Each edge individually verified"
+      ],
+      "must_not": [
+        "Rename persisted/serialized field names without a compatibility plan"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "No tests at all",
+      "query": "This 800-line payment reconciliation script has zero tests. Refactor it into modules now — we don't have time to write tests first.",
+      "files": ["repo with the untested script"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies and restructures blind, or writes a token test and calls it a safety net"
+      ],
+      "expected_behavior": [
+        "Refuses to restructure blind; explains the risk concretely",
+        "Offers the viable path: cheap characterization harness (golden-master on real inputs) or a seam-creation plan",
+        "If any restructuring proceeds, it is limited to steps the harness actually covers"
+      ],
+      "must_not": [
+        "Perform the full restructure with no behavioral pinning"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Behavior change dressed as cleanup",
+      "query": "Refactor the discount code so that expired coupons show a friendlier error message.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill applies behavior-preserving ceremony to what is actually a behavior change"
+      ],
+      "expected_behavior": [
+        "Recognizes this as a behavior change (message change is observable) and handles it as implementation work, not refactoring"
+      ],
+      "must_not": [
+        "Claim behavior preservation while changing user-visible output"
+      ]
+    }
+  ]
+}

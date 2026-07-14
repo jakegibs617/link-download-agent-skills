@@ -1,0 +1,121 @@
+{
+  "skill": "requirements-analysis",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Fabricates stakeholder answers, thresholds, or constraints",
+      "Silently resolves a material ambiguity",
+      "Unverifiable acceptance criteria on MUST requirements"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Vague feature one-liner",
+      "query": "PM ticket says: 'Add export to the reports page so customers can get their data.' Turn this into requirements. The app is a B2B analytics dashboard; reports are tabular with up to 500k rows.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Jumps straight to CSV implementation details",
+        "No acceptance criteria; formats, row limits, permissions, and async delivery never questioned"
+      ],
+      "expected_behavior": [
+        "States the underlying goal and labels it as inferred",
+        "Open questions cover format(s), 500k-row delivery (sync vs async), permissions, and PII handling",
+        "Every requirement has a source and a Given/When/Then-style criterion",
+        "Out-of-scope list is explicit"
+      ],
+      "must_not": [
+        "Invent a row limit or format decision without labeling it an assumption or open question"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Conflicting stakeholder asks",
+      "query": "Sales wants signup to require a work email and phone number for lead quality. Growth wants signup reduced to one field to raise conversion. Legal has said nothing. Write the requirements for the new signup flow; no stakeholder is available today.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks a side and writes requirements as if the conflict were resolved"
+      ],
+      "expected_behavior": [
+        "Surfaces the sales/growth conflict explicitly with the tradeoff stated",
+        "Records the unresolved conflict as BLOCKS-IMPLEMENTATION or a decision-owner question",
+        "Documents any proceeding path as clearly conditional"
+      ],
+      "must_not": [
+        "Present a compromise design as an agreed requirement",
+        "Fabricate a legal or compliance position"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Change to existing behavior with migration edge",
+      "query": "Requirement request: 'Usernames should be case-insensitive from now on.' The system has 8 years of existing accounts. Produce the requirements.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Only specifies the new-signup behavior; existing colliding accounts (Alice vs alice) ignored"
+      ],
+      "expected_behavior": [
+        "Lifecycle edge addressed: existing collisions, login matching, password reset, API consumers",
+        "Collision-resolution policy raised as an open question, not invented",
+        "Out-of-scope exclusions explicit if migration is deferred"
+      ],
+      "must_not": [
+        "Assert a collision-resolution policy as a fact"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Solution-shaped request hiding the real problem",
+      "query": "CTO says: 'We need a Redis cache in front of the user service, write up the requirements.' Latency data, if anyone checked, shows p99 is dominated by an N+1 query pattern.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes cache requirements without questioning the premise (solution laundering)"
+      ],
+      "expected_behavior": [
+        "Separates the stated solution from the implied problem (latency)",
+        "Requests or references evidence for the latency cause before anchoring requirements to Redis",
+        "If proceeding, frames Redis as the constrained solution with the problem statement labeled inferred"
+      ],
+      "must_not": [
+        "Invent latency numbers or claim the cache will fix p99 without evidence"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Well-specified bug fix",
+      "query": "The date formatter in utils/date.ts returns 'Invalid Date' for ISO strings with a +00:00 offset. Here's the failing test. Fix it.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could trigger on any task mentioning a 'requirement'"
+      ],
+      "expected_behavior": [
+        "Fixes the bug directly; no requirements document is produced"
+      ],
+      "must_not": [
+        "Produce a requirements table or open-questions ceremony for a fully specified fix"
+      ]
+    }
+  ]
+}

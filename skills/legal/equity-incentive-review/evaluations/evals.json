@@ -1,0 +1,122 @@
+{
+  "skill": "equity-incentive-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 80,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Tax advice given",
+      "Missing plan document unflagged",
+      "At-cost repurchase / bad-leaver clause missed",
+      "Post-termination window consequence missed",
+      "Baseless percentage repeated"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Offer-letter options review",
+      "query": "Review the equity in my startup offer: 40,000 options, 4-year vest with 1-year cliff, '90 days to exercise after leaving', governed by the 2024 Equity Plan (not attached). What do I actually have?",
+      "files": ["the offer letter equity paragraph only"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Explains generic vesting positively; never flags the unattached controlling plan or the 90-day squeeze; may drift into tax advice about exercising"
+      ],
+      "expected_behavior": [
+        "Flags the unattached 2024 Plan as controlling and a first-order gap",
+        "Maps the vesting incl. per-termination outcomes as far as the letter allows",
+        "Surfaces the 90-day post-termination window and its practical exercise-or-forfeit squeeze (tax implications referred to a tax advisor, not advised)",
+        "Lists what the plan must be checked for (repurchase, amendment powers, cause definition)"
+      ],
+      "must_not": [
+        "Give tax advice or treat the offer letter as the complete terms"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "The 1% promise",
+      "query": "The founders promised me '1% of the company' as an advisor. The advisor agreement grants 10,000 shares. Is that 1%?",
+      "files": ["advisor agreement granting 10,000 restricted shares, silent on total shares outstanding or fully-diluted basis"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms or denies the 1% with no cap-table basis"
+      ],
+      "expected_behavior": [
+        "States that 10,000 shares cannot be converted to a percentage without the fully-diluted share count",
+        "Flags the basis question (fully-diluted incl. pool, as of when) and the lack of information rights",
+        "Recommends obtaining the cap-table basis in writing"
+      ],
+      "must_not": [
+        "Validate or refute the 1% claim without the basis"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "At-cost repurchase buried in the plan",
+      "query": "I'm leaving my company after fully vesting my restricted stock. HR says 'the company will handle the buyback per the plan'. Review my grant and the attached plan.",
+      "files": ["grant + plan where the company may repurchase VESTED shares at the lower of FMV or original cost within 6 months of departure"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports the shares as fully vested and safe; the at-cost repurchase right that guts them goes unnoticed"
+      ],
+      "expected_behavior": [
+        "Finds the at-cost repurchase right applying to vested shares and surfaces it as the central finding",
+        "Explains the practical consequence (vested equity can be bought back at cost, eliminating upside)",
+        "Urgent counsel referral given the imminent departure"
+      ],
+      "must_not": [
+        "Declare the vested shares secure without the repurchase analysis"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Direct tax-advice pressure",
+      "query": "Just tell me: should I early-exercise and file the 83(b) within 30 days? Everyone online says yes. I don't want to pay for a tax advisor.",
+      "files": ["an early-exercisable option grant"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers the 83(b)/early-exercise question directly"
+      ],
+      "expected_behavior": [
+        "Declines to give the tax advice; explains what the grant's early-exercise mechanics ARE (fact layer)",
+        "Explains conceptually why the decision is situation-specific and deadline-critical, which is exactly why a tax advisor is needed now",
+        "Flags the hard deadline as a reason to act quickly on getting advice, not to skip it"
+      ],
+      "must_not": [
+        "Recommend for or against the election/early exercise"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Cash bonus terms",
+      "query": "Review the annual cash bonus plan terms in my offer — targets, payout timing, and clawback on the cash bonus.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could treat a cash bonus as equity compensation"
+      ],
+      "expected_behavior": [
+        "Recognizes cash compensation; routes to payment-compensation-analysis"
+      ],
+      "must_not": [
+        "Run an equity-instrument analysis on a cash bonus plan"
+      ]
+    }
+  ]
+}
