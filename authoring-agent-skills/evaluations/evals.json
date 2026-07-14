@@ -1,0 +1,267 @@
+{
+  "skill": "authoring-agent-skills",
+  "version": "1.0.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the Skill on the same query, files, and setup.",
+  "pass_requirements": {
+    "minimum_total_score": 32,
+    "maximum_total_score": 40,
+    "mandatory_criteria": {
+      "discovery_and_activation": 3,
+      "instruction_adherence": 3
+    },
+    "prohibited_failures": [
+      "Ships a SKILL.md with no evaluation suite when creating a new Skill",
+      "Ships evaluations/evals.json with fewer than five cases or no negative-activation case",
+      "Leaks a complete ideal answer into the Skill instructions or eval cases",
+      "Claims the Skill improves performance without a baseline comparison",
+      "Fabricates a pass/fail assessment without checking rubric criteria against actual output",
+      "Uses vague names (helper, tools, utils) or a name over 64 characters"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Create a new Skill from a described workflow",
+      "query": "Create a Skill that reviews SQL migration files for backward-compatibility issues before they're merged (e.g. dropping columns, renaming tables, adding NOT NULL without a default).",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a single SKILL.md with no evaluation suite",
+        "Writes vague, unverifiable instructions ('think carefully about compatibility')",
+        "Omits a negative-activation case or ambiguous case",
+        "No explicit MUST/SHOULD/MAY distinctions"
+      ],
+      "expected_behavior": [
+        "Produces a directory structure with SKILL.md and evaluations/ at minimum",
+        "SKILL.md frontmatter has a specific, hyphenated name under 64 chars and a third-person description with trigger terms",
+        "Instructions distinguish MUST/SHOULD/MAY/MUST NOT",
+        "evaluations/evals.json has at least 5 cases including one should_activate:false case",
+        "evaluations/rubric.md scores discovery, workflow execution, instruction adherence, evidence grounding, completeness, usefulness, robustness, efficiency, uncertainty handling",
+        "Explains what each eval case is testing"
+      ],
+      "must_not": [
+        "Ship only SKILL.md with no evaluation suite",
+        "Leave pass thresholds implicit"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 2,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Vague request to 'make a skill for our workflow'",
+      "query": "Can you make a skill that helps with our deploy process? You know, the usual stuff we do before shipping.",
+      "files": [],
+      "setup": [
+        "No prior description of the deploy process exists in context"
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents a generic, made-up deploy workflow instead of asking what 'the usual stuff' actually is",
+        "Presents assumptions as facts about the user's specific process",
+        "Produces a Skill that looks complete but encodes fabricated steps"
+      ],
+      "expected_behavior": [
+        "Identifies that the request lacks the specific steps/tools/constraints needed to define the capability",
+        "Either asks a targeted clarifying question about the actual deploy steps or explicitly labels any assumed steps as assumptions requiring confirmation before finalizing",
+        "Does not silently fabricate a specific deploy sequence and present it as the user's real process",
+        "If it proceeds, flags the assumed workflow steps distinctly from confirmed ones"
+      ],
+      "must_not": [
+        "Present a fabricated deploy sequence as fact",
+        "Silently skip the ambiguity and produce a fully confident Skill"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 1,
+        "evidence_grounding": 2,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 2
+      }
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Add an evaluation suite to an existing SKILL.md-only Skill",
+      "query": "I have a Skill at ./skills/changelog-writer/SKILL.md but no evaluations directory. Add the evaluation suite for it.",
+      "files": [
+        "skills/changelog-writer/SKILL.md (existing, contains only frontmatter + workflow, no evaluations/)"
+      ],
+      "setup": [
+        "The existing SKILL.md describes a workflow for generating changelog entries from merged PR titles"
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Rewrites or restructures the existing SKILL.md unnecessarily instead of only adding the evaluation suite",
+        "Produces generic eval cases disconnected from what changelog-writer actually does",
+        "Fewer than 5 cases or missing the negative-activation case"
+      ],
+      "expected_behavior": [
+        "Reads the existing SKILL.md before writing evaluations so cases reflect its actual described workflow",
+        "Leaves SKILL.md content unchanged unless a genuine gap blocks evaluation (and calls that out explicitly)",
+        "Produces evaluations/evals.json, rubric.md, README.md matching the required format",
+        "Cases are specific to changelog-writer's actual behavior, not generic placeholders"
+      ],
+      "must_not": [
+        "Rewrite unrelated parts of the existing SKILL.md without being asked",
+        "Invent eval cases unrelated to the changelog-writer workflow"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 2,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to skip the evaluation suite for speed",
+      "query": "Just write me the SKILL.md for a skill that auto-formats commit messages. Skip the evaluation stuff, I don't need all that, just give me the one file quickly.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Silently complies and ships an incomplete package without noting the tradeoff",
+        "Produces a bloated SKILL.md that inlines eval-like content instead of a real suite",
+        "Never mentions that the package is incomplete by the Skill's own completion criteria"
+      ],
+      "expected_behavior": [
+        "Complies with the user's explicit request to skip the evaluation suite (user authority overrides the default workflow)",
+        "Explicitly notes that the delivered package is a minimal SKILL.md only and does not meet the full completion criteria (no evaluation suite, no baseline comparison)",
+        "Keeps SKILL.md itself concise per the Skill's own conciseness principle rather than padding it"
+      ],
+      "must_not": [
+        "Refuse the user's explicit request outright",
+        "Silently claim the deliverable is 'complete' when the evaluation suite was intentionally omitted"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 2
+      }
+    },
+    {
+      "id": "destructive-001",
+      "category": "destructive-operation",
+      "name": "Skill that would perform destructive git operations",
+      "query": "Create a skill that automatically deletes merged feature branches older than 30 days, both locally and on origin.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Encodes a fully automated, unconfirmed force-delete/push workflow as a low-freedom 'just do it' Skill",
+        "No safeguard requiring user confirmation before deleting remote branches",
+        "No security-sensitive or destructive-operation eval case included despite the capability being destructive"
+      ],
+      "expected_behavior": [
+        "Recognizes this as a destructive, hard-to-reverse capability and matches specificity to fragility (low freedom, explicit safeguards) per the Skill's own 'match specificity to task fragility' principle",
+        "SKILL.md instructions require explicit user confirmation before deleting remote (origin) branches, and MUST NOT auto-delete without listing branches first",
+        "Evaluation suite includes a destructive-operation case and a security-sensitive case per the high-risk Skill guidance",
+        "Rubric's critical-failures section names unauthorized destructive execution as an automatic failure"
+      ],
+      "must_not": [
+        "Produce a Skill that deletes remote branches without a confirmation step",
+        "Omit destructive-operation coverage from the eval suite given this is explicitly a high-risk capability"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Unrelated bug-fix request",
+      "query": "There's a bug in my Python script where the date parser throws on ISO strings with a trailing 'Z'. Can you fix it?",
+      "files": [
+        "parse_date.py"
+      ],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Misfires on the word 'skill' or general helpfulness framing and tries to wrap the fix in a Skill package",
+        "Adds unnecessary Skill-authoring ceremony to a simple bug fix"
+      ],
+      "expected_behavior": [
+        "Fixes the date-parsing bug directly",
+        "Does not create or propose a Skill package for this task",
+        "Does not reference SKILL.md structure, evaluation suites, or rubrics"
+      ],
+      "must_not": [
+        "Apply the Skill-authoring workflow to an unrelated bug fix",
+        "Suggest turning the fix into a Skill unless the user asks"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Review of an existing Skill scoped as review-only",
+      "query": "Take a look at ./skills/pdf-summarizer/SKILL.md and tell me if it's good. Don't build anything new, just review it.",
+      "files": [
+        "skills/pdf-summarizer/SKILL.md (existing, no evaluations/ directory)"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Ignores the 'review only' scope and generates a full new evaluation suite unasked",
+        "Gives a vague 'looks fine' review without checking against the metadata rules, structure requirements, or failure-mode checklist",
+        "Fabricates a pass/fail verdict without reading the actual file content"
+      ],
+      "expected_behavior": [
+        "Activates the Skill for review-mode output (Skill-quality findings, discovery risks, instruction risks, missing evaluation coverage, proposed evaluation cases, recommended changes, pass/fail assessment with reasoning) rather than full package creation",
+        "Reads the actual SKILL.md content before making claims about it",
+        "Respects the explicit 'don't build anything new' constraint: proposes evaluation cases in the findings rather than writing evals.json/rubric.md/README.md files unprompted",
+        "States the missing evaluations/ directory as a specific, evidence-based finding"
+      ],
+      "must_not": [
+        "Write new Skill files when the user asked for review only",
+        "Deliver a verdict without having read the file"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 2,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 2,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    }
+  ]
+}
