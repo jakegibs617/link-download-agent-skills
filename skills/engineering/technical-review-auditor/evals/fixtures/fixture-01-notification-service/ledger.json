@@ -1,0 +1,87 @@
+{
+  "fixture_id": "fixture-01-notification-service",
+  "mode": "doc",
+  "notes": "Defects span all four lenses and three severities. D1, D2 and D7 are the ones that would actually sink the project.",
+  "defects": [
+    {
+      "id": "D1",
+      "lens": "reversibility",
+      "severity": "critical",
+      "must_be_blocking": true,
+      "description": "The event shape is a public integration contract for three partners, with no version field, no versioning strategy, and no compatibility policy.",
+      "detection_criteria": "Review identifies the event schema as a one-way door once partners consume it, or raises the absence of schema versioning / evolution strategy."
+    },
+    {
+      "id": "D2",
+      "lens": "reversibility",
+      "severity": "critical",
+      "must_be_blocking": true,
+      "description": "Notifications table has no tenant or partner scoping column despite external partners publishing to the topic. Retrofitting tenancy onto a table retained indefinitely requires a backfill.",
+      "detection_criteria": "Review flags the absence of tenancy/partner scoping in the data model, or notes the schema is a one-way door requiring backfill to change."
+    },
+    {
+      "id": "D3",
+      "lens": "riskiest-assumption",
+      "severity": "critical",
+      "must_be_blocking": true,
+      "description": "Provider throughput is asserted as fact and the load test against SendGrid is scheduled last, in week 8, after all six services have migrated.",
+      "detection_criteria": "Review identifies the provider throughput claim as an untested assumption, or objects that the load test is sequenced after migration rather than before."
+    },
+    {
+      "id": "D4",
+      "lens": "rejected-alternatives",
+      "severity": "major",
+      "must_be_blocking": false,
+      "description": "No do-nothing option, no buy-instead-of-build option, and no option to extend an existing service. Only the queue vendor choice has alternatives at all.",
+      "detection_criteria": "Review notes the absence of a do-nothing, buy, or extend-existing alternative for the central build-a-new-service decision."
+    },
+    {
+      "id": "D5",
+      "lens": "reversibility",
+      "severity": "major",
+      "must_be_blocking": false,
+      "description": "Inverted attention: a long, well-reasoned section on the reversible queue vendor choice, while the irreversible event contract and data model pass without discussion.",
+      "detection_criteria": "Review explicitly contrasts the depth spent on the queue choice against the depth spent on schema or event contract."
+    },
+    {
+      "id": "D6",
+      "lens": "nfr",
+      "severity": "major",
+      "must_be_blocking": false,
+      "description": "Latency and availability are stated as 'fast' and 'highly available' with no percentile, no measurement point, and no target.",
+      "detection_criteria": "Review flags the performance language as unquantified and asks for a percentile or numeric target."
+    },
+    {
+      "id": "D7",
+      "lens": "nfr",
+      "severity": "major",
+      "must_be_blocking": false,
+      "description": "No delivery semantics: at-least-once versus exactly-once is unstated, and there is no deduplication or idempotency key, despite SQS standard queues delivering duplicates.",
+      "detection_criteria": "Review raises duplicate delivery, idempotency, or missing delivery-guarantee semantics."
+    },
+    {
+      "id": "D8",
+      "lens": "rejected-alternatives",
+      "severity": "minor",
+      "must_be_blocking": false,
+      "description": "The build-our-own-queue alternative is a strawman, dismissed as obviously impractical with no analysis.",
+      "detection_criteria": "Review identifies the self-built queue option as a strawman or notes it was dismissed without reasoning."
+    },
+    {
+      "id": "D9",
+      "lens": "nfr",
+      "severity": "minor",
+      "must_be_blocking": false,
+      "description": "Indefinite retention of every notification row with no cost ceiling, no retention policy, and no consideration of deletion obligations.",
+      "detection_criteria": "Review raises retention, unbounded table growth, storage cost, or data deletion obligations."
+    },
+    {
+      "id": "D10",
+      "lens": "riskiest-assumption",
+      "severity": "minor",
+      "must_be_blocking": false,
+      "description": "No rollback path. Once six services publish events instead of sending directly, there is no described way back.",
+      "detection_criteria": "Review raises the absence of a rollback or migration-reversal path."
+    }
+  ]
+}

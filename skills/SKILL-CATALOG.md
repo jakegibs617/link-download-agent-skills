@@ -9,7 +9,7 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 
 ---
 
-## Engineering (31 skills)
+## Engineering (32 skills)
 
 ### Category: Understanding & Requirements
 
@@ -196,6 +196,15 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 - Inputs: sharpened need, candidates (incl. build/reuse), access to inspect.
 - Outputs: recommendation with conditions, candidate comparison, risks + mitigations, revisit triggers.
 - Related: first-principles-design, security-engineering, migration-planning, technical-debt-assessment.
+
+**technical-review-auditor**
+- Category: Security & Risk
+- Does: Adversarially audits a plan/doc/code artifact through four lenses — reversibility (one-way doors), rejected alternatives, NFR interrogation, riskiest assumption — naming what is absent rather than summarizing what is there.
+- Triggers: "review this plan", "poke holes in this", "is this design sound", "what am I missing", "sanity check this spec"; a design doc shared for an opinion.
+- Inputs: the artifact + its stated goal and audience; in Code mode, the code plus any design doc it claims to implement.
+- Outputs: review (verdict, ≤5 blocking findings ranked by cost-of-being-wrong × cost-of-fixing-later, non-blocking findings, per-lens covered/missing, questions for the author).
+- Related: engineering-risk-analysis (scores its findings into a register), code-change-review (line-level diff review it defers to), production-readiness-review, first-principles-design/system-architecture (produce what it reviews).
+- Note: also carries a seeded-defect harness (`references/evaluation.md`, `evals/fixtures/`, `scripts/score_review.py`) measuring defect recall and uplift over a no-skill baseline.
 
 ### Category: Evolution & Modernization
 

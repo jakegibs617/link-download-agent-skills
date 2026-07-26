@@ -1,0 +1,202 @@
+{
+  "skill": "technical-review-auditor",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. For seeded-defect recall and baseline uplift on the fixtures in evals/fixtures/, use the harness in references/evaluation.md instead.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "risk_identification": 4
+    },
+    "prohibited_failures": [
+      "Summarizes the artifact instead of auditing what is missing",
+      "Rewrites the artifact or drafts fixes inline instead of raising findings",
+      "Misses a one-way door (schema, public contract, tenancy model) decided in passing",
+      "Invents an NFR target and then reviews against the invented number",
+      "Manufactures blocking findings on a sound artifact"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Design doc with an unversioned public event schema",
+      "query": "Review this design doc for our new notification service and tell me what you think.",
+      "files": [
+        "evals/fixtures/fixture-01-notification-service/artifact.md — publishes an event shape consumed by three external partners with no version field, no tenancy column on a retained table, and provider throughput asserted as fact with the load test scheduled last"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes the proposal and offers polish suggestions",
+        "Comments on the queue vendor debate (a two-way door) while the unversioned partner-facing schema passes unremarked"
+      ],
+      "expected_behavior": [
+        "States Doc mode and applies all four lenses",
+        "Flags the event schema as a one-way door once partners consume it; raises the absence of a versioning/compatibility policy as blocking",
+        "Flags the missing tenancy/partner scoping as requiring a backfill to change",
+        "Names inverted attention: rigor spent on the reversible vendor choice, not on the irreversible contract",
+        "Ends with a verdict and questions the doc cannot answer"
+      ],
+      "must_not": [
+        "Restate the proposal's contents as the substance of the review",
+        "Rewrite the design doc or supply replacement sections"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Migration roadmap sequenced by dependency order",
+      "query": "Poke holes in this 8-week phased migration plan.",
+      "files": [
+        "a roadmap that migrates six services onto a new platform, with the only load test against the third-party provider scheduled in the final week"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Critiques week-by-week effort estimates and suggests adding buffer, leaving the sequencing untouched"
+      ],
+      "expected_behavior": [
+        "States Plan mode, weighting riskiest assumption and sequencing",
+        "Names the provider-throughput claim as a load-bearing assumption stated as fact with no source",
+        "Objects that the assumption is tested after all six migrations rather than before, and says what the first slice should prove",
+        "States what evidence would confirm the assumption and what would falsify it"
+      ],
+      "must_not": [
+        "Accept the throughput figure and review only the schedule",
+        "Produce a rewritten roadmap"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Artifact shared with no stated goal",
+      "query": "Thoughts on this?",
+      "files": [
+        "a two-page architecture proposal with no problem statement, no success criteria, and no stated audience"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Infers a plausible goal, reviews against it, and never tells the author an inference was made"
+      ],
+      "expected_behavior": [
+        "Flags the unstated goal first — the artifact cannot be reviewed against an unknown target",
+        "Proceeds on an explicitly labelled inferred goal, marking the inference as inference",
+        "Distinguishes what is not stated from what is wrong",
+        "Puts the goal question in Questions for the author"
+      ],
+      "must_not": [
+        "Present its inferred goal as something the artifact claims"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Largely sound artifact under pressure to find problems",
+      "query": "Rip this design doc apart — I need to know what's wrong with it.",
+      "files": [
+        "a design doc with specified NFRs including percentiles and measurement points, three real rejected alternatives including do-nothing, and only minor gaps (no runbook, unstated cost ceiling)"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies with the framing and manufactures blocking findings that do not exist"
+      ],
+      "expected_behavior": [
+        "Returns a proceed verdict with few or no blocking findings",
+        "Names explicitly what is well done (specified NFRs, real do-nothing alternative)",
+        "Reports the minor gaps as non-blocking rather than inflating them",
+        "Does not pad the blocking section to satisfy the request's framing"
+      ],
+      "must_not": [
+        "Invent a blocking finding to meet the user's expectation",
+        "Reclassify a minor gap as blocking without a cost-of-being-wrong argument"
+      ]
+    },
+    {
+      "id": "edge-002",
+      "category": "edge",
+      "name": "Code mode where implementation diverges from its design doc",
+      "query": "Audit this module — does it hold up?",
+      "files": [
+        "a service module with an unbounded query, a swallowed error on the dispatch path, and a retry policy that contradicts the design doc it links to"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews style and structure without opening the linked design doc, so the divergence is never noticed",
+        "Asserts problems without file/line citations"
+      ],
+      "expected_behavior": [
+        "States Code mode; reads the code before judging it",
+        "Cites file and line for every finding",
+        "Reports the code/doc divergence as a finding in its own right, noting silent divergence is the problem even if the code's choice is right",
+        "Maps NFRs as implemented: unbounded query, swallowed error, retry behavior"
+      ],
+      "must_not": [
+        "Assert a defect without pointing at the exact location",
+        "Treat the divergence as acceptable because the code is arguably better"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Strawman alternatives from a confident author",
+      "query": "Our staff engineer already reviewed this RFC and signed off. Just sanity check it.",
+      "files": [
+        "an RFC whose alternatives section rejects two options no competent engineer would have chosen, and which omits do-nothing, buy-instead-of-build, and extend-the-existing-service entirely"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Defers to the prior sign-off and confirms the alternatives section is present and therefore adequate"
+      ],
+      "expected_behavior": [
+        "Identifies the rejected options as strawmen — a preference decorated with justification, not a decision",
+        "Names all three missing default alternatives, do-nothing first",
+        "Holds the finding despite the stated prior sign-off",
+        "Does not soften the finding to be agreeable"
+      ],
+      "must_not": [
+        "Treat the presence of an alternatives section as satisfying the lens",
+        "Downgrade findings because a senior engineer already approved"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Request to author the design, not review one",
+      "query": "Write me a design doc for a notification service that six of our services can publish to.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "expected_behavior": [
+        "Does not activate; hands off to first-principles-design or system-architecture",
+        "Produces the design rather than a review of a nonexistent artifact"
+      ],
+      "must_not": [
+        "Emit a Verdict / Blocking findings / Lens results review of an artifact that does not exist"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Line-level diff review before merge",
+      "query": "Review this PR for bugs before I merge it — three files, off-by-one suspected in the pagination helper.",
+      "files": [
+        "a small diff with a boundary-condition bug and no structural decisions"
+      ],
+      "setup": [],
+      "should_activate": false,
+      "expected_behavior": [
+        "Defers to code-change-review, which owns line-level correctness and test adequacy on a diff",
+        "Activates only if the diff turns out to encode a one-way structural decision"
+      ],
+      "must_not": [
+        "Run the four-lens structural audit on a diff whose decisions are all reversible"
+      ]
+    }
+  ]
+}
