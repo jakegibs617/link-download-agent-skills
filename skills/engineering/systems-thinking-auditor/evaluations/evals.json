@@ -1,0 +1,286 @@
+{
+  "skill": "systems-thinking-auditor",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Cases are weighted so that over-application (naming loops, stocks, or archetypes the evidence does not support) fails as hard as under-application; adversarial-001 and negative-001/002 exist specifically to catch it.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4,
+      "usefulness_actionability": 4
+    },
+    "prohibited_failures": [
+      "Names a feedback loop whose causal chain does not close back on an earlier variable",
+      "Declares a system archetype without applying its discriminating test or recording contradicting evidence",
+      "Asserts a pattern over time from a single snapshot with no time-series or repeated-episode evidence",
+      "Recommends only parameter and capacity changes (levels 1-2) for a structurally generated problem",
+      "Recommends only goal or paradigm changes (levels 10-11) with no implementable step at a lower level",
+      "Omits the boundary, or states a boundary without naming what was deliberately excluded",
+      "Audits against the stated purpose while the incentives demonstrably point elsewhere",
+      "Reports a recommendation with no unintended consequence and no guardrail metric"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Production incidents that keep recurring after each fix",
+      "query": "We've had 14 sev-2s in the last quarter, up from 5 the quarter before. Every postmortem produces action items and we close them. Why does this keep happening?",
+      "files": [
+        "incident log with dates, severities, and per-incident action items (most closed)",
+        "sprint records showing the last three quarters: feature commitments met, platform items carried over each time",
+        "on-call handover notes describing rising interrupt load and shrinking time for the action items"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a list of the incidents with a per-incident remediation, restating the postmortems",
+        "Recommends more staffing, tighter alerting, and stricter postmortem follow-up: all level 1-2, leaving the generating structure untouched",
+        "Treats the closed action items as evidence the process works, and blames execution discipline"
+      ],
+      "expected_behavior": [
+        "States the boundary and time horizon, including what is deliberately excluded",
+        "Uses the time evidence: incident rate rising quarter over quarter is a pattern, not a set of events",
+        "Closes a reinforcing loop explicitly (incidents -> interrupt load -> less time for structural remediation -> more incidents), tracing it back to the starting variable",
+        "Identifies the delay between shortcut and failure, and notes the cost lands after the quarter it was created in",
+        "Names the incentive asymmetry: feature commitments are measured, platform carryover is not, and asks whether the cost-bearer holds the authority",
+        "Tests fixes-that-fail or growth-and-underinvestment against its discriminating test and records contradicting evidence",
+        "Recommends across levels: containment at 1-2 labeled as containment, plus at least one level 7-8 intervention on what is measured or reported",
+        "Every recommendation carries an unintended consequence and a guardrail metric"
+      ],
+      "must_not": [
+        "Present the incident list plus per-incident fixes as the analysis",
+        "Recommend only staffing, alerting, or process-discipline changes",
+        "Claim the reinforcing loop without evidence for each link"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "PRD whose success metric is gameable and diverges from user value",
+      "query": "Review this PRD for our new notification and activity feed before we commit the quarter to it.",
+      "files": [
+        "a PRD whose stated goal is 'increase engagement', with success metrics of daily sessions per user and notification click-through rate, a rollout owned by the growth team, and no retention or task-completion metric",
+        "current retention curve, flat for three quarters"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the PRD for completeness and clarity and suggests adding acceptance criteria",
+        "Accepts 'increase engagement' as the goal and evaluates whether the feature plausibly increases it",
+        "Notes the metric is a proxy without naming the specific cheapest way to move it"
+      ],
+      "expected_behavior": [
+        "Translates 'increase engagement' into observable behavior, measured how and at what boundary, and flags that it is not a goal as written",
+        "Separates the stated purpose from the operative purpose the metric and the owning team imply",
+        "Names the cheapest path to move sessions-per-user and click-through without producing user value (notification volume, re-engagement pushes, interruption) and treats that as predicted behavior rather than a hypothetical risk",
+        "Flags the missing guardrail: no retention, task-completion, or unsubscribe metric, so the degradation the metric can cause is unobservable",
+        "Examines the adoption loop the PRD assumes and labels each link evidenced, inferred, or speculative",
+        "Identifies the delay between annoyance and churn, and that the metric will look good throughout it",
+        "Recommends at level 7-8 (change the measured outcome, add the guardrail) rather than only adjusting the feature"
+      ],
+      "must_not": [
+        "Accept 'increase engagement' as a goal without converting it to observable behavior",
+        "Assert the adoption loop as real without evidence for its links",
+        "Confine recommendations to the feature scope while the metric stands"
+      ]
+    },
+    {
+      "id": "typical-003",
+      "category": "typical",
+      "name": "Growing queue backlog with more than one candidate cause",
+      "query": "Our job queue backlog has been growing for six weeks and we're about to triple the worker pool. Sanity-check that.",
+      "files": [
+        "queue metrics: arrival rate up 20%, backlog up 400%, worker utilization at 60%",
+        "worker code with a retry policy that re-enqueues on any exception with no backoff and no attempt cap",
+        "a FIFO dispatch with one tenant contributing 70% of arrivals since a client-side change six weeks ago"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Endorses tripling the worker pool because the backlog is growing",
+        "Diagnoses a capacity problem from backlog growth alone, ignoring that utilization is 60%",
+        "Notices the retry policy as a code defect without connecting it to the backlog as an inflow"
+      ],
+      "expected_behavior": [
+        "Treats the backlog as a stock and judges inflow against outflow rather than level",
+        "Uses the 60% utilization to rule out capacity as the binding constraint, and says so explicitly",
+        "Closes the retry-amplification loop: failures re-enqueue, re-enqueues raise load, load raises failures",
+        "Separates the three candidate causes (arrival rate, retry inflow, FIFO head-of-line blocking from one tenant) and says which the evidence supports and which it does not",
+        "Predicts that tripling workers raises throughput against a self-generated inflow and may worsen the loop, and names that as the unintended consequence",
+        "Recommends the parameter and structural fixes in the right order: cap and back off retries, then partition dispatch by tenant, with capacity as containment if needed",
+        "Labels the binding-constraint claim evidenced and any mechanism it could not verify as inferred"
+      ],
+      "must_not": [
+        "Recommend tripling capacity as the primary intervention",
+        "Attribute the backlog to arrival rate alone when arrivals rose 20% and backlog rose 400%",
+        "Report the retry behavior as a code-quality issue rather than as a loop feeding the stock"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Technical-debt cleanup proposal that reduces the stock but not the flow",
+      "query": "We're proposing a two-sprint cleanup to pay down our worst debt. Is this the right investment?",
+      "files": [
+        "a proposal listing 40 debt items to remediate over two sprints, with before/after counts",
+        "the same proposal from 14 months ago, with its completion report showing the counts were met",
+        "current debt counts, higher than before the previous cleanup"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Endorses the cleanup as good practice and suggests prioritizing the 40 items better",
+        "Recommends a recurring cleanup cadence, which industrializes the stock reduction and still never touches the flow",
+        "Misses the prior cleanup as direct time-series evidence that the flow is unchanged"
+      ],
+      "expected_behavior": [
+        "Identifies debt as a stock and the proposal as stock-reduction only, states that explicitly, and estimates time-to-return using the previous cycle as evidence",
+        "Uses the 14-month-old cleanup and the current higher counts as the pattern-over-time evidence, and labels it evidenced rather than inferred",
+        "Asks what generates the inflow: schedule pressure, absent ownership, review capacity, what is measured",
+        "Distinguishes fixes-that-fail from growth-and-underinvestment by its discriminating test rather than picking whichever label reads well",
+        "Does not simply oppose the cleanup; separates justified containment from the structural change it must be paired with",
+        "Recommends at least one intervention on the inflow, with its leverage level stated",
+        "Names a guardrail and a stop condition so the next cleanup's effect is measurable rather than assumed"
+      ],
+      "must_not": [
+        "Endorse the cleanup without naming that it addresses the level and not the flows",
+        "Recommend a recurring cleanup cadence as the structural fix",
+        "Assert a debt-interest loop without evidence for its links"
+      ]
+    },
+    {
+      "id": "edge-002",
+      "category": "edge",
+      "name": "AI feature proposal evaluated only on model capability",
+      "query": "We want to add an AI assistant that drafts customer support replies. Audit the plan.",
+      "files": [
+        "a proposal covering model choice, prompt design, latency budget, and a per-request cost estimate",
+        "no evaluation set, no human-review step defined, no plan for what happens to the drafts agents accept unchanged",
+        "support org context: agents measured on tickets closed per hour"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews model selection, prompt strategy, and cost, and pronounces the plan sound",
+        "Recommends adding evaluations as a checklist item without tracing what the missing evaluation loop causes",
+        "Treats accuracy as a static property rather than something that drifts"
+      ],
+      "expected_behavior": [
+        "States the boundary as spanning the product and the support workflow, since the agents' incentives sit inside the system that determines output quality",
+        "Names the incentive conflict: agents measured on tickets per hour will accept drafts with less scrutiny, which is the rational response to how they are measured",
+        "Traces the error-propagation path: an accepted wrong draft reaches the customer, and with no evaluation set there is no signal that it did",
+        "Identifies the delay between quality degradation and its appearance in customer trust or escalation volume, and notes the throughput metric improves throughout it",
+        "Identifies customer trust as a stock with a slow outflow and no measurement",
+        "Checks whether a training or feedback loop closes, and reports it as an open chain if accepted drafts are never fed back",
+        "Recommends the human-review structure and the evaluation and guardrail metrics, not only model or prompt changes, with levels stated",
+        "Labels cost and quality claims that cannot be verified from the proposal as unknown, with what to measure"
+      ],
+      "must_not": [
+        "Confine the audit to model capability, prompt design, latency, and cost",
+        "Omit the agent incentive as a determinant of output quality",
+        "Assert a self-improving feedback loop that the proposal does not actually close"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Broad request with no boundary and no behavior-over-time evidence",
+      "query": "Can you do a systems-thinking analysis of our engineering org?",
+      "files": [
+        "an org chart and a one-page description of the team's mission",
+        "no incident history, no metrics, no retro notes, no repeated-episode account"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a plausible-sounding map of loops and archetypes invented from the org chart",
+        "Expands the boundary to the whole company and delivers observations that guide no decision",
+        "Presents structural claims with no evidence as if they were findings"
+      ],
+      "expected_behavior": [
+        "Asks what behavior prompted the audit, or what would count as an improvement, before producing structural claims",
+        "Proposes a narrow boundary and states what it deliberately excludes, rather than modeling the whole org",
+        "Declares that with no time-series or repeated-episode evidence this can only be a structural review of the design as written, and scopes the output accordingly",
+        "Names the specific evidence to collect and for how long",
+        "Marks every structural claim it does make as inferred or speculative, with what would confirm it",
+        "Reaches an insufficient-evidence verdict rather than manufacturing confidence"
+      ],
+      "must_not": [
+        "Present invented loops, stocks, or archetypes as findings",
+        "Assert a pattern over time from the org chart and mission statement",
+        "Audit the entire organization because the request was phrased that broadly"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Framing invites deep structure where the cause is a mis-set parameter",
+      "query": "There must be some deep systemic reason our nightly ETL keeps failing. Find the feedback loops and the real root cause.",
+      "files": [
+        "job logs showing failures beginning on one date, all with the same connection-timeout error",
+        "a config change on that date lowering the database connection timeout from 30s to 3s",
+        "no other change; failure rate flat since, no growth in data volume, no downstream effect on anything else"
+      ],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies with the framing and constructs loops, stocks, and an archetype for a single mis-set value",
+        "Escalates to an organizational finding about change management on one config change with no pattern behind it",
+        "Buries the timeout change under structural analysis so the reader cannot see the answer"
+      ],
+      "expected_behavior": [
+        "Reports the timeout change as the evidenced cause, plainly and early",
+        "States that no loop closes here and no archetype applies, rather than naming one to satisfy the request",
+        "Recommends the parameter fix at level 1 and says explicitly that level 1 is the justified level in this case",
+        "Distinguishes an event from a pattern: one change, one flat failure rate, no accumulation",
+        "Optionally notes what would make it structural (a recurring class of such changes) and what evidence would show that, without asserting it",
+        "Hands off to debugging-root-cause-analysis if the cause needs a reproduction rather than more structural analysis"
+      ],
+      "must_not": [
+        "Manufacture a feedback loop, stock, or archetype to match the framing",
+        "Recommend a structural or organizational intervention on this evidence",
+        "Withhold or bury the plain cause in order to produce a systems-shaped report"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single defect needing a proven cause chain",
+      "query": "Users on the checkout page get a 500 about once every 200 requests. Find the bug.",
+      "files": [
+        "the service code, error logs with stack traces, and a reproducible failing request"
+      ],
+      "setup": [],
+      "should_activate": false,
+      "expected_behavior": [
+        "Defers to debugging-root-cause-analysis, which owns reproduction and proving one defect's cause chain",
+        "Activates only if the cause chain terminates in a structure rather than a line of code, and the same class of defect recurs"
+      ],
+      "must_not": [
+        "Emit a boundary, stocks, loops, and leverage-ranked recommendations for a single reproducible bug",
+        "Delay the diagnosis by auditing the team's incentives first"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Design doc review for what it fails to decide",
+      "query": "Here's the design doc for our new payments service. What am I missing before I circulate it?",
+      "files": [
+        "a design doc with an unversioned public event schema, vague availability targets, and no rejected alternatives section"
+      ],
+      "setup": [],
+      "should_activate": false,
+      "expected_behavior": [
+        "Defers to technical-review-auditor, which owns auditing one artifact for the decisions it fails to make",
+        "Activates only if the question is why this class of doc keeps arriving with the same gaps"
+      ],
+      "must_not": [
+        "Run a boundary, stock, loop, delay, and archetype audit on a single design document",
+        "Convert a one-artifact gap into an organizational structural finding without pattern evidence"
+      ]
+    }
+  ]
+}

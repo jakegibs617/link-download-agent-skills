@@ -9,7 +9,7 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 
 ---
 
-## Engineering (32 skills)
+## Engineering (33 skills)
 
 ### Category: Understanding & Requirements
 
@@ -205,6 +205,15 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 - Outputs: review (verdict, ≤5 blocking findings ranked by cost-of-being-wrong × cost-of-fixing-later, non-blocking findings, per-lens covered/missing, questions for the author).
 - Related: engineering-risk-analysis (scores its findings into a register), code-change-review (line-level diff review it defers to), production-readiness-review, first-principles-design/system-architecture (produce what it reviews).
 - Note: also carries a seeded-defect harness (`references/evaluation.md`, `evals/fixtures/`, `scripts/score_review.py`) measuring defect recall and uplift over a no-skill baseline.
+
+**systems-thinking-auditor**
+- Category: Security & Risk
+- Does: Explains why a system produces the behavior it produces — boundary, operative vs. stated purpose, stocks and flows, loops that actually close, delays, incentives, information paths — then ranks interventions by leverage level with each one's unintended consequences.
+- Triggers: "why does this keep happening", a problem that outlives its fixes, local fixes making the whole worse, a metric being hit while the outcome degrades, "where's the highest leverage here".
+- Inputs: the system (product/PRD, architecture/code, workflow, or business process) + the behavior that prompted the audit + behavior-over-time evidence + who is measured on what.
+- Outputs: systems audit (verdict, boundary and purpose gap, intended vs. observed behavior, structure producing it, ≤5 findings above medium ranked by severity × durability, leverage-ranked recommendations with levels and guardrails, validation plan).
+- Related: technical-review-auditor (audits one artifact's missing decisions; this audits recurring behavior), debugging-root-cause-analysis (one defect's cause chain; this takes over when the class recurs), technical-debt-assessment (prices the stock; this audits the flows that refill it), engineering-risk-analysis (scores its loops and delays into a register), stakeholder-communication (carries incentive findings to whoever owns the incentive).
+- Note: characteristic failure is over-application, so its eval suite requires the negative-activation and "no loop here" cases to pass.
 
 ### Category: Evolution & Modernization
 
