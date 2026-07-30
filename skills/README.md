@@ -4,7 +4,7 @@ A library of narrow, independently usable agent skills covering the competency
 models of two professions:
 
 1. **Engineering** (`engineering/`) — the capabilities of an exceptional
-   senior/staff software engineer, decomposed into 32 skills.
+   senior/staff software engineer, decomposed into 33 skills.
 2. **Legal** (`legal/`) — the capabilities of an experienced lawyer performing
    rigorous contract review, decomposed into 25 skills.
 
@@ -40,9 +40,12 @@ skills/
 ```
 
 A skill may add `references/`, `scripts/`, and `evals/` when it needs them.
-`engineering/technical-review-auditor` is the current example: alongside the
-standard `evaluations/` suite it carries a seeded-defect harness that scores
+Two skills currently do. `engineering/technical-review-auditor` carries a
+seeded-defect harness alongside the standard `evaluations/` suite, scoring
 defect recall and uplift over a no-skill baseline.
+`engineering/systems-thinking-auditor` carries `references/` holding its
+archetype discriminating tests, leverage-point hierarchy, and extended report
+template, kept out of `SKILL.md` so the body stays executable.
 
 ## How skills are selected and invoked
 
@@ -80,7 +83,7 @@ Composition patterns:
   (`production-readiness-review` before launch; `code-change-review` before
   merge).
 
-`COMPOSITION-WORKFLOWS.md` gives nine worked multi-skill workflows.
+`COMPOSITION-WORKFLOWS.md` gives ten worked multi-skill workflows.
 
 ## Example: software-engineering workflows
 
@@ -92,6 +95,10 @@ Composition patterns:
 - **Production incident:** `observability-incident-response` (stabilize) →
   `debugging-root-cause-analysis` (diagnose) → `code-implementation` (fix) →
   `reliability-fault-tolerance` (prevent recurrence).
+- **A problem that survives its fixes:** `systems-thinking-auditor` (why the
+  structure keeps producing it) → `engineering-risk-analysis` or
+  `technical-debt-assessment` for the register → `stakeholder-communication`
+  where the leverage point is an incentive someone else owns.
 
 ## Example: legal contract-review workflows
 

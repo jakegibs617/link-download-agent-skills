@@ -49,6 +49,10 @@ skill's Output Format.
    timeouts, isolation) so the class of failure, not the instance, is closed.
 5. `observability-incident-response` (postmortem mode) — blameless
    postmortem with tracked action items.
+6. If this is the third postmortem with substantially the same action items, or
+   if action items are closed and the incident rate is not falling, escalate to
+   workflow 6 — `systems-thinking-auditor`. Recurrence across postmortems is a
+   structural signal, and per-incident remediation cannot reach it.
 
 ## 4. Reviewing a pull request
 
@@ -76,7 +80,39 @@ skill's Output Format.
 6. During execution, per phase: `code-implementation` → `code-change-review`
    → `production-readiness-review` **(gate)**.
 
-## 6. Reviewing an independent-contractor agreement
+## 6. Auditing a problem that survives its fixes
+
+Use when the same class of failure, waste, or missed outcome recurs after each
+remediation — the signal that the cause is a structure, not an instance.
+
+1. `systems-thinking-auditor` — boundary, operative vs. stated purpose, stocks
+   and flows, loops that close, delays, incentives; output: findings ranked by
+   severity × durability plus leverage-ranked recommendations with levels.
+   **(gate: behavior-over-time evidence exists, or the audit's scope is
+   narrowed to the design as written and says so)**
+2. Route by where the leverage landed:
+   - level 3 structural → `system-architecture` (boundaries, ownership) or
+     `legacy-system-modernization` if the structure is the legacy system.
+   - level 4 delays in the developer loop → `developer-experience-improvement`.
+   - level 5–6 loops in the failure path → `reliability-fault-tolerance`;
+     `observability-incident-response` where the missing loop is a signal.
+   - level 7 information flows → `technical-documentation` or the observability
+     work that closes the signal to the deciding actor.
+   - level 8 incentives and rules → `stakeholder-communication`, because the
+     owner of the incentive is usually not an engineer.
+3. `engineering-risk-analysis` — score the audit's loops and delays into an
+   owned register with triggers, so the deferred findings have tripwires.
+4. `technical-planning-estimation` — sequence the structural work, keeping the
+   containment items labeled as containment.
+5. Re-run stage 1 at the review date set in the audit's validation plan, against
+   the guardrail metrics rather than impressions.
+
+Handoff note: if the recurrence has not yet been established as a pattern, run
+`debugging-root-cause-analysis` on one instance first. If the artifact under
+suspicion is a single plan or design doc, `technical-review-auditor` is the
+narrower fit.
+
+## 7. Reviewing an independent-contractor agreement
 
 1. `contract-structure-completeness` — inventory what's present/missing.
 2. `defined-term-consistency` — verify the defined terms actually work.
@@ -90,7 +126,7 @@ skill's Output Format.
 6. `plain-english-contract-explanation` — client-readable summary, with
    counsel-required items flagged.
 
-## 7. Reviewing a software-development agreement
+## 8. Reviewing a software-development agreement
 
 1. `contract-structure-completeness` → `defined-term-consistency`.
 2. Substantive fan-out: `ip-ownership-review` (deliverables, background IP,
@@ -105,7 +141,7 @@ skill's Output Format.
 5. `signature-readiness-assessment` **(gate)** — consolidated go/no-go with
    counsel-required items.
 
-## 8. Reviewing an employment or equity agreement
+## 9. Reviewing an employment or equity agreement
 
 1. `contract-structure-completeness` — including referenced-but-missing
    documents (plan documents, handbooks, prior inventions exhibits).
@@ -118,7 +154,7 @@ skill's Output Format.
 4. `plain-english-contract-explanation` — what the person is actually
    agreeing to, with tax/securities questions flagged as counsel-required.
 
-## 9. Preparing a contract negotiation brief
+## 10. Preparing a contract negotiation brief
 
 1. Inputs: completed substantive reviews (any subset of the legal skills)
    plus client goals and constraints.
