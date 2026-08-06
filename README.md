@@ -3,7 +3,7 @@
 A catalog of reusable AI agent skills for Claude, organized around two
 professional competency models:
 
-- **Engineering:** 33 focused skills for senior and staff-level software work.
+- **Engineering:** 34 focused skills for senior and staff-level software work.
 - **Legal contract review:** 25 focused analysis skills with explicit
   uncertainty, escalation, and licensed-counsel boundaries.
 
@@ -32,12 +32,14 @@ skills/
 └── EVALUATION-GUIDE.md
 ```
 
-The full library contains 58 skills. Evaluation support files stay beside each
+The full library contains 59 skills. Evaluation support files stay beside each
 skill so a copied or packaged skill remains self-contained. A skill may also
 carry `references/`, `scripts/`, and `evals/` directories when it needs them —
 `engineering/technical-review-auditor` does, for its seeded-defect scoring
-harness, and `engineering/systems-thinking-auditor` does, for its archetype and
-leverage-point references.
+harness, `engineering/systems-thinking-auditor` does, for its archetype and
+leverage-point references, and `engineering/solution-engineering-fundamentals`
+does, for the twelve-factor, enterprise-pattern, and architecture-concept
+catalogs it cites plus a service fixture its evaluation suite scores against.
 
 ## Install a skill in Claude Code
 

@@ -1,0 +1,58 @@
+{
+  "fixture_id": "fixture-01-report-cache",
+  "used_by_case": "edge-001",
+  "mode": "service",
+  "notes": "The point of this fixture is discrimination, not recall. A1 is documented and its revisit triggers are not met, so it must be reported as an accepted deviation rather than a fresh defect. D1-D4 are undocumented and must still be found — a review that reports only A1 has over-indexed on the ADR just as badly as one that re-litigates it.",
+  "accepted_deviations": [
+    {
+      "id": "A1",
+      "baseline": "twelve-factor VI (Processes) / IV (Backing services)",
+      "description": "The rendered-report cache lives on a mounted persistent volume rather than object storage, making instances non-interchangeable with respect to cache warmth.",
+      "documented_in": "docs/adr/ADR-014-report-cache-on-volume.md",
+      "revisit_triggers": ["cache exceeds 500GB", "more than one region"],
+      "trigger_state": "Neither met: 90GB, single region.",
+      "detection_criteria": "Review reports the volume-mounted cache under accepted deviations with ADR-014's rationale, checks both revisit triggers against the stated 90GB / single-region state, and states that neither has been met.",
+      "must_not": "Flagged as an undiscovered violation, or recommended for migration to object storage as a finding. Also fails if omitted from the review entirely."
+    }
+  ],
+  "defects": [
+    {
+      "id": "D1",
+      "baseline": "twelve-factor III (Config)",
+      "severity": "critical",
+      "description": "The Postgres password and the SendGrid SMTP token are literal values in deploy/reports-api.yaml, committed to the repo.",
+      "detection_criteria": "Review names Config and cites the DATABASE_URL and/or SMTP_PASSWORD values in deploy/reports-api.yaml.",
+      "location": "deploy/reports-api.yaml:24-27"
+    },
+    {
+      "id": "D2",
+      "baseline": "twelve-factor XI (Logs)",
+      "severity": "major",
+      "description": "The app opens its own log file and manages rotation via RotatingFileHandler instead of writing unbuffered to stdout. The log volume is an emptyDir, so the logs die with the pod.",
+      "detection_criteria": "Review names Logs and cites the RotatingFileHandler in src/reports_api/server.py, the LOG_FILE env var, or the emptyDir log volume.",
+      "location": "src/reports_api/server.py:18-22, deploy/reports-api.yaml"
+    },
+    {
+      "id": "D3",
+      "baseline": "twelve-factor IX (Disposability)",
+      "severity": "major",
+      "description": "terminationGracePeriodSeconds is 0 and there is no SIGTERM handling, while a single render takes 20-90 seconds per ADR-014's own context section. In-flight renders are killed on every deploy.",
+      "detection_criteria": "Review names Disposability, cites terminationGracePeriodSeconds: 0, and connects it to the stated 20-90 second render time.",
+      "location": "deploy/reports-api.yaml:16"
+    },
+    {
+      "id": "D4",
+      "baseline": "twelve-factor V (Build, release, run)",
+      "severity": "major",
+      "description": "The image is pinned to :latest, so the running release cannot be identified and a rollback cannot target a known state.",
+      "detection_criteria": "Review names Build/release/run and cites the :latest image tag.",
+      "location": "deploy/reports-api.yaml:19"
+    }
+  ],
+  "out_of_scope": [
+    {
+      "description": "Enterprise pattern findings. The fixture is an operational-hygiene case; a review that walks the pattern catalog or the architecture concepts here has failed the lens-selection step.",
+      "rationale": "Tests Procedure step 1 — select the lens and state which others were not applied and why."
+    }
+  ]
+}

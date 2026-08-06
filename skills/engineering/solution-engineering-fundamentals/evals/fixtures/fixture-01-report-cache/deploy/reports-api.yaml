@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reports-api
+  namespace: reporting
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: reports-api
+  template:
+    metadata:
+      labels:
+        app: reports-api
+    spec:
+      terminationGracePeriodSeconds: 0
+      containers:
+        - name: reports-api
+          image: registry.internal/reports-api:latest
+          command: ["python", "-m", "reports_api.server"]
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://reports_app:r3p0rts-pr0d-2024@pg-prod-01.internal:5432/reports"
+            - name: SMTP_PASSWORD
+              value: "sg-8f21c04ab9de4417"
+            - name: REPORT_CACHE_DIR
+              value: "/var/cache/reports"
+            - name: LOG_FILE
+              value: "/var/log/reports/reports-api.log"
+          volumeMounts:
+            # See docs/adr/ADR-014-report-cache-on-volume.md
+            - name: report-cache
+              mountPath: /var/cache/reports
+            - name: app-logs
+              mountPath: /var/log/reports
+      volumes:
+        - name: report-cache
+          persistentVolumeClaim:
+            claimName: reports-cache-pvc
+        - name: app-logs
+          emptyDir: {}

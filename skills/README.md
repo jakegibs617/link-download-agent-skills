@@ -4,7 +4,7 @@ A library of narrow, independently usable agent skills covering the competency
 models of two professions:
 
 1. **Engineering** (`engineering/`) — the capabilities of an exceptional
-   senior/staff software engineer, decomposed into 33 skills.
+   senior/staff software engineer, decomposed into 34 skills.
 2. **Legal** (`legal/`) — the capabilities of an experienced lawyer performing
    rigorous contract review, decomposed into 25 skills.
 
@@ -40,12 +40,17 @@ skills/
 ```
 
 A skill may add `references/`, `scripts/`, and `evals/` when it needs them.
-Two skills currently do. `engineering/technical-review-auditor` carries a
+Three skills currently do. `engineering/technical-review-auditor` carries a
 seeded-defect harness alongside the standard `evaluations/` suite, scoring
 defect recall and uplift over a no-skill baseline.
 `engineering/systems-thinking-auditor` carries `references/` holding its
 archetype discriminating tests, leverage-point hierarchy, and extended report
 template, kept out of `SKILL.md` so the body stays executable.
+`engineering/solution-engineering-fundamentals` carries `references/` holding
+the twelve-factor checks, the enterprise pattern catalog, and the architecture
+concepts it cites, loaded one lens at a time rather than all at once — plus an
+`evals/` fixture, so its accepted-deviation case scores against a fixed service
+instead of one each runner improvises.
 
 ## How skills are selected and invoked
 

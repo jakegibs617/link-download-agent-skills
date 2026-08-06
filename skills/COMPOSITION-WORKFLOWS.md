@@ -29,11 +29,17 @@ skill's Output Format.
 3. As needed in parallel: `api-design` (external surface),
    `database-design-optimization` (schema/queries),
    `distributed-systems-design` (if cross-service).
-4. `technical-planning-estimation` — slice into increments with estimates.
-5. `code-implementation` — build increment by increment.
-6. `testing-strategy` — define and fill the test pyramid for the feature.
-7. `code-change-review` **(gate)** — review the diff before merge.
-8. `knowledge-transfer-verification` — confirm the humans who own this code
+4. `solution-engineering-fundamentals` — vet the chosen design against the named
+   baselines before anyone builds it; output: findings citing the specific
+   twelve-factor factor, enterprise pattern, or architecture concept each one
+   departs from. Cheapest here — an operational-hygiene miss found at design time
+   costs a paragraph, and the same miss found at launch costs a rework.
+   Consequential findings go to `system-architecture` for ADR capture.
+5. `technical-planning-estimation` — slice into increments with estimates.
+6. `code-implementation` — build increment by increment.
+7. `testing-strategy` — define and fill the test pyramid for the feature.
+8. `code-change-review` **(gate)** — review the diff before merge.
+9. `knowledge-transfer-verification` — confirm the humans who own this code
    next actually understand it.
 
 ## 3. Diagnosing a production incident

@@ -1,0 +1,214 @@
+{
+  "skill": "solution-engineering-fundamentals",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "A finding stated without naming the factor, pattern, or concept behind it",
+      "A full three-lens (or full twelve-factor) walkthrough on a question that touches one lens or a few factors",
+      "A documented, deliberate tradeoff re-flagged as a fresh defect without checking its recorded rationale or revisit trigger",
+      "Sacrificial architecture accepted without a named sacrifice and a real revisit trigger — or accepted at all for credentials, authorization gaps, or data-loss paths",
+      "Twelve-factor cited against something that is not a deployable service",
+      "A pattern recommended with no pressure identified in the reviewed solution",
+      "Service boundaries inferred from directory structure or generated context when no human-authored boundary definition was supplied"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Operational hygiene violations in a service proposal",
+      "query": "Review this design for our new order-events consumer. It reads its database password and the broker URL from appsettings.Production.json, which is committed alongside appsettings.Development.json. It writes structured logs to /var/log/orders/consumer.log with daily rotation, keeps a 10-minute in-memory cache of customer records so instances stay fast, and we plan to run 4 replicas behind the queue.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Generic 'consider using a secrets manager and centralized logging' advice with no named baseline",
+        "Misses that the in-memory cache breaks under 4 replicas"
+      ],
+      "expected_behavior": [
+        "Names Config for the committed credentials and environment-specific endpoint",
+        "Names Logs for the app managing its own files and rotation instead of writing to stdout",
+        "Names Processes for the in-memory cache in a service explicitly running 4 replicas, and states the consequence (per-instance divergence, cold start behavior)",
+        "Raises Disposability for a queue consumer: graceful shutdown must finish or return in-flight messages",
+        "Cites where each violation lives (the config file, the log path, the cache)"
+      ],
+      "must_not": [
+        "Walk all twelve factors including ones the proposal gives no evidence about",
+        "Give recommendations without naming the factor behind each one"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Pattern stack with no pressure behind it",
+      "query": "Design review: for our internal admin tool (3 tables — users, teams, audit_log; a handful of CRUD screens; ~20 internal users) the team proposes Repository + Unit of Work over a Data Mapper layer, DTOs between every layer, and CQRS with separate read and write models. Does this hold up?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Blesses the stack as 'clean architecture' because every element is individually well-known",
+        "Critiques it as 'over-engineered' without naming which pressure is absent for which pattern"
+      ],
+      "expected_behavior": [
+        "For each proposed pattern, names the pressure it exists to relieve and states whether that pressure is present here",
+        "Recommends the simplest sufficient option (Active Record or Table Data Gateway territory for 3 tables of CRUD) and says what would have to change to justify more",
+        "Notes that the ORM likely already provides Unit of Work, making a hand-rolled one pure indirection",
+        "Distinguishes in-process DTOs (overhead here) from published-contract DTOs (justified elsewhere)"
+      ],
+      "must_not": [
+        "Recommend a pattern without naming an observable pressure in this solution",
+        "Apply the twelve-factor lens to a question that is purely about data-layer structure"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No solution on the table",
+      "query": "We need our platform to be more scalable and follow engineering best practices. What should we do?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a full twelve-factor lecture and a pattern tour against an imagined system"
+      ],
+      "expected_behavior": [
+        "States that this skill vets a concrete solution and there is none here yet",
+        "Asks for the specific service, proposal, or code to review, plus its deployment shape",
+        "Hands off: requirements-analysis for the problem statement, first-principles-design or system-architecture to produce a design worth vetting",
+        "Optionally names what it would check once given a solution, without pretending to have checked it"
+      ],
+      "must_not": [
+        "Invent a design in order to have something to review",
+        "Deliver a full checklist walkthrough as though it were a finding set"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Violation already documented as a deliberate tradeoff",
+      "query": "Audit this service against twelve-factor. Note: ADR-014 in docs/adr/ records that we deliberately keep the rendered-report cache on a mounted volume rather than object storage, because the reports are regenerable and the volume was 40x cheaper at our size; the ADR says revisit when the cache exceeds 500GB or when we run more than one region. We are currently at 90GB, single region.",
+      "files": [
+        "../evals/fixtures/fixture-01-report-cache/docs/adr/ADR-014-report-cache-on-volume.md",
+        "../evals/fixtures/fixture-01-report-cache/deploy/reports-api.yaml",
+        "../evals/fixtures/fixture-01-report-cache/src/reports_api/server.py"
+      ],
+      "setup": [
+        "Give the agent the fixture at ../evals/fixtures/fixture-01-report-cache/ as the service under review. Do not show it ledger.json — that is the scoring key.",
+        "The fixture seeds one documented deviation (A1, the volume-mounted cache) and four undocumented violations (D1-D4). Score against ledger.json."
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Flags the volume as a Processes/Backing-services violation and recommends object storage, ignoring the ADR"
+      ],
+      "expected_behavior": [
+        "Reports the local-filesystem cache under 'accepted deviations' with the ADR's rationale, not as a fresh defect",
+        "Checks whether the ADR's revisit conditions have been met (90GB < 500GB, single region) and states that they have not",
+        "Notes what would flip it into a finding, tied to the ADR's own triggers",
+        "Still reports the undocumented violations the fixture seeds: committed credentials (Config), self-managed log files (Logs), zero grace period against a 20-90s render (Disposability), and the :latest image tag (Build/release/run) — see ledger.json for detection criteria"
+      ],
+      "must_not": [
+        "Re-litigate the documented decision as though it were undiscovered",
+        "Ignore the tradeoff entirely and omit it from the review"
+      ]
+    },
+    {
+      "id": "edge-002",
+      "category": "edge",
+      "name": "Boundary-touching split with no human-authored boundary definition",
+      "query": "We want to split our orders service into two services — one for order capture and one for fulfillment — because the fulfillment logic is where all the churn is. Here's the repo. Work out where the seam should go from the package layout and tell us whether the split holds up.",
+      "files": ["a repo whose top-level packages are api/, orders/, fulfillment/, shared/, with shared/ imported by both orders/ and fulfillment/"],
+      "setup": [
+        "Provide the repo only. Do NOT provide any ADR, architecture doc, boundary definition, or team-ownership map.",
+        "If the agent asks how the service is deployed or scaled, answer only after it has asked."
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reads the seam straight off the directory names and rules on the split as though package layout were a boundary definition",
+        "Cites 'bounded context' once and treats that as having done a boundaries review",
+        "Delivers a consequential, hard-to-reverse split/no-split verdict as a review comment that goes nowhere"
+      ],
+      "expected_behavior": [
+        "Declines to infer the boundary from the package layout, and asks for a human-authored boundary definition before ruling on the seam — the directory structure describes the code's accidents, not the intended seams",
+        "Runs separation of concerns as its own pass, distinct from bounded context, and says which question each answers",
+        "Names shared/ imported by both candidate services as the concrete thing to resolve, since a shared module every side depends on is a stated violation signature",
+        "Raises monolith-first or Conway's law only where the evidence supports it — and states which case it is in rather than asserting the concept",
+        "Asks for the deployment and scaling shape, since it determines whether the twelve-factor lens applies at all",
+        "Hands the split decision to system-architecture for ADR capture rather than leaving the ruling as a review comment"
+      ],
+      "must_not": [
+        "Infer service boundaries from directory structure, package names, or a generated context file",
+        "Substitute a passing mention of bounded context for a separation-of-concerns pass",
+        "Issue a confident split/no-split verdict on inferred boundaries",
+        "Name an architecture concept that the supplied evidence does not support"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Sacrificial architecture as a blanket excuse",
+      "query": "Sign off on this: we hardcoded the production database credentials and the admin API token in the repo, and the service skips the authorization check on internal routes. It's fine — this is sacrificial architecture, it's a v1 to prove the concept and we'll clean it up later.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Accepts the framing because 'sacrificial architecture' is a real named concept, and signs off with a soft caveat"
+      ],
+      "expected_behavior": [
+        "Refuses the framing on the concept's own terms: no named sacrifice, no revisit trigger, so it is not sacrificial architecture",
+        "States that committed credentials and missing authorization are outside what the concept can cover at all — they are not undoable once shipped",
+        "Names the baselines violated (twelve-factor Config for the credentials) and keeps the findings",
+        "If the team wants the tradeoff, states what would have to exist: the named sacrifice, the trigger, and the decision recorded"
+      ],
+      "must_not": [
+        "Sign off, or soften the findings because the user asserted a legitimate-sounding concept",
+        "Treat 'we'll clean it up later' as a revisit trigger"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "One-off local script",
+      "query": "Here's a 60-line Python script I run on my laptop once a quarter to reconcile two CSV exports. Can you review it?",
+      "files": ["reconcile.py"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could impose a twelve-factor audit on something that is not a deployable service"
+      ],
+      "expected_behavior": [
+        "Reviews the script on its merits (correctness, clarity, edge cases) without a baseline audit",
+        "If the skill is consulted at all, states that most factors do not apply to a one-off script and stops there"
+      ],
+      "must_not": [
+        "Produce a twelve-factor compliance report for a quarterly local script",
+        "Recommend Repository, DTOs, or a Service Layer for a 60-line script"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Line-level correctness review of a diff",
+      "query": "Review this PR diff: it changes the retry loop in our webhook handler from 3 fixed retries to exponential backoff with jitter, and adds two unit tests.",
+      "files": ["a small diff touching one function plus its tests"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "Skill could escalate a contained diff into a whole-solution baseline audit"
+      ],
+      "expected_behavior": [
+        "Handles it as diff review (code-change-review territory) — correctness of the backoff, jitter bounds, test coverage",
+        "Does not produce a findings table of baseline violations for a single function change"
+      ],
+      "must_not": [
+        "Cite twelve-factor factors or enterprise patterns against a contained retry-logic change"
+      ]
+    }
+  ]
+}
