@@ -1,12 +1,15 @@
 # Professional Skill Library
 
 A library of narrow, independently usable agent skills covering the competency
-models of two professions:
+models of three professions:
 
 1. **Engineering** (`engineering/`) — the capabilities of an exceptional
-   senior/staff software engineer, decomposed into 34 skills.
+   senior/staff software engineer, decomposed into 36 skills.
 2. **Legal** (`legal/`) — the capabilities of an experienced lawyer performing
    rigorous contract review, decomposed into 25 skills.
+3. **Product** (`product/`) — the non-engineering functions that review a
+   product: vision, business, finance, brand, and experience, decomposed into
+   5 skills.
 
 Every skill follows this repository's `authoring-agent-skills` conventions: a
 concise, executable `SKILL.md` plus a self-contained evaluation suite.
@@ -35,12 +38,30 @@ skills/
 │           ├── evals.json     # ≥5 cases incl. one negative-activation case
 │           ├── rubric.md      # Criteria, critical failures, pass threshold
 │           └── README.md      # How to run this skill's evaluations
-└── legal/
+├── legal/
+│   └── <skill-name>/          # Same package layout
+└── product/
     └── <skill-name>/          # Same package layout
 ```
 
-A skill may add `references/`, `scripts/`, and `evals/` when it needs them.
-Three skills currently do. `engineering/technical-review-auditor` carries a
+## Two output conventions
+
+Engineering and legal skills define an **Output Format returned in the
+response**. Product skills leave a **file artifact** behind, because their value
+is comparative: `ceo-review`, `cfo`, and `creative-director` each write a dated
+report to the project root so successive reviews can be diffed, and never
+overwrite a prior one. `ui-ux-plan` maintains a single canonical
+`ui-ux-plan.md`, updated with a changelog line rather than regenerated.
+`strong-product-vision` is the exception within `product/` and returns in the
+response, because a vision rewrite edits an existing document rather than
+standing alone.
+
+Where a skill writes a file, that file **is** the deliverable and the chat
+summary is a courtesy — their evaluation suites fail a run that reports only in
+chat.
+
+A skill may add `references/`, `scripts/`, and `evals/` when it needs them; six
+currently do. `engineering/technical-review-auditor` carries a
 seeded-defect harness alongside the standard `evaluations/` suite, scoring
 defect recall and uplift over a no-skill baseline.
 `engineering/systems-thinking-auditor` carries `references/` holding its
@@ -50,7 +71,19 @@ template, kept out of `SKILL.md` so the body stays executable.
 the twelve-factor checks, the enterprise pattern catalog, and the architecture
 concepts it cites, loaded one lens at a time rather than all at once — plus an
 `evals/` fixture, so its accepted-deviation case scores against a fixed service
-instead of one each runner improvises.
+instead of one each runner improvises. `engineering/staff-architect`,
+`product/ceo-review`, `product/cfo`, and `product/creative-director` each carry a
+`references/` question bank kept out of `SKILL.md` so the body stays executable.
+
+## Front doors
+
+Two skills route rather than answer. `engineering/staff-architect` ranks which
+architecture lenses a project actually needs and dispatches to the narrow skills
+that own the analysis; `engineering/decision-elicitation` resolves the user's own
+unmade decisions first, when the blocker is choices nobody has made rather than
+analysis nobody has done. Both are scored on how much they hand off — a router
+that answers the question itself has displaced the skill that would have answered
+it better.
 
 ## How skills are selected and invoked
 

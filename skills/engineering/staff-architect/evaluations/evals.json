@@ -1,0 +1,186 @@
+{
+  "skill": "staff-architect",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Producing the analysis a narrow skill owns instead of routing to it",
+      "Sweeping all nine lenses at equal weight in Plan mode instead of ranking 3-4",
+      "Naming a framework, vendor, or datastore before naming a driver that forces it",
+      "A consequential decision presented with no rejected alternative",
+      "Equal analytical depth spent on a one-way door and a two-way door",
+      "Routing through the router when the engagement is already scoped to one lens",
+      "Restating a multi-skill chain that COMPOSITION-WORKFLOWS.md already defines"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Greenfield project, nothing designed",
+      "query": "We're building an internal tool that lets support agents look up a customer's order history across our three order systems and issue refunds. Team of two, six weeks, must be live before the holiday season. Where do we start architecturally?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Opens with a stack recommendation (React + FastAPI + Postgres) before naming a single driver",
+        "Produces a flat nine-section architecture document that answers everything shallowly",
+        "Treats the six-week deadline as a note rather than as the constraint that decides the ranking"
+      ],
+      "expected_behavior": [
+        "States Plan mode",
+        "Recovers the problem in the problem's terms — agents cannot currently see across three systems, and what that costs — rather than accepting 'build a lookup tool' as the problem",
+        "Ranks 3-4 lenses and says why each decides THIS project: constraints (2 people / 6 weeks is the binding one), solution space (three existing systems to integrate, so buy/reuse before build), system design (data ownership across three sources), delivery (what ships first)",
+        "Names the lenses deliberately not run and why",
+        "Routes each ranked lens to its owning skill by name rather than answering it",
+        "Classifies the refund path as a one-way door (money movement, hard to reverse once issued) and spends the depth there",
+        "Names unknowns as spikes with the question each answers"
+      ],
+      "must_not": [
+        "Name a technology stack before naming the drivers",
+        "Produce the system design itself rather than routing to system-architecture",
+        "Rank all nine lenses, or present them unranked"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Review mode on an existing design doc",
+      "query": "Here's our design doc for moving session storage out of the app servers into Redis. Review it — what are we missing?",
+      "files": ["a design doc covering the Redis choice in depth, with no section on failure modes, no rollback path, and no note on what happens when Redis is unavailable"],
+      "setup": ["Provide a design doc that is thorough on the reversible vendor choice and silent on operations and failure"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Proposes a competing design instead of reporting gaps",
+        "Praises the parts that are present without noticing the categories that are entirely absent"
+      ],
+      "expected_behavior": [
+        "States Review mode and sweeps all nine categories as a gap checklist, not 3-4",
+        "Reports findings against their design rather than proposing an alternative one",
+        "Flags the inverted attention: depth spent on the reversible Redis-vs-alternative choice while failure modes, rollback, and Redis-unavailable behavior are absent",
+        "Routes each finding to its owner — failure modes to engineering-risk-analysis and reliability-fault-tolerance, rollback to cicd-release-engineering, operations to production-readiness-review",
+        "Ranks findings by severity"
+      ],
+      "must_not": [
+        "Rewrite the design or present a competing approach",
+        "Rank only 3-4 lenses in Review mode",
+        "Answer the gaps rather than routing them"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Engagement blocked on the user's own unmade decisions",
+      "query": "I want to add real-time collaboration to our document editor but I genuinely haven't decided whether it's multiplayer-cursors-only or full concurrent editing, whether it needs offline support, or whether history has to be preserved. Architect this for me.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks a plausible answer for each undecided question and architects on top of the guesses, hiding three unmade decisions inside a confident design",
+        "Produces a design covering all branches at once, which is a design for nothing"
+      ],
+      "expected_behavior": [
+        "Recognizes that the blocker is unmade decisions, not missing analysis",
+        "States that concurrent editing vs. cursors-only changes essentially every downstream lens — CRDT/OT machinery, conflict semantics, storage model — so ranking cannot proceed on top of a guess",
+        "Hands to decision-elicitation to resolve the blocking decisions first, and says it will route once they are settled",
+        "Does not silently assume a branch"
+      ],
+      "must_not": [
+        "Assume a branch and architect on top of it without flagging the assumption as load-bearing",
+        "Produce an architecture covering every branch simultaneously"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Solution stated as the problem",
+      "query": "We need to add a message queue. Can you architect it?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Compares Kafka, RabbitMQ, and SQS immediately — answering the technology question that was asked instead of the problem question that was not"
+      ],
+      "expected_behavior": [
+        "Refuses to route until the problem behind 'we need a queue' is recovered: what breaks today, what is being decoupled from what, and what success looks like",
+        "Names that a queue is a solution and may not be the right one — the same symptom often resolves to a synchronous retry, a cron job, or a database table",
+        "Asks the specific questions that would make routing possible, rather than producing a generic queue comparison"
+      ],
+      "must_not": [
+        "Compare queue technologies before the problem is established",
+        "Produce an architecture for a queue on the assumption that a queue is correct"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to skip straight to the stack",
+      "query": "Skip the discovery stuff, we've been through it. Just tell me: Kafka or RabbitMQ for our event pipeline, and give me the full architecture doc today. I need something to show the VP in the morning.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies fully under deadline and authority pressure — picks Kafka, writes a confident doc, and never names a driver",
+        "Produces the full nine-section architecture document itself because a document was explicitly requested"
+      ],
+      "expected_behavior": [
+        "Asks for the drivers that decide between them — throughput, ordering requirements, retention, replay needs, team operational experience — because without one the choice is unfalsifiable",
+        "Offers what is actually deliverable today: the ranked engagement plan and the document skeleton with each section's owner named",
+        "States both alternatives with honest costs rather than asserting one, if forced to a provisional call, and names the driver that would settle it",
+        "Classifies the choice's reversibility, since wire format and consumer contracts make parts of it a one-way door",
+        "Does not silently produce the full analysis itself under time pressure"
+      ],
+      "must_not": [
+        "Pick one and write the architecture doc with no driver named",
+        "Abandon the routing role because a finished document was demanded",
+        "Treat 'we've been through discovery' as evidence that the drivers exist, without seeing them"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Engagement already scoped to a single lens",
+      "query": "Our orders table query got slow after we hit 40M rows. Here's the query and the EXPLAIN output — what index should I add?",
+      "files": ["a slow query plus its EXPLAIN output"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The router could wrap a contained indexing question in a nine-category architecture engagement"
+      ],
+      "expected_behavior": [
+        "Goes straight to database-design-optimization (or performance-engineering) territory — index selection from the actual plan",
+        "If this skill is consulted at all, it states that the engagement is already scoped to one lens and the router adds nothing, then routes in one line"
+      ],
+      "must_not": [
+        "Produce a lens ranking, an engagement plan, or a drivers-and-constraints section for a single-query indexing question",
+        "Ask discovery questions about stakeholders and NFRs before answering"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Implementation of an already-settled design",
+      "query": "The ADR is approved and the interface is defined — write the retry wrapper for our payment client per ADR-022: exponential backoff, jitter, max 5 attempts, give up on 4xx.",
+      "files": ["ADR-022 with the decision recorded"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The router could reopen a decision the ADR already settled"
+      ],
+      "expected_behavior": [
+        "Treats this as implementation work (code-implementation territory) against a settled decision",
+        "Does not re-litigate the approved ADR"
+      ],
+      "must_not": [
+        "Produce an architecture engagement for a settled, recorded decision",
+        "Reopen the retry strategy that ADR-022 already decided"
+      ]
+    }
+  ]
+}

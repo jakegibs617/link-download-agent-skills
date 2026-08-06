@@ -1,0 +1,195 @@
+{
+  "skill": "ui-ux-plan",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Verify ui-ux-plan.md exists, then invert every stated principle before reading the plan as prose.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "output_completeness": 4
+    },
+    "prohibited_failures": [
+      "No ui-ux-plan.md written",
+      "A UX principle whose inversion is absurd — it excludes nothing",
+      "Section 5 written as mood-board prose rather than tokens, scales, and named components",
+      "Navigation or flows given as prose or ASCII instead of mermaid",
+      "User flows containing only happy paths, with no empty, error, or failure states",
+      "A question asked that the PRD or the existing code already answers",
+      "An assumption made without surfacing it in Open questions & assumptions",
+      "An existing ui-ux-plan.md overwritten without reading it, confirming, and adding a changelog line",
+      "Audit findings omitted in existing mode"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Greenfield from a detailed PRD",
+      "query": "We have the PRD done. Can you put together the UI/UX plan?",
+      "files": ["a PRD stating platform (iOS phone, portrait), a primary persona (field technicians working one-handed in poor light), design pillars, the core loop, and explicit non-goals"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces principles like 'clean and intuitive' that exclude nothing",
+        "Writes a visual direction paragraph instead of a design system spec",
+        "Describes navigation in prose",
+        "Asks the user about platform and persona, which the PRD already states"
+      ],
+      "expected_behavior": [
+        "Detects greenfield mode and writes ui-ux-plan.md next to the PRD",
+        "Does NOT ask about platform or primary persona — the PRD answers both — and asks only what it does not, e.g. visual direction options and accessibility bar",
+        "Produces 4-6 principles each excluding something concrete, traceable to the pillars and the one-handed poor-light persona (e.g. 'no interaction requires two hands; we will not support drag-to-reorder')",
+        "Sections 3 and 4 contain valid mermaid",
+        "Flows annotated with empty, error, and failure states",
+        "Section 5 specifies a type scale, semantic color roles with light and dark values, spacing scale, and named components",
+        "Everything unknown lands in Open questions & assumptions",
+        "Presents the plan and waits rather than proceeding to implementation"
+      ],
+      "must_not": [
+        "Ask what the PRD states",
+        "Write mood-board prose in section 5",
+        "Use prose or ASCII for navigation"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Existing app needing an audit first",
+      "query": "Our app's UI has grown organically for two years and it shows. Can you audit it and give us a plan?",
+      "files": ["a React app with 23 route components, inconsistent form patterns across three eras of the codebase, several screens with no empty or error states, and no PRD"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces a greenfield-style plan that ignores what exists",
+        "Turns the audit into a line-level code review of the components",
+        "Omits section 6 entirely"
+      ],
+      "expected_behavior": [
+        "Detects existing mode and audits before planning",
+        "Enumerates the actual screens, routes, and navigation relationships as the audit's bound",
+        "Includes section 6 with gaps ranked by severity and a keep/fix/replace verdict per screen or component",
+        "Names the missing empty and error states and the inconsistent form patterns specifically, citing components",
+        "Stays out of line-level code review",
+        "Notes the absence of a PRD and what constraints it therefore cannot verify the plan against"
+      ],
+      "must_not": [
+        "Skip section 6 in existing mode",
+        "Perform a line-level code review",
+        "Plan as though the existing 23 screens did not exist"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Existing plan on disk — this is an update",
+      "query": "The PRD changed — we dropped the team-sharing feature and added offline mode. Update the UI/UX plan.",
+      "files": ["an existing ui-ux-plan.md with a changelog section, plus a revised PRD"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Regenerates the plan from scratch, silently discarding decisions the existing plan recorded",
+        "Overwrites without a changelog entry"
+      ],
+      "expected_behavior": [
+        "Reads the existing ui-ux-plan.md before changing anything",
+        "Confirms with the user before modifying it",
+        "Adds a changelog line mirroring the PRD's changelog style",
+        "Removes the team-sharing screens and flows, and adds the offline-mode surfaces — including its error and sync-conflict states",
+        "Preserves decisions in the existing plan that the PRD change does not affect",
+        "Names what changed and why, rather than presenting a wholly new document"
+      ],
+      "must_not": [
+        "Overwrite the existing plan without reading it",
+        "Regenerate unaffected sections from scratch",
+        "Omit the changelog line"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Neither PRD nor UI code",
+      "query": "I want to build a habit tracker. Can you do the UI/UX plan?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents personas, platform, pillars, and a full eight-section plan from one sentence, producing a plan for a generic habit tracker rather than this one"
+      ],
+      "expected_behavior": [
+        "Detects that neither a PRD nor UI code exists",
+        "Asks what to base the plan on rather than inventing the constraints",
+        "Names specifically what is needed: platform, primary persona, the core loop, and non-goals",
+        "Does not produce a full plan built on invented pillars and personas"
+      ],
+      "must_not": [
+        "Invent personas, pillars, or platform and present the resulting plan as this project's",
+        "Produce all eight sections from a one-line description"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Push for speed at the cost of the spec",
+      "query": "Just give me the quick version — I don't need diagrams or a whole design system, the devs will figure that out. Screens list and a paragraph on the vibe is fine. We're starting Monday.",
+      "files": ["a PRD"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Complies and produces a screen list plus a vibe paragraph, which is exactly the artifact the skill exists to replace",
+        "Drops the mermaid requirement because diagrams were explicitly declined"
+      ],
+      "expected_behavior": [
+        "Holds the spec requirements — the mermaid nav map and the tokenized design system are what makes the plan buildable, and 'the devs will figure it out' means each dev figures out something different",
+        "Explains the cost concretely: a vibe paragraph produces three inconsistent interpretations across three developers",
+        "Offers to narrow the scope honestly instead — fewer flows fully specified beats all flows sketched",
+        "Still delivers something usable before Monday rather than refusing"
+      ],
+      "must_not": [
+        "Deliver a screen list plus a vibe paragraph as the plan",
+        "Drop the mermaid diagrams or the design system spec because they were declined",
+        "Refuse to help with the deadline"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Brand and voice question",
+      "query": "Does our app's tone of voice feel right for a Gen Z audience? The copy feels a bit corporate to me.",
+      "files": ["user-facing copy"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could produce an interface plan in answer to a voice and audience question"
+      ],
+      "expected_behavior": [
+        "Routes to creative-director — voice, tone, and audience resonance are its object",
+        "If this skill is consulted at all, it states that copy voice is not interface structure"
+      ],
+      "must_not": [
+        "Write ui-ux-plan.md in response to a tone-of-voice question",
+        "Produce screens, flows, or a design system"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Component implementation",
+      "query": "Build the date-range picker component from the plan — spec is in section 5, it should match the existing token set.",
+      "files": ["a ui-ux-plan.md with the component specified"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could re-plan instead of letting implementation proceed against a settled spec"
+      ],
+      "expected_behavior": [
+        "Treats this as implementation work against an existing spec",
+        "Does not reopen or regenerate the plan"
+      ],
+      "must_not": [
+        "Rewrite or update ui-ux-plan.md",
+        "Re-derive the design system when the plan already specifies it"
+      ]
+    }
+  ]
+}

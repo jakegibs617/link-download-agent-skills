@@ -23,6 +23,12 @@ skill's Output Format.
 
 ## 2. Designing and implementing a new feature
 
+0. `staff-architect` **(front door, optional)** — when the engagement is broad or
+   its shape is unclear, rank which 3–4 lenses actually decide this project and
+   route. Skip it when the work is already scoped to one skill: the router adds
+   nothing there and costs a round trip. If the blocker turns out to be choices
+   nobody has made rather than analysis nobody has done, it hands to
+   `decision-elicitation` first.
 1. `requirements-analysis` — resolve ambiguity, produce testable acceptance
    criteria. **(gate: open questions either answered or explicitly deferred)**
 2. `first-principles-design` — candidate designs with tradeoffs; pick one.
@@ -175,6 +181,36 @@ narrower fit.
    to confirm what was actually won or conceded.
 
 ---
+
+## 11. Reviewing a product, not a codebase
+
+Run when the question is whether the thing is worth building, not whether it is
+built well. Each of these leaves a file artifact behind, so the sequence produces
+a set of dated documents that can be re-run and diffed a quarter later.
+
+1. `strong-product-vision` — does the vision commit to anything falsifiable?
+   Everything downstream inherits its vagueness, so it goes first. Output: the
+   rewritten contract sentence, plus the slots nobody can fill — which are the
+   findings.
+2. In parallel, once the vision is settled:
+   - `ui-ux-plan` — screens, flows, and the design system as a spec.
+   - `creative-director` — brand idea, positioning, voice; judged on the idea
+     rather than the craft.
+3. `cfo` — the numbers: unit economics, cost structure, burn, pricing,
+   break-even. Every figure labeled `[sourced]` or `[estimate]`. Issues a
+   financial verdict, never a funding one.
+4. `ceo-review` **(gate)** — consumes the above and issues the keep-funding
+   verdict. It grades business model at scoreboard depth only and defers to
+   step 3 for the modeling, so run `cfo` first where the numbers matter.
+
+The division between steps 3 and 4 is the one people collapse: a model can be
+sound for a business not worth building, and unsound for one worth funding
+anyway. Keep the financial verdict and the funding verdict in separate
+documents, written by separate skills.
+
+Handing off to engineering: `ceo-review`'s Top 3 Asks and `ui-ux-plan`'s section
+8 are both written as owner-shaped actions, which is what workflow 2 consumes at
+step 0 or 1.
 
 ## Composition rules
 
