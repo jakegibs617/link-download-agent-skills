@@ -3,7 +3,7 @@
 A catalog of reusable AI agent skills for Claude, organized around three
 professional competency models:
 
-- **Engineering:** 36 focused skills for senior and staff-level software work.
+- **Engineering:** 37 focused skills for senior and staff-level software work.
 - **Legal contract review:** 25 focused analysis skills with explicit
   uncertainty, escalation, and licensed-counsel boundaries.
 - **Product:** 5 skills covering the non-engineering functions that review a
@@ -37,7 +37,7 @@ skills/
 └── EVALUATION-GUIDE.md
 ```
 
-The full library contains 66 skills. Evaluation support files stay beside each
+The full library contains 67 skills. Evaluation support files stay beside each
 skill so a copied or packaged skill remains self-contained. A skill may also
 carry `references/`, `scripts/`, and `evals/` directories when it needs them —
 `engineering/technical-review-auditor` does, for its seeded-defect scoring

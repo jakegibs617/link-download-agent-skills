@@ -1,0 +1,183 @@
+{
+  "skill": "explain-for-audience",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. For paired-persona cases, run both personas on identical source material and diff the two outputs — the diff is the measurement.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "usefulness_actionability": 4
+    },
+    "prohibited_failures": [
+      "Two different personas receiving substantively the same explanation, differing only in length",
+      "Implementation vocabulary (API, async, cache, race condition, sharding) used unglossed with a product or executive persona",
+      "Business abstractions used with a developer persona in place of specifics and tradeoffs",
+      "No 'so what' closing the explanation",
+      "A needed decision named with no recommendation",
+      "The persona guessed silently when it was neither given nor confirmable",
+      "A simplification that makes the explanation inaccurate rather than merely shorter",
+      "Structuring a high-stakes nontechnical decision message here instead of routing to stakeholder-communication"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Paired personas, identical source material",
+      "query": "Explain our decision to move from synchronous webhook delivery to a queue-backed retry system. I need one version for the engineering team and one for the VP of Product.",
+      "files": ["a design doc describing the queue, retry policy with exponential backoff, dead-letter handling, and the at-least-once delivery guarantee that introduces duplicate-delivery semantics consumers must handle"],
+      "setup": ["Score by diffing the two outputs against each other, not only by reading each alone"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces two versions that differ in length but carry the same vocabulary and the same facts",
+        "Leaks 'at-least-once', 'dead-letter queue', and 'idempotency' into the VP of Product version",
+        "Gives the engineering version business framing instead of the duplicate-delivery consequence they must handle in code"
+      ],
+      "expected_behavior": [
+        "Two genuinely different explanations, differing in vocabulary and in which facts survive — not merely in length",
+        "Engineering version: retry policy specifics, backoff parameters, dead-letter behavior, and explicitly that at-least-once means consumers must be idempotent — the thing that changes their code",
+        "VP of Product version: webhooks that used to be silently lost now arrive, framed as a customer-visible reliability improvement, with the cost or timeline implication; no queue mechanics at all",
+        "Each closes with a 'so what' in that role's terms",
+        "Both remain accurate — the VP version simplifies expression without asserting anything false"
+      ],
+      "must_not": [
+        "Use 'at-least-once', 'dead-letter', or 'idempotent' unglossed in the VP version",
+        "Give the engineering version business abstractions in place of the idempotency consequence",
+        "Produce two versions distinguishable only by word count"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Director of Engineering altitude, between two defaults",
+      "query": "Our director of engineering asked what the auth service refactor actually buys us. Write the explanation.",
+      "files": ["a refactor plan touching 3 teams' services, removing a shared session table, taking an estimated 2 quarters"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Defaults to a peer-engineer explanation of the refactor's internals",
+        "Over-corrects into an executive summary with no org or dependency content"
+      ],
+      "expected_behavior": [
+        "Hits the director-of-engineering altitude specifically: cross-team dependencies, what it unblocks or forecloses, debt-vs-velocity framing, resourcing implications across the two quarters",
+        "Omits line-level code detail while keeping system and team-level effects",
+        "Names the three-team coordination as the load-bearing fact at this altitude",
+        "Closes with a 'so what' about org impact or what this makes possible next"
+      ],
+      "must_not": [
+        "Explain the refactor's implementation mechanics",
+        "Flatten to a two-sentence executive summary with no dependency or resourcing content"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Role title diverges from actual fluency",
+      "query": "Explain the caching change to our VP of Product — heads up, she was a staff engineer until two years ago and still reads our PRs.",
+      "files": ["a caching design doc"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Applies the VP-of-Product persona mechanically and strips all technical content from someone who reads PRs, which reads as condescending",
+        "Ignores the role entirely and writes a peer-engineer explanation, missing that her decisions are now product decisions"
+      ],
+      "expected_behavior": [
+        "Calibrates to the person rather than the title, and says it is doing so",
+        "Keeps technical specificity she can use, while framing around what the role now needs — product and business consequence",
+        "Recognizes that fluency and concern are independent: she can follow the mechanics, but her decision is a product decision",
+        "Does not strip detail purely because the title says VP"
+      ],
+      "must_not": [
+        "Apply the VP persona's omissions mechanically against stated evidence of fluency",
+        "Ignore the role's concerns and produce a pure engineering explanation"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Audience unspecified",
+      "query": "Can you explain what the rate limiter does and why we built it this way?",
+      "files": ["rate limiter source and a short design note"],
+      "setup": ["The requester does not respond to clarifying questions within the run"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks an altitude silently — usually peer-engineer — and produces one explanation with no acknowledgment that the audience was never established"
+      ],
+      "expected_behavior": [
+        "Asks who the explanation is for",
+        "Getting no answer, states the assumed persona explicitly rather than guessing silently",
+        "Offers a second framing at a different altitude, or names what would change if the audience were different",
+        "Does not silently commit to one altitude"
+      ],
+      "must_not": [
+        "Produce a single explanation with no statement of the assumed audience",
+        "Stall indefinitely waiting for an answer instead of proceeding with a stated assumption"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure to make it sound more impressive",
+      "query": "Write this up for the CTO. Honestly the change is pretty small — we added an index — but I want it to sound like the significant piece of work it was. Make it sound substantial.",
+      "files": ["a one-line migration adding a database index, plus before/after query timings"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Inflates a one-line index addition into architecture-sounding prose, which is over-explaining upward and dishonest at once",
+        "Refuses to help at all rather than finding the honest framing"
+      ],
+      "expected_behavior": [
+        "Declines to inflate, and holds the CTO persona's altitude: two sentences, strategic fit, key risk",
+        "Finds the genuinely CTO-relevant framing that is also true — the measured latency improvement and what it unblocks or de-risks, which may be substantial even though the diff is one line",
+        "Notes that impressiveness at CTO altitude comes from consequence, not effort, and that a one-line change with a large measured effect is the strongest version of the story",
+        "Still helps — produces the write-up rather than only objecting"
+      ],
+      "must_not": [
+        "Pad the explanation with implementation detail to make it seem larger",
+        "Assert anything the source material does not support",
+        "Refuse the task instead of finding the honest framing"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "High-stakes decision message to a nontechnical audience",
+      "query": "I need to tell the exec team we're delaying launch two weeks because we found a bug that could double-charge customers. Help me write it.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "This skill could calibrate the altitude while missing the message structure the situation demands — bottom line first, honest risk, specific ask"
+      ],
+      "expected_behavior": [
+        "Routes to stakeholder-communication — a bad-news decision message to nontechnical decision-makers is its object, and the structure (bottom line, impact, options, honest uncertainty, ask) is what matters here",
+        "If this skill contributes at all, it supplies the altitude and defers the message structure"
+      ],
+      "must_not": [
+        "Produce the delay-and-bad-news message under this skill's output format",
+        "Treat altitude calibration as sufficient for a high-stakes bad-news communication"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Durable written artifact",
+      "query": "Write the ADR for our decision to use Postgres over DynamoDB for the events store.",
+      "files": ["notes from the decision discussion"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "This skill could produce an audience-calibrated explanation where a durable, structured artifact was requested"
+      ],
+      "expected_behavior": [
+        "Routes to technical-documentation — an ADR is a durable artifact with its own structure (context, decision, alternatives, consequences), not an explanation pitched at one reader",
+        "Notes that an ADR's audience is the future reader, which is precisely the case persona calibration does not serve"
+      ],
+      "must_not": [
+        "Produce an ADR under this skill's Audience/Goal/So-what output format",
+        "Calibrate a durable artifact to one named persona"
+      ]
+    }
+  ]
+}

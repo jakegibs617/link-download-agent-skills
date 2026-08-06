@@ -100,6 +100,13 @@ Adapts to the medium (email, slide, verbal brief, doc), but structured as:
 
 ## Related skills
 
+- `explain-for-audience` — owns the *altitude*: how much detail, whose
+  vocabulary, what to omit, across six roles including technical ones. This
+  skill owns the *structure and honesty* of a consequential message — bottom
+  line first, options as tradeoffs, honest ranges, no buried risk, a specific
+  ask. They compose: pick the altitude there, structure the message here. Use
+  that one when the task is landing an explanation at the right level; use this
+  one when the message is a decision ask, a status, an incident, or bad news.
 - `technical-documentation` — for technical (engineer) audiences instead.
 - `mentoring-technical-leadership` — coaching/influencing other engineers.
 - `technical-planning-estimation` / `engineering-risk-analysis` — supply the

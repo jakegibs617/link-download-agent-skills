@@ -9,7 +9,7 @@ Legend for paths: `engineering/<name>/`, `legal/<name>/`, and `product/<name>/`.
 
 ---
 
-## Engineering (36 skills)
+## Engineering (37 skills)
 
 ### Category: Understanding & Requirements
 
@@ -290,6 +290,14 @@ Legend for paths: `engineering/<name>/`, `legal/<name>/`, and `product/<name>/`.
 - Inputs: who + their level, the situation, relationship context.
 - Outputs: the interaction (diagnosis, drawing-out questions, transferable lesson, ownership calls, growth edge).
 - Related: the specialist skills (for producing artifacts), stakeholder-communication, knowledge-transfer-verification.
+
+**explain-for-audience**
+- Category: Communication & Leadership
+- Does: Calibrates a technical explanation to the altitude its audience can act from — how much detail, which vocabulary, what framing, what to omit — across six roles from developer to VP of product, closing with a "so what" in that role's terms.
+- Triggers: explaining code, a design, a plan, an incident, or a tradeoff to a named role; an explanation that landed wrong and needs re-pitching; "explain this for a CTO / PM / tech lead".
+- Inputs: what to explain, the audience's role (ask if absent), the goal, and their actual fluency where it diverges from the title.
+- Outputs: audience, goal, calibrated explanation, a one-sentence "so what", and any decision needed with a recommendation.
+- Related: stakeholder-communication (owns message structure where this owns altitude), technical-documentation (durable artifacts), mentoring-technical-leadership, ceo-review and cfo (business framing for exec altitudes).
 
 **stakeholder-communication**
 - Category: Communication & Leadership
