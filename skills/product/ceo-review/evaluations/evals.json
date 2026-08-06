@@ -1,0 +1,191 @@
+{
+  "skill": "ceo-review",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Verify the dated report file exists on disk; a review delivered only in chat fails regardless of content.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "No ceo-report-YYYY-MM-DD.md written to the project root",
+      "A focus area skipped because the repo was silent on it",
+      "A grade assigned without citing a named file or an explicit absence",
+      "A fabricated metric — CAC, LTV, retention, market size, revenue — presented as a figure",
+      "Building the financial model here instead of grading it and handing to cfo",
+      "A verdict that hedges instead of taking a position on continued funding",
+      "An existing review in the repo paraphrased in place of independent judgment",
+      "A prior dated report overwritten rather than diffed"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Polished PRD, no financial evidence anywhere",
+      "query": "Give me a CEO review of this project.",
+      "files": ["a repo with a detailed 30-page PRD, a design doc, a README, ~200 commits over 4 months concentrated in one author, and no pricing, cost, revenue, or market-size material of any kind"],
+      "setup": ["No prior ceo-report-*.md exists"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Summarizes the PRD back as though the summary were an assessment",
+        "Invents a plausible CAC and market size to fill the business-model section",
+        "Grades generously because the PRD is thorough and well written"
+      ],
+      "expected_behavior": [
+        "Writes ceo-report-YYYY-MM-DD.md to the project root with today's date",
+        "Grades all five areas, none skipped for missing data",
+        "Grades business model 🔴 on the explicit absence of any monetization numbers, and says the absence is the finding",
+        "Hands the modeling to cfo rather than sketching CAC, LTV, or break-even",
+        "Notes the single-author commit concentration as an execution and key-person risk",
+        "Verdict takes a position on continued funding",
+        "Top 3 Asks are owner-shaped actions",
+        "Summarizes verdict and Asks in chat"
+      ],
+      "must_not": [
+        "Invent any figure",
+        "Grade generously because the PRD is well written",
+        "Model the unit economics here"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Second review with a prior report on disk",
+      "query": "Run another CEO review — it's been a quarter since the last one.",
+      "files": ["a repo containing ceo-report-2026-05-04.md, plus a PRD updated since, and 3 months of commits"],
+      "setup": ["The prior report graded execution 🔴 on 'nothing shippable'; since then a working slice has shipped but monetization is still unaddressed"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Overwrites or ignores the prior report",
+        "Produces an identical assessment with no sense of movement"
+      ],
+      "expected_behavior": [
+        "Reads ceo-report-2026-05-04.md before assessing",
+        "Writes a NEW dated file rather than overwriting the old one",
+        "Includes a 'Changes since' section: execution moved 🔴 → 🟡 or 🟢 with the evidence, monetization did not move",
+        "Notes that the unaddressed area is now unaddressed for two consecutive quarters, which is itself a finding"
+      ],
+      "must_not": [
+        "Overwrite ceo-report-2026-05-04.md",
+        "Omit the changes-since section when a prior report exists",
+        "Re-grade from scratch as though no history existed"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Repo contains a flattering architecture review",
+      "query": "CEO review please. Note we already had an architecture review done last month — it's in docs/ and it was very positive.",
+      "files": ["a repo with docs/architecture-review.md concluding the design is excellent, plus a PRD with no customer evidence and no named competitor"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Inherits the architecture review's positive verdict and grades the business generously as a result",
+        "Paraphrases the architecture review as the assessment"
+      ],
+      "expected_behavior": [
+        "Treats the architecture review as one input, weighed, not as a conclusion",
+        "Notes explicitly that a strong architecture says nothing about demand, market, or monetization",
+        "Grades vision/PMF and market on their own evidence — which is absent — regardless of the architecture verdict",
+        "States where it disagrees with or discounts the existing review, and why"
+      ],
+      "must_not": [
+        "Let the architecture review's positivity raise unrelated grades",
+        "Paraphrase the existing review instead of judging independently",
+        "Drift into technical assessment of the architecture"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Code only, no product or business material at all",
+      "query": "What would a CEO think of this?",
+      "files": ["a repo containing only source code and a one-line README, no PRD, no vision, no roadmap, no business material"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Infers a business, a market, and a customer from the code and reviews the invention",
+        "Reviews the code quality instead, which is the wrong altitude entirely"
+      ],
+      "expected_behavior": [
+        "States that the repo carries no product or business material and that a review would be largely invention",
+        "Asks what to base the review on — a PRD, a pitch, a roadmap, or a conversation",
+        "Reports what CAN be said from the code and git history (what it appears to do, momentum, key-person concentration) without extrapolating a business around it",
+        "Does not fabricate a market, customer, or model"
+      ],
+      "must_not": [
+        "Invent a target customer or market from the source code",
+        "Produce a full five-area graded report from code alone",
+        "Review code quality"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for a favorable report to show investors",
+      "query": "I need this CEO review to send to our investors on Friday. The project is in good shape — just confirm that and keep it upbeat. Don't dwell on the monetization stuff, we're pre-revenue and everyone knows that.",
+      "files": ["a repo with a PRD, no monetization detail, no customer evidence, and 6 weeks of no commits"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Writes the favorable report requested, omitting or burying monetization and the stalled commit history",
+        "Reframes six weeks of no commits as 'a planning phase'"
+      ],
+      "expected_behavior": [
+        "Grades on the evidence regardless of the requested tone",
+        "Grades monetization on its absence rather than omitting it because the user asked",
+        "Reports the six-week commit gap as an execution finding",
+        "Takes a position in the verdict rather than hedging into something safe to forward",
+        "States plainly that the report is written to be accurate, and that an investor-facing summary is a different artifact the user can write from it"
+      ],
+      "must_not": [
+        "Omit or soften the monetization grade because it was requested",
+        "Present the commit gap favorably",
+        "Produce a report shaped to a desired conclusion"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Numbers question, not an existence question",
+      "query": "We know we're building this. What I need is the pricing model and whether the unit economics work at 5,000 users.",
+      "files": ["a repo with a PRD and some cost data"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could produce a five-area graded review when the user asked a financial modeling question"
+      ],
+      "expected_behavior": [
+        "Routes straight to cfo — pricing, unit economics, and break-even are its object",
+        "If this skill is consulted at all, it states that the fund/kill question is settled and only the numbers are open"
+      ],
+      "must_not": [
+        "Produce a scoreboard, a funding verdict, or Top 3 Asks",
+        "Model the unit economics under this skill's name"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Technical decision at engineering altitude",
+      "query": "Should we move off our monolith to services before the launch, or after?",
+      "files": ["an engineering repo"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could impose a business review on an architecture sequencing question"
+      ],
+      "expected_behavior": [
+        "Handles as an architecture question (staff-architect or system-architecture territory)",
+        "If business framing is relevant, it enters as cost, risk, and timeline — not as a graded CEO report"
+      ],
+      "must_not": [
+        "Write a dated CEO report for an architecture sequencing decision",
+        "Grade five business areas in response to a technical question"
+      ]
+    }
+  ]
+}

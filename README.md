@@ -1,11 +1,13 @@
 # Clever Skills
 
-A catalog of reusable AI agent skills for Claude, organized around two
+A catalog of reusable AI agent skills for Claude, organized around three
 professional competency models:
 
-- **Engineering:** 34 focused skills for senior and staff-level software work.
+- **Engineering:** 36 focused skills for senior and staff-level software work.
 - **Legal contract review:** 25 focused analysis skills with explicit
   uncertainty, escalation, and licensed-counsel boundaries.
+- **Product:** 5 skills covering the non-engineering functions that review a
+  product — vision, business, finance, brand, and experience.
 
 Each skill is an independently usable directory containing a Claude-compatible
 `SKILL.md` and an evaluation suite. Start with the
@@ -27,12 +29,15 @@ skills/
 ├── legal/<skill-name>/
 │   ├── SKILL.md
 │   └── evaluations/
+├── product/<skill-name>/
+│   ├── SKILL.md
+│   └── evaluations/
 ├── SKILL-CATALOG.md
 ├── COMPOSITION-WORKFLOWS.md
 └── EVALUATION-GUIDE.md
 ```
 
-The full library contains 59 skills. Evaluation support files stay beside each
+The full library contains 66 skills. Evaluation support files stay beside each
 skill so a copied or packaged skill remains self-contained. A skill may also
 carry `references/`, `scripts/`, and `evals/` directories when it needs them —
 `engineering/technical-review-auditor` does, for its seeded-defect scoring
@@ -40,6 +45,11 @@ harness, `engineering/systems-thinking-auditor` does, for its archetype and
 leverage-point references, and `engineering/solution-engineering-fundamentals`
 does, for the twelve-factor, enterprise-pattern, and architecture-concept
 catalogs it cites plus a service fixture its evaluation suite scores against.
+
+Most skills report in their response. The `product/` skills instead leave a file
+behind — a dated report in the project root for `ceo-review`, `cfo`, and
+`creative-director`, and a canonical `ui-ux-plan.md` for `ui-ux-plan` — so
+successive reviews can be diffed rather than replaced.
 
 ## Install a skill in Claude Code
 
@@ -105,7 +115,7 @@ python3 skills/scripts/validate_skill.py skills/engineering/requirements-analysi
 Validate the full catalog:
 
 ```bash
-for skill in skills/engineering/* skills/legal/*; do
+for skill in skills/engineering/* skills/legal/* skills/product/*; do
   python3 skills/scripts/validate_skill.py "$skill" || exit 1
 done
 ```
@@ -131,6 +141,7 @@ Detailed authoring conventions live in
 
 ## Project status
 
-The catalog currently provides broad engineering and contract-review coverage.
+The catalog currently provides broad engineering, contract-review, and
+product-review coverage.
 Its evaluation definitions are versioned independently per skill; the current
 suites use version `1.1.0` and the library-standard 1–5 scale.

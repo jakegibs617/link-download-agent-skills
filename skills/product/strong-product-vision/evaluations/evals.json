@@ -1,0 +1,187 @@
+{
+  "skill": "strong-product-vision",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "output_completeness": 4
+    },
+    "prohibited_failures": [
+      "The Rewritten Vision (draft) section absent — diagnosis delivered without a rewrite",
+      "A contract slot filled with an invented competitor, market fact, user research finding, or metric",
+      "A test reported as failed without quoting the sentence that failed it",
+      "Adjectives accepted as differentiation",
+      "A success signal accepted that is sentiment rather than a named behavior or number",
+      "Fewer than five tests run"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Generic vision that fails the swap test",
+      "query": "Review our product vision: 'Our mission is to empower modern teams to do their best work by making collaboration seamless, intuitive, and delightful. We believe every team deserves tools that get out of their way.' We're building a project management tool for agencies.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Praises it as clear and aspirational, suggesting only wording tweaks",
+        "Critiques it as generic without producing a replacement sentence",
+        "Invents a competitor and a retention metric to complete a rewrite"
+      ],
+      "expected_behavior": [
+        "Runs all five tests with pass/fail each",
+        "Quotes the failing sentences — 'empower modern teams to do their best work' fails inversion, 'seamless, intuitive, and delightful' fails as adjectives-not-capabilities",
+        "Runs the swap test literally with a named competitor (Asana, Monday, Linear) and shows the sentence still reads true",
+        "Notes that 'every team' fails name-the-loser, while the stated target (agencies) is a real exclusion the vision refuses to make",
+        "Produces the Rewritten Vision draft with agencies in the [specific person] slot and [TODO] for the slots the material cannot support",
+        "Asks specifically for the unfillable slots rather than inventing them"
+      ],
+      "must_not": [
+        "Omit the rewritten draft",
+        "Invent a named alternative, a measurable signal, or a market fact",
+        "Accept 'seamless' or 'delightful' as differentiation"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Feature list wearing a vision's grammar",
+      "query": "Here's our vision section: 'A note-taking app with AI summarization, real-time sync, offline mode, PDF export, team sharing, and an API. The best way to capture and organize what matters.' Is this strong?",
+      "files": ["a roadmap listing 14 features across 3 quarters"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reviews the feature list on its merits instead of noticing there is no organizing bet",
+        "Skips the feature trace entirely"
+      ],
+      "expected_behavior": [
+        "Identifies this as a feature list with no organizing bet — fails one-thing (six features claimed essential) and fails bet (no identifiable risky assumption)",
+        "Fails name-the-loser: 'what matters' serves everyone",
+        "Produces the rewritten draft",
+        "Runs the feature trace against the 14-item roadmap, mapping each to a contract slot and marking unmapped features as cut/park candidates for v1",
+        "Names which single experience must be great in v1"
+      ],
+      "must_not": [
+        "Skip the feature trace when a roadmap was supplied",
+        "Accept six essential features as passing the one-thing test"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Almost nothing to fill the slots with",
+      "query": "I have an idea for something in the mental health space. Not much written down yet. Is 'helping people feel better about themselves' a strong vision?",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents a persona, a competitor, and a success metric to produce a complete-looking vision from a single sentence",
+        "Declines to produce a rewrite because there is too little to work with"
+      ],
+      "expected_behavior": [
+        "Runs the tests and fails most of them, quoting the sentence",
+        "Produces the rewritten draft anyway — mostly [TODO: Q#] markers",
+        "Asks one specific numbered question per unfillable slot",
+        "States that the unfillable slots ARE the finding: the work to do before building",
+        "Explicitly does not invent the market, the competitor, or the metric"
+      ],
+      "must_not": [
+        "Omit the draft because the material is thin",
+        "Fabricate any slot content",
+        "Produce a polished vision sentence that implies knowledge nobody has"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No vision written, only a feature list",
+      "query": "We never wrote a vision. Here's what we're building — can you tell me if our direction is any good?",
+      "files": ["a PRD with detailed feature specs and no vision or positioning section"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Says there is no vision to review and stops",
+        "Reviews the features as a product critique instead"
+      ],
+      "expected_behavior": [
+        "Reconstructs the de facto vision from what the feature list implies, and says explicitly that it is doing so",
+        "Runs the five tests against the reconstruction",
+        "Produces the rewritten draft",
+        "Notes where the reconstructed vision and the feature list disagree — the roadmap is the honest document when they diverge"
+      ],
+      "must_not": [
+        "Stop because no vision statement exists",
+        "Present the reconstruction as though the team had written it"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Founder pressure to validate the existing vision",
+      "query": "Our board already signed off on this vision and it tested well with three advisors: 'To become the operating system for the future of work.' I just need you to confirm it's strong so we can move on. Don't overthink it.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms it under social proof (board, advisors) and explicit instruction not to overthink",
+        "Softens the finding to 'strong but could be more specific'"
+      ],
+      "expected_behavior": [
+        "Runs the tests regardless of the sign-off — board approval is not evidence about the sentence",
+        "Fails swap decisively: 'operating system for the future of work' can be said unchanged by Notion, Slack, Microsoft, Monday, and roughly forty others",
+        "Fails inversion and name-the-loser",
+        "Produces the rewritten draft rather than only refusing to confirm",
+        "States plainly that the sentence commits to nothing, without hedging"
+      ],
+      "must_not": [
+        "Confirm the vision as strong",
+        "Treat board or advisor approval as evidence the sentence works",
+        "Soften into 'strong but could be sharper'"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Tagline and campaign line, not an operating vision",
+      "query": "We need a tagline for the launch page. Something short and punchy that goes under the logo — we've got about six words.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could impose the vision contract on a piece of marketing copy that is not an operating vision"
+      ],
+      "expected_behavior": [
+        "Treats this as brand and campaign copy (creative-director territory)",
+        "If this skill is consulted at all, states that a tagline and an operating vision are different artifacts and hands off"
+      ],
+      "must_not": [
+        "Run the five tests against a six-word tagline",
+        "Produce the vision contract sentence as a tagline"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Requirements work downstream of a settled vision",
+      "query": "The vision is settled and signed off. Turn the 'collaborative editing' pillar into acceptance criteria the team can build against.",
+      "files": ["a PRD with an agreed vision section"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could reopen a settled vision instead of doing the requirements work asked for"
+      ],
+      "expected_behavior": [
+        "Treats this as requirements-analysis territory — testable acceptance criteria for the pillar",
+        "Does not re-litigate the signed-off vision"
+      ],
+      "must_not": [
+        "Run the five tests on a vision the user has explicitly settled",
+        "Produce a rewritten vision instead of acceptance criteria"
+      ]
+    }
+  ]
+}

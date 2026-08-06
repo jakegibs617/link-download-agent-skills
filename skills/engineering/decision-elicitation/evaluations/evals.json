@@ -1,0 +1,200 @@
+{
+  "skill": "decision-elicitation",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Interactive cases require a scripted user: answer each question in one short sentence, never volunteer information that was not asked for, and never signal that the interrogation should end.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "workflow_execution": 4
+    },
+    "prohibited_failures": [
+      "Continuing to ask questions after all three completion tests pass",
+      "Asking the user a fact discoverable from the codebase, filesystem, or the request itself",
+      "More than one decision put to the user in a single message",
+      "Asking a node that pruning marked deferrable",
+      "A recommendation stated with no reason behind it",
+      "Beginning implementation before the user confirms the spec",
+      "Starting to ask questions without first rendering the decision tree",
+      "A deferred decision recorded with no trigger that forces it later"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Interdependent decisions with a large deferrable subtree",
+      "query": "I want to add real-time collaboration to our document editor. Grill me until you know enough to build it.",
+      "files": ["a React + Node repo with an existing WebSocket server, Postgres, and single-server deployment"],
+      "setup": [
+        "Scripted user: answers each question in one sentence. Wants cursors-and-presence for v1 only. Does not volunteer this until asked.",
+        "The repo already answers: transport (WebSocket server exists), persistence (Postgres), topology (single server)."
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Asks fifteen questions in one message",
+        "Asks which transport to use when the repo already has a WebSocket server",
+        "Never stops — keeps finding new questions about conflict resolution, presence, undo, and offline long after v1 is decidable"
+      ],
+      "expected_behavior": [
+        "Renders the decision tree as a mermaid graph before asking anything",
+        "Marks transport, persistence, and topology as already answered, naming the repo evidence for each rather than asking",
+        "Prunes: full concurrent editing, CRDT library choice, offline support, and conflict UX are deferrable once v1 is cursors-and-presence — states the counts",
+        "Asks the root decision first (cursors-only vs. full concurrent editing), since resolving it deletes the largest subtree",
+        "One decision per message throughout",
+        "Each question carries a recommendation and a reason — not a bare preference",
+        "Names each pruned subtree as it is pruned",
+        "Runs the three completion tests explicitly and stops",
+        "Emits the spec and waits for confirmation"
+      ],
+      "must_not": [
+        "Ask about transport, database, or deployment topology",
+        "Batch questions",
+        "Continue into CRDT or offline questions once v1 scope is cursors-and-presence"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Early termination while interesting questions remain",
+      "query": "Grill me on adding CSV export to the reports page.",
+      "files": ["a repo with an existing reports page, an established file-download helper, and a documented streaming-response convention"],
+      "setup": [
+        "Scripted user. The only genuinely open decisions are: which columns, and whether the export respects the current filters.",
+        "Everything else — encoding, delimiter, streaming vs. buffered, filename convention — is settled by existing repo conventions."
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Asks about encoding, delimiters, quoting, BOM for Excel, streaming, filename format, and rate limits — none of which block v1 and most of which the repo already answers",
+        "Treats a small feature as license for a long interrogation"
+      ],
+      "expected_behavior": [
+        "Small tree, honestly small — does not inflate it to look thorough",
+        "Marks encoding, delimiter, streaming, and filename as already answered by repo convention, citing where",
+        "Asks only the two blocking decisions",
+        "Stops after those two, running the completion test explicitly and stating that it passes",
+        "Explicitly acknowledges that further questions exist (Excel BOM, very large exports) and defers them with triggers rather than asking now"
+      ],
+      "must_not": [
+        "Ask more than the blocking decisions",
+        "Continue because interesting questions remain",
+        "Ask anything the repo's existing conventions answer"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Blocking decision nobody in the conversation can answer",
+      "query": "Grill me on the billing integration — we need to start this week.",
+      "files": [],
+      "setup": [
+        "Scripted user: does not know whether finance has settled on Stripe or the existing enterprise payment vendor, and says so when asked. Cannot find out today."
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks a provider so the interrogation can continue, burying an unresolved blocking decision inside a confident spec",
+        "Keeps asking downstream questions that only make sense once the provider is known"
+      ],
+      "expected_behavior": [
+        "Identifies the provider choice as a root blocking decision that most of the tree depends on",
+        "On learning it cannot be answered, stops rather than guessing",
+        "Names it as a spike: the question, who can answer it, and what it blocks",
+        "Reports what IS decidable without it, if anything, and what is not",
+        "Does not emit an implementation-ready spec while a root decision is open"
+      ],
+      "must_not": [
+        "Choose a provider to keep the process moving",
+        "Continue down provider-dependent branches",
+        "Present a spec as implementation-ready with an unresolved root decision inside it"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Everything already settled",
+      "query": "Grill me before I start on the password-reset flow.",
+      "files": ["a repo with an existing auth module, a documented email-sending service, an established token-expiry convention, and a written spec for the reset flow in docs/"],
+      "setup": ["Every decision the feature implies is already answered by the spec or by existing repo convention."],
+      "should_activate": true,
+      "baseline_risks": [
+        "Asks questions anyway because it was invoked, manufacturing decisions that the spec already made"
+      ],
+      "expected_behavior": [
+        "Builds the tree and finds every node already answered",
+        "Cites what settles each one — the spec, the auth module, the token convention",
+        "Asks nothing, states that the completion test already passes, and says implementation can start",
+        "Hands off immediately"
+      ],
+      "must_not": [
+        "Ask a single question the spec or codebase already answers",
+        "Manufacture open decisions to justify running"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "User pushes for the answer instead of deciding",
+      "query": "Grill me on the caching layer. Actually — you know what, you're the expert, just pick whatever you think is right for all of these and let's go.",
+      "files": ["a repo with no existing cache"],
+      "setup": ["Scripted user declines to decide and repeats the request to choose if pushed once."],
+      "should_activate": true,
+      "baseline_risks": [
+        "Silently makes every decision and presents the result as though the user had chosen, leaving no record of who decided what",
+        "Refuses to proceed at all, deadlocking on a user who has legitimately delegated"
+      ],
+      "expected_behavior": [
+        "Accepts the delegation rather than deadlocking — the user is allowed to delegate",
+        "Records each decision explicitly as the assistant's call, not the user's",
+        "Gives the reason for each, and what would reverse it, so the user can overrule any of them on reading",
+        "Still prunes to blocking decisions only — delegation does not license deciding deferrable ones",
+        "Still presents the spec for confirmation before implementing"
+      ],
+      "must_not": [
+        "Present delegated decisions as though the user made them",
+        "Decide deferrable nodes because nobody is pushing back",
+        "Skip the confirmation gate because the user sounded impatient"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Single obvious path, no tree to build",
+      "query": "Add a --verbose flag to the CLI that prints the resolved config before running.",
+      "files": ["a CLI repo with an existing flag-parsing convention and an existing config resolver"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could impose a decision tree and an interrogation on a request with exactly one sensible implementation"
+      ],
+      "expected_behavior": [
+        "Implements it following the existing flag convention",
+        "If this skill is consulted at all, it observes that the tree is entirely already-answered, asks nothing, and hands straight to implementation"
+      ],
+      "must_not": [
+        "Render a decision tree for a one-flag change",
+        "Ask the user anything about flag naming or output format that the existing convention settles"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Fact-finding, not decision-making",
+      "query": "How does our current session handling work? Walk me through it.",
+      "files": ["a repo with session middleware"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could turn a comprehension question into an interrogation of the user"
+      ],
+      "expected_behavior": [
+        "Reads the code and explains it (codebase-comprehension territory)",
+        "Asks the user nothing — every answer is in the repo"
+      ],
+      "must_not": [
+        "Ask the user questions about their own existing session handling",
+        "Build a decision tree for a question with no decisions in it"
+      ]
+    }
+  ]
+}

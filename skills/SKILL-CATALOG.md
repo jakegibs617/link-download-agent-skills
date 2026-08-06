@@ -5,11 +5,11 @@ profession, category, what it does, when it triggers, its inputs and outputs,
 and the skills it most often composes with. Full details live in each skill's
 `SKILL.md`; this is the selection index.
 
-Legend for paths: `engineering/<name>/` and `legal/<name>/`.
+Legend for paths: `engineering/<name>/`, `legal/<name>/`, and `product/<name>/`.
 
 ---
 
-## Engineering (34 skills)
+## Engineering (36 skills)
 
 ### Category: Understanding & Requirements
 
@@ -29,6 +29,14 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 - Outputs: codebase map with file:line citations, module map, conventions, unknowns.
 - Related: system-architecture, technical-debt-assessment, debugging-root-cause-analysis, technical-documentation.
 
+**decision-elicitation**
+- Category: Understanding & Requirements
+- Does: Builds a decision tree from a request, prunes it to only what blocks the first increment, walks those decisions one at a time with a recommendation and reason each, and terminates on an explicit completion test.
+- Triggers: "grill me", "grill this", "interview me", "stress-test my thinking", several unmade or interdependent choices, implementation blocked because nobody decided something.
+- Inputs: the thing to be built, the codebase and its conventions, the scope of the first increment, decisions already recorded.
+- Outputs: mermaid decision tree with each node marked, running decision checklist with reasons, deferred decisions with triggers, implementation-ready spec.
+- Related: requirements-analysis (runs after, on the settled problem), staff-architect (routes what the decisions imply), technical-planning-estimation, first-principles-design (widens options where this narrows them).
+
 ### Category: Design & Architecture
 
 **first-principles-design**
@@ -46,6 +54,14 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 - Inputs: quality attributes, code/config (as-built), team topology, growth.
 - Outputs: component map, interaction contracts, ADRs, evolution plan.
 - Related: first-principles-design, distributed-systems-design, legacy-system-modernization, codebase-comprehension.
+
+**staff-architect**
+- Category: Design & Architecture
+- Does: Routes an architecture engagement — ranks which 3-4 lenses actually decide this project, classifies each decision's reversibility, and dispatches to the narrow skills that own the analysis. Owns the ranking and the handoff, not the analysis.
+- Triggers: "think like an architect", "where do I start", scoping a system, planning before implementation, reviewing a design for gaps, writing a design doc/ADR/RFC.
+- Inputs: the engagement and its mode (plan/review/document), the actual problem, hard constraints, ranked NFRs, decisions already recorded.
+- Outputs: ranked lens table with routing, reversibility classification per decision, ordered engagement plan naming each executing skill, spikes.
+- Related: decision-elicitation (run first when the blocker is unmade choices), first-principles-design and system-architecture (produce what this routes to), technical-review-auditor, COMPOSITION-WORKFLOWS.md (the chains it references).
 
 **solution-engineering-fundamentals**
 - Category: Design & Architecture
@@ -301,6 +317,63 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 
 ---
 
+## Product (5 skills)
+
+> Product skills leave a **file artifact** behind rather than reporting only in
+> the response: `ceo-review`, `cfo`, and `creative-director` write a dated report
+> to the project root so successive reviews can be diffed; `ui-ux-plan` maintains
+> one canonical `ui-ux-plan.md`. `strong-product-vision` returns in the response,
+> because a vision rewrite is an edit to an existing document rather than a
+> standing report.
+
+### Category: Vision & Positioning
+
+**strong-product-vision**
+- Category: Vision & Positioning
+- Does: Diagnoses a vision against five falsifiability tests (inversion, swap, name-the-loser, one-thing, bet), then rewrites it into a contract sentence naming the user, struggle, capability, accepted tradeoff, success signal, and non-goals. Always produces the rewrite, never only a critique.
+- Triggers: writing or reviewing a vision, PRD vision section, mission statement, or positioning; a vision that sounds generic, targets "everyone", or reads as a feature list; "is my vision strong?"
+- Inputs: the vision as it exists, the feature list or roadmap, any evidence behind the claims.
+- Outputs: test results with quoted failures, per-slot questions, the rewritten vision draft (even when every slot is a TODO), feature trace with cut/park verdicts.
+- Related: ceo-review (judges the business, not the statement), creative-director (owns the audience-facing line), ui-ux-plan and requirements-analysis (both consume the settled vision).
+
+### Category: Business & Finance
+
+**ceo-review**
+- Category: Business & Finance
+- Does: Grades five areas — vision/PMF, business model, market, execution, risk — against repo evidence, and issues a keep-funding verdict with Top 3 Asks and ranked existential risks.
+- Triggers: "is this worth building", "should we keep funding this", "what would a CEO think", stakeholder health report, business-level project assessment.
+- Inputs: the repo (PRD, vision, roadmap, README, prior reviews), git history as a momentum signal, prior dated reports, any real numbers that exist.
+- Outputs: dated `ceo-report-YYYY-MM-DD.md` — verdict, scoreboard, per-area sections, Top 3 Asks, what could kill this, changes since the prior report.
+- Related: cfo (owns every number this only grades), strong-product-vision, creative-director, ui-ux-plan, engineering-risk-analysis, stakeholder-communication.
+
+**cfo**
+- Category: Business & Finance
+- Does: Translates the product into money terms — revenue model, unit economics, cost structure, burn and runway, pricing, break-even and scenarios, ranked financial risks — with every figure labeled `[sourced]` or `[estimate]`.
+- Triggers: monetization, pricing, unit economics, costs, burn, runway, funding, "is this viable as a business?"
+- Inputs: PRD/business plan/pitch, pricing docs, prior reviews, product code, business stage and burn (asked), business type (selects the question set).
+- Outputs: dated `cfo-report-YYYY-MM-DD.md` — 11 required sections, financial verdict (viable / viable-with-conditions / not-viable-as-modeled / not-assessable), the 2-3 drivers that decide it.
+- Related: ceo-review (owns the fund/kill call this never makes), strong-product-vision, dependency-evaluation, stakeholder-communication.
+
+### Category: Brand & Experience
+
+**creative-director**
+- Category: Brand & Experience
+- Does: Judges whether the brand and campaign creative would make anyone care, grading six areas on the idea rather than the execution polish, and restating the brand idea as it currently reads versus as it should.
+- Triggers: brand idea, positioning line, campaign concept, naming, visual identity, tone of voice, key art, store/launch creative; "is this idea any good", "does this stand out".
+- Inputs: PRD and vision docs, all user-facing copy, the naming, design system and assets (read for point of view), prior dated reports.
+- Outputs: dated `creative-director-report-YYYY-MM-DD.md` — ship/sharpen/rework verdict, scoreboard, The Idea Restated, Top 3 Creative Asks, what makes this forgettable.
+- Related: ui-ux-plan (owns screens; this owns brand), strong-product-vision (owns the operating vision; this the audience-facing line), ceo-review and cfo (own market and pricing).
+
+**ui-ux-plan**
+- Category: Brand & Experience
+- Does: Turns a PRD or an existing app into one canonical design plan — UX principles that each exclude something, screen inventory and mermaid navigation map, critical flows with failure and empty states, a design system as tokens and scales, plus an audit in existing mode.
+- Triggers: a PRD with no interface yet, an app whose UI needs auditing, requests for screens, user flows, navigation, a design system, or a UX review.
+- Inputs: the PRD as binding constraints, existing UI source, an existing `ui-ux-plan.md` (making the run an update), the settled product vision.
+- Outputs: `ui-ux-plan.md` — 8 required sections, section 6 in existing mode only.
+- Related: creative-director (owns brand/voice), strong-product-vision, requirements-analysis, technical-planning-estimation, code-implementation.
+
+---
+
 ## Legal (25 skills)
 
 > All legal skills produce analysis to support a human reviewer, are **not legal
@@ -534,3 +607,9 @@ Some capabilities mirror across the two libraries:
 | `production-readiness-review` | `signature-readiness-assessment` | Final go/no-go gate consolidating prior reviews |
 | `engineering-risk-analysis` | `missing-protections-analysis` | Surface what's absent/risky, ranked |
 | `code-change-review` | the substantive legal reviews | Evidence-grounded, severity-ranked findings on a document |
+
+Product mirrors them too: `ceo-review` and `cfo` split the same way
+`production-readiness-review` and its inputs do — one issues the verdict, the
+other supplies the evidence it rests on. And `staff-architect` is to the
+engineering skills what `ceo-review` is to `product/`: the front door that ranks
+what matters and routes, rather than a skill that answers.

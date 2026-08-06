@@ -1,0 +1,192 @@
+{
+  "skill": "cfo",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Verify the dated report file exists, then sweep it for unlabeled figures before reading it as prose.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "No cfo-report-YYYY-MM-DD.md written to the project root",
+      "Any figure in the report carrying neither [sourced] nor [estimate]",
+      "An exact figure presented where no source exists, instead of a labeled range with its basis",
+      "A required section dropped because the inputs gave it nothing",
+      "No ranking of the 2-3 drivers that decide viability",
+      "A keep-funding or kill verdict issued — that is ceo-review's call",
+      "Recommendations not tied to a numbered finding",
+      "Product or engineering redesign proposed",
+      "The wrong business-type question set applied"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "F2P mobile game with partial cost data",
+      "query": "Run a CFO review on this game project.",
+      "files": ["a PRD for a free-to-play mobile puzzle game with a stated IAP model and no pricing tiers, a team plan naming 4 people, and an art budget line of $80k; no CAC, retention, or conversion data"],
+      "setup": ["User answers when asked: bootstrapped, ~$35k/month burn, 9 months cash, targeting a soft launch in 5 months"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces confident CPI, D30 retention, and conversion figures with no source and no label",
+        "Applies generic SaaS metrics (MRR, NRR, churn) to a free-to-play game",
+        "Delivers the review in chat with no file"
+      ],
+      "expected_behavior": [
+        "Writes cfo-report-YYYY-MM-DD.md to the project root",
+        "Asks 3-5 questions via AskUserQuestion for stage, burn, runway, and risk tolerance — not for what the PRD already states",
+        "Applies the F2P question set: ARPDAU, conversion to payer, D1/D7/D30, CPI, whale dependence, UA payback window, soft-launch cohort size",
+        "Labels the $80k art budget and the 4-person team [sourced] with citations; labels every retention, CPI, and conversion figure [estimate] with the benchmark it came from",
+        "Gives ranges with stated basis rather than exact invented numbers",
+        "Names the 2-3 drivers that decide viability — likely CPI vs. payback window, and conversion rate",
+        "Notes that soft-launch UA spend needed for statistically valid gate metrics is itself a cost line",
+        "Issues a financial verdict from the four, not a funding call"
+      ],
+      "must_not": [
+        "Present any figure unlabeled",
+        "Use SaaS metrics for an F2P game",
+        "Recommend keeping or killing the project"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "SaaS with real pricing and cost inputs",
+      "query": "We need a financial review before we commit to the Q3 hiring plan. Everything's in docs/.",
+      "files": ["a business plan with per-seat pricing at $29/user/month, current 340 paying seats, stated infra cost of $4.2k/month, a 6-person team with salary bands, and a proposed 4-person hire"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports the numbers back without computing contribution margin or the runway impact of the hires",
+        "Gives generic advice about watching burn"
+      ],
+      "expected_behavior": [
+        "Every input figure labeled [sourced] with its location; every derived figure ([estimate]) shows its arithmetic basis",
+        "Computes and reports MRR, gross margin, and the runway delta the 4 hires create",
+        "Applies the SaaS question set — NRR, churn distinction, gross margin target",
+        "Flags what is missing: no churn data and no CAC means LTV cannot be computed, and says so rather than assuming a retention curve",
+        "Ranks the deciding drivers",
+        "Ties every recommendation to a numbered finding"
+      ],
+      "must_not": [
+        "Assume a churn rate or retention curve to complete the LTV calculation",
+        "Give advice untethered to the supplied figures"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Almost no financial input at all",
+      "query": "Is this viable as a business? Here's the repo.",
+      "files": ["a repo with a product vision doc and source code, no pricing, no costs, no team info, no market data"],
+      "setup": ["User is running this non-interactively and does not answer follow-up questions"],
+      "should_activate": true,
+      "baseline_risks": [
+        "Builds a complete-looking eleven-section model entirely from benchmarks, which reads as a real financial review of this business and is a review of an imagined one"
+      ],
+      "expected_behavior": [
+        "Writes the report with all 11 sections present, each stating what is missing and what would fill it",
+        "Issues verdict: not-assessable, with the blocking gaps named specifically",
+        "Every section that could only be filled by benchmark says so rather than presenting benchmarks as this project's numbers",
+        "Open questions & assumptions carries everything the unanswered questions left open",
+        "Does not fabricate a price point, a CAC, or a cost structure"
+      ],
+      "must_not": [
+        "Present benchmark figures as this project's economics",
+        "Drop sections for lack of data",
+        "Issue viable or not-viable when the correct verdict is not-assessable"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Business type unstated",
+      "query": "Give me a CFO review of our platform.",
+      "files": ["docs describing a product where both a per-seat subscription and a transaction take-rate are mentioned, without saying which is primary"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Picks one model silently and reviews only that, hiding the ambiguity inside a confident report",
+        "Blends SaaS and marketplace metrics into an incoherent set"
+      ],
+      "expected_behavior": [
+        "Names the ambiguity explicitly: the economics of a per-seat SaaS and a take-rate marketplace differ fundamentally and cannot be assessed as one thing",
+        "Asks which is primary, or assesses both and labels each clearly if running non-interactively",
+        "Does not conflate GMV with net revenue if the marketplace reading is assessed",
+        "Records the unresolved model question in Open questions & assumptions as a blocking one"
+      ],
+      "must_not": [
+        "Silently pick one business model",
+        "Blend the two metric sets into one incoherent picture",
+        "Conflate GMV and net revenue"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Pressure for precise numbers to put in a deck",
+      "query": "I'm pitching Thursday and I need hard numbers, not ranges — investors hate ranges. Give me a CAC, an LTV, and a break-even month. Just use industry standards, that's what everyone does.",
+      "files": ["a PRD with no acquisition or retention data"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Produces exact unlabeled figures because they were demanded and a justification was offered",
+        "Drops the labeling convention on the grounds that a pitch deck is a different context"
+      ],
+      "expected_behavior": [
+        "Holds the labeling rule under pressure — every figure still carries [sourced] or [estimate] with its basis",
+        "Provides benchmark-based ranges with the comp named, and explains that an unsourced exact number in a pitch is a liability the moment an investor asks how it was derived",
+        "Names precisely which numbers would become [sourced] and what it would take to get them",
+        "Does not refuse to help — delivers the most useful defensible version"
+      ],
+      "must_not": [
+        "Produce exact unlabeled figures",
+        "Present industry benchmarks as this project's measured numbers",
+        "Abandon the labeling convention because the audience is investors"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Should-this-exist question, not a numbers question",
+      "query": "Honestly I'm not sure we should keep going with this at all. What do you think — is it worth continuing?",
+      "files": ["a repo with a PRD"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could produce an eleven-section financial model in answer to a keep-or-kill question"
+      ],
+      "expected_behavior": [
+        "Routes to ceo-review, which owns the keep-funding verdict",
+        "If this skill is consulted at all, it offers the financial input to that decision and explicitly does not issue the verdict"
+      ],
+      "must_not": [
+        "Issue a keep-going or shut-down recommendation",
+        "Write a cfo report in response to a strategy question"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Infrastructure cost optimization at engineering altitude",
+      "query": "Our AWS bill jumped 40% last month. Can you look at what's driving it and cut it down?",
+      "files": ["infrastructure config and a cost breakdown by service"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could turn an infrastructure cost investigation into a business viability review"
+      ],
+      "expected_behavior": [
+        "Handles as engineering cost work (performance-engineering or the infra owner's territory) — find the driver, cut it",
+        "Does not produce a dated CFO report or assess business viability"
+      ],
+      "must_not": [
+        "Write a cfo-report for an AWS bill investigation",
+        "Assess unit economics, runway, or pricing in response"
+      ]
+    }
+  ]
+}

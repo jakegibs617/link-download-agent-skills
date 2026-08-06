@@ -1,0 +1,192 @@
+{
+  "skill": "creative-director",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. Verify the dated report file exists on disk before scoring content.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "No creative-director-report-YYYY-MM-DD.md written to the project root",
+      "Polished execution graded green despite no point of view surviving the competitor-swap test",
+      "The Idea Restated section absent",
+      "A focus area skipped because the repo was silent on it",
+      "A grade assigned without citing a named file or quoted copy",
+      "Audience research, community signal, or comps invented",
+      "A verdict that hedges instead of calling ship / sharpen / rework",
+      "Interface quality, pricing, or market size assessed here rather than referenced in a line"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Beautiful execution, no point of view",
+      "query": "Creative review of our brand please.",
+      "files": ["a repo with a professionally built design system — full type scale, tokenized palette, consistent components — plus a landing page reading 'The modern way to manage your work. Simple, powerful, beautiful.' and a product named Flowly"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Grades the identity highly because the design system is genuinely well built and internally consistent",
+        "Reviews the design system as an interface artifact rather than for point of view",
+        "Suggests copy tweaks rather than naming the absence of an idea"
+      ],
+      "expected_behavior": [
+        "Writes creative-director-report-YYYY-MM-DD.md to the project root",
+        "Runs the competitor-swap test literally — 'The modern way to manage your work' reads unchanged for Asana, Notion, Monday, ClickUp — and fails positioning on it",
+        "Grades visual identity 🔴 or 🟡 on absence of a point of view DESPITE the execution quality, and says explicitly that the craft is good and that this is not what is being graded",
+        "Fails voice on 'simple, powerful, beautiful' as adjectives that refuse nothing",
+        "Produces The Idea Restated with both sentences",
+        "Names what the identity refuses to look like as the missing thing",
+        "Verdict calls sharpen or rework, not ship"
+      ],
+      "must_not": [
+        "Grade green because the design system is well built",
+        "Assess whether the screens work",
+        "Omit The Idea Restated"
+      ]
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Strong idea, inconsistent across surfaces",
+      "query": "Does our brand hold together? Review it.",
+      "files": ["a repo with a sharp, specific positioning line and distinctive key art, but store copy in a different voice, onboarding microcopy in a third, placeholder lorem text in two error states, and an app icon that predates the identity"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Grades everything on the strength of the positioning line and misses the inconsistency",
+        "Lists the inconsistencies without ranking which one a user actually hits"
+      ],
+      "expected_behavior": [
+        "Grades brand idea and concept well, with the evidence quoted",
+        "Grades craft & consistency 🔴 or 🟡 on the specific breaks, each cited",
+        "Grades voice on the divergence across surfaces, quoting the best and worst lines",
+        "Identifies the first-impression path (store page → icon → onboarding) and whether one idea holds end to end",
+        "Flags the lorem text in user-facing error states as load-bearing or not",
+        "Top 3 Asks are owner-shaped: 'kill the old icon', 'rewrite the onboarding to the store voice'"
+      ],
+      "must_not": [
+        "Let a strong positioning line raise the consistency grade",
+        "List inconsistencies without saying which a user actually encounters"
+      ]
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Idea exists only in the founder's head",
+      "query": "Review the creative. Most of it isn't written down yet but the idea is that we're the anti-corporate alternative — irreverent, for people who hate enterprise software.",
+      "files": ["a repo with a generic PRD, default framework styling, and copy that is entirely neutral and corporate in tone"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Grades against the stated intent rather than the evidence, producing a favorable review of a brand that does not exist in the repo",
+        "Dismisses the whole thing without capturing that the intent is a real and usable starting point"
+      ],
+      "expected_behavior": [
+        "Grades the evidence, not the intent — the repo's copy is corporate and neutral, which is the opposite of the stated idea",
+        "Names the gap between stated intent and every artifact as the central finding",
+        "Uses the stated intent as the 'as it should read' half of The Idea Restated, with the repo's actual voice as 'as it currently reads'",
+        "Notes that an idea living only in conversation cannot direct anyone's work",
+        "Asks are about writing it down and applying it to specific surfaces"
+      ],
+      "must_not": [
+        "Grade against the founder's stated intent as though the repo reflected it",
+        "Discard the stated intent instead of using it as the sharper version"
+      ]
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "No creative material at all",
+      "query": "What would a creative director say about this?",
+      "files": ["a repo with source code and a technical README only — no naming beyond the repo name, no copy, no assets, no design system"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Invents a brand direction and reviews the invention",
+        "Reviews the README's writing quality as though it were brand voice"
+      ],
+      "expected_behavior": [
+        "States that no user-facing creative material exists and that the finding is that the creative work has not started",
+        "Does not invent a positioning, an audience, or a visual direction",
+        "Says what would be needed for a real review",
+        "May note what the repo name and technical README imply, clearly labeled as inference from thin evidence"
+      ],
+      "must_not": [
+        "Produce a six-area graded report from a technical README",
+        "Invent an audience or a brand idea",
+        "Grade the README's prose as brand voice"
+      ]
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "Craft presented as the answer to the idea question",
+      "query": "We spent four months and a lot of money on this identity with a great agency — full brand book, custom typeface, the works. The team loves it. Just confirm we're in good shape creatively before we go to print.",
+      "files": ["a comprehensive, professionally produced brand book whose positioning line is 'Innovation, delivered.' and whose visual direction is current-trend gradient-and-sans-serif with no stated refusals"],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Confirms under sunk cost, agency authority, team consensus, and an imminent print deadline",
+        "Praises the brand book's thoroughness and treats that as the answer"
+      ],
+      "expected_behavior": [
+        "Runs the competitor-swap test on 'Innovation, delivered.' and fails it decisively",
+        "Grades the idea 🔴 while acknowledging the craft is genuinely strong — and states explicitly that craft is not what is being graded",
+        "Flags the trend-borrowed visual direction and asks what happens when the trend turns over",
+        "Names the absence of any stated refusal as the reason there is no direction",
+        "Does not soften because of cost, agency reputation, team consensus, or the print deadline",
+        "Gives a rework or sharpen call with what specifically would change it"
+      ],
+      "must_not": [
+        "Confirm the identity is in good shape",
+        "Treat the brand book's comprehensiveness as evidence of an idea",
+        "Soften the verdict because money and time are already spent"
+      ]
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Interface design question",
+      "query": "Our onboarding has a 60% drop-off on step 3. Can you look at the flow and figure out what to fix?",
+      "files": ["screen definitions and a funnel breakdown"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could produce a brand review in answer to a UX funnel problem"
+      ],
+      "expected_behavior": [
+        "Routes to ui-ux-plan — flows, screens, and drop-off are its object",
+        "If this skill is consulted at all, it notes that brand is not what is failing here"
+      ],
+      "must_not": [
+        "Write a dated creative report for an onboarding funnel problem",
+        "Grade six creative areas in response to a UX question"
+      ]
+    },
+    {
+      "id": "negative-002",
+      "category": "negative-activation",
+      "name": "Pricing and packaging question",
+      "query": "Should we go with three tiers or two? And what should we charge for the top one?",
+      "files": ["a pricing doc"],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "The skill could assess tier naming as brand work and drift into pricing"
+      ],
+      "expected_behavior": [
+        "Routes to cfo for pricing and packaging economics",
+        "If tier naming comes up as brand work, that is the only part this skill would own, and it says so"
+      ],
+      "must_not": [
+        "Recommend a price point",
+        "Write a creative report in response to a packaging question"
+      ]
+    }
+  ]
+}
