@@ -9,7 +9,7 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 
 ---
 
-## Engineering (33 skills)
+## Engineering (34 skills)
 
 ### Category: Understanding & Requirements
 
@@ -46,6 +46,14 @@ Legend for paths: `engineering/<name>/` and `legal/<name>/`.
 - Inputs: quality attributes, code/config (as-built), team topology, growth.
 - Outputs: component map, interaction contracts, ADRs, evolution plan.
 - Related: first-principles-design, distributed-systems-design, legacy-system-modernization, codebase-comprehension.
+
+**solution-engineering-fundamentals**
+- Category: Design & Architecture
+- Does: Vets a concrete solution against named, citable baselines (twelve-factor, Fowler's enterprise pattern catalog, Fowler's architecture concepts) so every finding traces to a source rather than to taste.
+- Triggers: "12-factor", "enterprise patterns", "Fowler patterns", "architecture fundamentals", checking operational hygiene, choosing a data-access or domain-logic pattern, testing whether a boundary holds.
+- Inputs: the solution (proposal, design doc, or running service), its deployment shape, a human-authored boundary definition, the record of accepted tradeoffs (ADRs, known issues).
+- Outputs: findings table with the baseline each violates and where observed, applicable patterns with the pressure each addresses, accepted deviations, next actions.
+- Related: system-architecture (receives consequential decisions as ADRs), design-pattern-application (code-level altitude), technical-review-auditor (what's missing vs. what's non-standard), production-readiness-review (consumes the findings).
 
 **api-design**
 - Category: Design & Architecture
