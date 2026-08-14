@@ -33,7 +33,9 @@ skill's Output Format.
    criteria. **(gate: open questions either answered or explicitly deferred)**
 2. `first-principles-design` — candidate designs with tradeoffs; pick one.
 3. As needed in parallel: `api-design` (external surface),
-   `database-design-optimization` (schema/queries),
+   `database-design-optimization` (schema/queries — hand off to
+   `postgres-standards` for the Postgres-specific types, indexes, lock levels,
+   and RLS decisions once the engine is settled),
    `distributed-systems-design` (if cross-service).
 4. `solution-engineering-fundamentals` — vet the chosen design against the named
    baselines before anyone builds it; output: findings citing the specific
@@ -73,7 +75,8 @@ skill's Output Format.
 2. Escalate targeted concerns to specialists as findings warrant:
    `security-engineering` (auth/crypto/input handling),
    `performance-engineering` (hot paths), `concurrency-correctness`
-   (shared state), `database-design-optimization` (query/schema changes).
+   (shared state), `database-design-optimization` (query/schema changes),
+   `postgres-standards` (Postgres DDL, migration lock safety, RLS and grants).
 3. `stakeholder-communication` — only if the review outcome (e.g. "this
    needs a redesign") must be explained to non-engineers.
 

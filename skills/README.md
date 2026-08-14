@@ -4,7 +4,7 @@ A library of narrow, independently usable agent skills covering the competency
 models of three professions:
 
 1. **Engineering** (`engineering/`) — the capabilities of an exceptional
-   senior/staff software engineer, decomposed into 37 skills.
+   senior/staff software engineer, decomposed into 38 skills.
 2. **Legal** (`legal/`) — the capabilities of an experienced lawyer performing
    rigorous contract review, decomposed into 25 skills.
 3. **Product** (`product/`) — the non-engineering functions that review a

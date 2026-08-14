@@ -3,7 +3,7 @@
 A catalog of reusable AI agent skills for Claude, organized around three
 professional competency models:
 
-- **Engineering:** 37 focused skills for senior and staff-level software work.
+- **Engineering:** 38 focused skills for senior and staff-level software work.
 - **Legal contract review:** 25 focused analysis skills with explicit
   uncertainty, escalation, and licensed-counsel boundaries.
 - **Product:** 5 skills covering the non-engineering functions that review a
@@ -37,14 +37,16 @@ skills/
 └── EVALUATION-GUIDE.md
 ```
 
-The full library contains 67 skills. Evaluation support files stay beside each
+The full library contains 68 skills. Evaluation support files stay beside each
 skill so a copied or packaged skill remains self-contained. A skill may also
 carry `references/`, `scripts/`, and `evals/` directories when it needs them —
 `engineering/technical-review-auditor` does, for its seeded-defect scoring
 harness, `engineering/systems-thinking-auditor` does, for its archetype and
-leverage-point references, and `engineering/solution-engineering-fundamentals`
+leverage-point references, `engineering/solution-engineering-fundamentals`
 does, for the twelve-factor, enterprise-pattern, and architecture-concept
-catalogs it cites plus a service fixture its evaluation suite scores against.
+catalogs it cites plus a service fixture its evaluation suite scores against,
+and `engineering/postgres-standards` does, for its DDL-lock, type/index, and
+antipattern references plus the seeded-defect schema its audit case is scored on.
 
 Most skills report in their response. The `product/` skills instead leave a file
 behind — a dated report in the project root for `ceo-review`, `cfo`, and
