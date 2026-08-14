@@ -1,6 +1,6 @@
 ---
 name: database-design-optimization
-description: Designs schemas and optimizes queries against real access patterns — normalization decisions, indexing from execution plans, migration safety on live tables, and integrity enforced in the database. Use for schema design, slow-query diagnosis, index strategy, or reviewing migrations. Not for choosing the overall persistence architecture (system-architecture), application-level caching strategy (performance-engineering), or cross-store consistency (distributed-systems-design).
+description: Designs schemas and optimizes queries against real access patterns — normalization decisions, indexing from execution plans, migration safety on live tables, and integrity enforced in the database. Use for schema design, slow-query diagnosis, index strategy, or reviewing migrations. Not for engine-specific standards and their version gates when the engine is PostgreSQL (postgres-standards), choosing the overall persistence architecture (system-architecture), application-level caching strategy (performance-engineering), or cross-store consistency (distributed-systems-design).
 ---
 
 # Database Design and Query Optimization
@@ -106,6 +106,13 @@ every migration is safe to run on a live production table.
 
 ## Related skills
 
+- `postgres-standards` — takes over once the engine is PostgreSQL. This skill
+  owns the engine-neutral method (access patterns before design, no tuning
+  without a plan, migration review process); that one owns the Postgres-specific
+  rules and their version gates — which type, which index type, which lock each
+  DDL statement takes, RLS and role hygiene, pooler constraints. Compose in that
+  order: decide *an index is needed* here, decide *what it is and how to build
+  it safely on this server version* there.
 - `performance-engineering` — owns the system-wide latency budget this
   feeds; caching decisions live there.
 - `migration-planning` — for multi-phase data/system migrations beyond one

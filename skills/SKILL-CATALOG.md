@@ -9,7 +9,7 @@ Legend for paths: `engineering/<name>/`, `legal/<name>/`, and `product/<name>/`.
 
 ---
 
-## Engineering (37 skills)
+## Engineering (38 skills)
 
 ### Category: Understanding & Requirements
 
@@ -102,6 +102,14 @@ Legend for paths: `engineering/<name>/`, `legal/<name>/`, and `product/<name>/`.
 - Inputs: the interaction + its invariant, load model, failure tolerance, infra.
 - Outputs: distributed design (consistency choices, message-betrayal table, semantics, partitioning, backpressure, failure drills).
 - Related: system-architecture, reliability-fault-tolerance, concurrency-correctness, database-design-optimization.
+
+**postgres-standards**
+- Category: Design & Architecture
+- Does: Applies PostgreSQL-specific standards when designing SQL and audits existing SQL against them — types, indexes, constraints, DDL lock levels, RLS and role/search_path hygiene, isolation idioms, pooler constraints — with a version gate on every rule and a lock cost on every fix.
+- Triggers: Postgres schema design, DDL/migration review, SQL or schema audit, psql/EXPLAIN investigation, RLS and multi-tenancy decisions, pgbouncer breakage.
+- Inputs: server major version, mode (design/audit), workload shape, pooler mode, table volumes, connection availability.
+- Outputs: design (DDL + decisions table + tenancy decision + staged migration plan) or audit (severity-ordered findings with evidence, version-gated reason, fix, and the fix's own lock cost).
+- Related: database-design-optimization (owns the engine-neutral method), performance-engineering, security-engineering, migration-planning, code-implementation.
 
 ### Category: Implementation & Quality
 

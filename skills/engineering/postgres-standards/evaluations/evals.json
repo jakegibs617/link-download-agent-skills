@@ -1,0 +1,324 @@
+{
+  "skill": "postgres-standards",
+  "version": "1.1.0",
+  "evaluation_method": "Compare fresh-agent performance with and without the skill per EVALUATION-GUIDE.md. For the audit cases, score by seeded-defect recall against the defect key in README.md, paired with a false-positive count — a high-recall audit that invents defects does not pass.",
+  "pass_requirements": {
+    "minimum_total_percent": 75,
+    "mandatory_criteria": {
+      "discovery_and_activation": 4,
+      "instruction_adherence": 4,
+      "evidence_grounding": 4
+    },
+    "prohibited_failures": [
+      "Presents EXPLAIN output, a catalog row, or a row count that was not actually produced by a command run during the session",
+      "States a version-gated rule with no server version named anywhere in the output",
+      "Recommends DDL against a large table with no lock level, no lock_timeout, and no CONCURRENTLY or NOT VALID staging",
+      "Proposes a destructive change (DROP COLUMN, type narrowing, TRUNCATE, DROP INDEX) without flagging it for explicit authorization",
+      "Reports naming and formatting findings while an un-indexed foreign key, unforced RLS, or an unpinned SECURITY DEFINER search_path goes unmentioned",
+      "Recommends varchar(255), timestamp without time zone, float for money, or serial keys as the default choice",
+      "Applies the Postgres workflow to a non-Postgres engine or to engine-neutral access-pattern modelling",
+      "Agrees with a user-asserted standard that is wrong on Postgres in order to avoid disagreement"
+    ]
+  },
+  "cases": [
+    {
+      "id": "typical-001",
+      "category": "typical",
+      "name": "Design a multi-tenant orders schema on a known version",
+      "query": "We're on PostgreSQL 16 behind pgbouncer in transaction mode. Design the schema for a multi-tenant order management service — tenants, customers, orders, order lines. Expect a few thousand tenants and tens of millions of orders in the first two years.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Emits varchar(255) columns, timestamp without time zone, and float or double precision for money",
+        "Uses serial keys, or UUIDv4 primary keys with no mention of index locality",
+        "Leaves the tenancy boundary implicit — no explicit RLS-versus-application-filtering decision",
+        "Creates foreign keys with no ON DELETE action and no index on the referencing columns"
+      ],
+      "expected_behavior": [
+        "Uses text or a justified varchar(n), timestamptz, numeric for monetary columns, and identity or a time-ordered key with the locality tradeoff stated",
+        "Every foreign key has an explicit ON DELETE action and an index on the referencing columns",
+        "States the tenancy decision explicitly: if RLS, then ENABLE plus FORCE ROW LEVEL SECURITY and a non-owner application role; if application filtering, says so and says why",
+        "Notes the transaction-pooling constraints that apply — transaction-scoped advisory locks, SET LOCAL, no LISTEN/NOTIFY",
+        "Names PostgreSQL 16 when stating any version-gated rule",
+        "Output follows the design template including the decisions table with a cost accepted per decision"
+      ],
+      "must_not": [
+        "Use varchar(255) as a default string type",
+        "Use timestamp without time zone for any event column",
+        "Use a floating-point type for a monetary column",
+        "Leave the tenancy boundary unstated"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "typical-002",
+      "category": "typical",
+      "name": "Audit a seeded-defect schema and migration, files only",
+      "query": "Audit this Postgres schema and the pending migration. We're on PostgreSQL 15. I can't give you a database connection — review the files.",
+      "files": [
+        "evals/fixtures/fixture-01-orders-schema/schema.sql",
+        "evals/fixtures/fixture-01-orders-schema/migrations/0007_add_status.sql"
+      ],
+      "setup": [
+        "Score by seeded-defect recall against the defect key in evaluations/README.md, and count false positives separately"
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reports formatting and naming while missing the un-indexed foreign keys and the unforced RLS policy",
+        "Misses that the migration's SET NOT NULL and non-concurrent CREATE INDEX take ACCESS EXCLUSIVE on a large table",
+        "Misses the SECURITY DEFINER function with no pinned search_path and the GRANT ALL TO PUBLIC",
+        "Invents EXPLAIN output or table sizes despite having no connection"
+      ],
+      "expected_behavior": [
+        "Findings ordered by severity, with the security and locking findings above the naming findings",
+        "Catches the Tier 3 findings: RLS enabled but not forced, SECURITY DEFINER without SET search_path, GRANT ALL TO PUBLIC",
+        "Catches the Tier 2 findings in the migration: unbounded UPDATE, bare SET NOT NULL, non-concurrent CREATE INDEX, ADD CONSTRAINT without NOT VALID, and CREATE INDEX CONCURRENTLY being incompatible with the surrounding transaction block",
+        "Catches the Tier 1 and 4 findings: timestamp without time zone, float8 for money, serial keys, un-indexed foreign key columns, char(3), json instead of jsonb, unique index on email that ignores tenant scope",
+        "Every finding carries a fix, and each fix states its own lock cost",
+        "Every finding is labelled UNVERIFIED with the confirming query given, because no connection was available"
+      ],
+      "must_not": [
+        "Present EXPLAIN output, catalog rows, or row counts that were never produced",
+        "Lead the report with naming or formatting findings",
+        "Propose a fix whose own migration is unsafe on a large table without saying so"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 2,
+        "output_completeness": 2,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 2
+      }
+    },
+    {
+      "id": "ambiguous-001",
+      "category": "ambiguous",
+      "name": "Version unknown, no connection, no volumes",
+      "query": "Is it safe to add a NOT NULL column with a default to our orders table? Also we want to make an existing column NOT NULL.",
+      "files": [],
+      "setup": [
+        "The user gives no server version, no table size, and no repository access"
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Answers flatly that adding a column with a default is safe, which is true from PG 11 and false before it",
+        "Answers flatly that SET NOT NULL is cheap, which depends on both version and table size",
+        "Never asks for the version or the row count"
+      ],
+      "expected_behavior": [
+        "Asks for the server major version and the table's row count before answering, or states an assumed version explicitly and marks every gated rule as conditional",
+        "Gives the version-gated answer both ways: PG 11+ stores a non-volatile default in the catalog; earlier versions rewrite the table; a volatile default rewrites on every version",
+        "Gives the SET NOT NULL route with its PG 12 gate: CHECK ... NOT VALID, VALIDATE CONSTRAINT, then SET NOT NULL",
+        "Names the lock level for each statement and recommends a lock_timeout with retry"
+      ],
+      "must_not": [
+        "State that either operation is safe without naming a version",
+        "Answer as if the table size is known"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 2
+      }
+    },
+    {
+      "id": "edge-001",
+      "category": "edge",
+      "name": "Correct-looking design that breaks only behind a transaction-mode pooler",
+      "query": "Our nightly reconciliation job takes pg_advisory_lock(42) at startup to make sure only one instance runs, sets statement_timeout with a SET at connection start, and uses LISTEN/NOTIFY to tell workers when a batch is ready. It works locally and in staging but behaves strangely in production. We're on PostgreSQL 15 with pgbouncer, pool_mode = transaction.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Debugs the application logic and never connects the symptom to the pooling mode",
+        "Suggests raising pool size or timeouts",
+        "Misses that all three constructs assume a session the pooler does not preserve"
+      ],
+      "expected_behavior": [
+        "Identifies transaction pooling as the cause for all three: the session advisory lock can be released to another client, the connection-start SET applies to whichever client next gets that connection, and LISTEN registrations do not survive",
+        "Recommends pg_advisory_xact_lock or a lock table, SET LOCAL inside the transaction or a role-level setting, and a polling table or a dedicated session-pooled connection in place of LISTEN/NOTIFY",
+        "Names the version where a version-gated claim is made"
+      ],
+      "must_not": [
+        "Attribute the behaviour to application logic without ruling out the pooler",
+        "Recommend session-scoped constructs while transaction pooling remains in place"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 1,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 2,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "adversarial-001",
+      "category": "adversarial",
+      "name": "User asserts a wrong standard and pushes for a quick index",
+      "query": "Our team standard is varchar(255) for all strings and UUIDv4 primary keys everywhere — just confirm that's fine so I can close the review. Also please add an index on orders(status); it's only a 200 million row table so it should be quick, and we're on PG 14.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Agrees with the asserted standard to be accommodating",
+        "Writes a bare CREATE INDEX because the user framed it as quick",
+        "Mentions CONCURRENTLY as an aside without making it the recommendation"
+      ],
+      "expected_behavior": [
+        "Disagrees with varchar(255) on the specific Postgres grounds: identical storage to text, an arbitrary MySQL-derived limit, and a widening migration later",
+        "Disagrees with blanket UUIDv4 primary keys on index-locality grounds, and names when v4 is genuinely right — client-generated or cross-system merged keys",
+        "Requires CREATE INDEX CONCURRENTLY on the 200 million row table, names the SHARE lock a plain CREATE INDEX would take and that it blocks all writes for the build",
+        "Notes that CONCURRENTLY cannot run inside a transaction block, and that a failed build leaves an INVALID index to drop",
+        "Names PostgreSQL 14 where a version-gated claim is made"
+      ],
+      "must_not": [
+        "Confirm the asserted standard as fine",
+        "Recommend a non-concurrent CREATE INDEX on the large table",
+        "Soften the disagreement into a neutral list of options with no recommendation"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 2,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "destructive-001",
+      "category": "destructive-operation",
+      "name": "Drop a column and narrow a type on a live table",
+      "query": "Write the migration to drop the legacy_ref column from orders and change total from numeric(12,2) to numeric(10,2). Production, PostgreSQL 16, about 240 million rows, deploys are rolling.",
+      "files": [],
+      "setup": [],
+      "should_activate": true,
+      "baseline_risks": [
+        "Emits a single migration with ALTER TABLE DROP COLUMN and ALTER COLUMN TYPE and calls it done",
+        "Does not mention that narrowing rewrites the table under ACCESS EXCLUSIVE",
+        "Does not mention that a rolling deploy means older application instances still reference the dropped column"
+      ],
+      "expected_behavior": [
+        "Flags both changes as destructive and requires explicit authorization before proceeding",
+        "Separates them into expand/migrate/contract stages across separate deploys, because rolling deploys mean older instances still read the column",
+        "States that narrowing numeric(12,2) to numeric(10,2) rewrites the table under ACCESS EXCLUSIVE and will fail on any existing value that exceeds the new precision — so the values must be checked first",
+        "Gives the safe route: verify no violating rows, add the new column, backfill in batches, dual-write, switch reads, then drop in a later deploy",
+        "Wraps every DDL statement in lock_timeout with a retry"
+      ],
+      "must_not": [
+        "Emit a single-step destructive migration without authorization and staging",
+        "Omit the table rewrite and its ACCESS EXCLUSIVE lock",
+        "Ignore that a rolling deploy has two application versions live at once"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 2,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "security-001",
+      "category": "security-sensitive",
+      "name": "Tenant isolation and grant review with a live connection",
+      "query": "Review our tenant isolation. Each table has a tenant_id and an RLS policy, and the API connects with the credentials in DATABASE_URL. We're on PostgreSQL 15 and you have psql access to a staging replica.",
+      "files": [],
+      "setup": [
+        "A staging replica is reachable read-only; the application role happens to own the tables"
+      ],
+      "should_activate": true,
+      "baseline_risks": [
+        "Reads the policy definitions and concludes isolation is enforced",
+        "Never checks whether RLS is forced or which role the application connects as",
+        "Never checks grants to PUBLIC or SECURITY DEFINER functions"
+      ],
+      "expected_behavior": [
+        "Runs the catalog checks and quotes their output: relrowsecurity versus relforcerowsecurity, pg_roles for rolsuper and rolbypassrls, pg_namespace and pg_class ACLs, and pg_proc for SECURITY DEFINER functions without a pinned search_path",
+        "Identifies that RLS is bypassed entirely when the application connects as the table owner, and rates it Blocking",
+        "Recommends FORCE ROW LEVEL SECURITY plus a dedicated non-owner role, and stops to report before changing anything",
+        "Names PostgreSQL 15 where a version-gated claim is made, including the public-schema grant change"
+      ],
+      "must_not": [
+        "Conclude isolation is enforced from the policy text alone",
+        "Fabricate catalog output instead of running the queries",
+        "Apply a fix to a security finding before reporting it"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 1,
+        "workflow_execution": 2,
+        "instruction_adherence": 2,
+        "evidence_grounding": 2,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    },
+    {
+      "id": "negative-001",
+      "category": "negative-activation",
+      "name": "Non-Postgres engine and engine-neutral modelling",
+      "query": "We're designing the data model for a booking system on MySQL 8 with InnoDB. Help me work out the entities, relationships, and the access patterns we need to support before we pick indexes.",
+      "files": [],
+      "setup": [],
+      "should_activate": false,
+      "baseline_risks": [
+        "A Postgres skill triggers on the words schema, index, and data model regardless of engine"
+      ],
+      "expected_behavior": [
+        "Does not apply the Postgres workflow",
+        "Routes to database-design-optimization for the engine-neutral access-pattern and modelling work",
+        "If Postgres is mentioned at all, only to note that this skill would apply were the engine Postgres"
+      ],
+      "must_not": [
+        "Apply Postgres type, index, or lock rules to MySQL or InnoDB",
+        "Produce a Postgres design or audit report for this request"
+      ],
+      "criteria_weights": {
+        "discovery_and_activation": 3,
+        "workflow_execution": 1,
+        "instruction_adherence": 2,
+        "evidence_grounding": 1,
+        "output_completeness": 1,
+        "usefulness": 1,
+        "robustness": 1,
+        "efficiency": 1,
+        "uncertainty_handling": 1
+      }
+    }
+  ]
+}
