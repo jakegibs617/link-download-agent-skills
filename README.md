@@ -79,6 +79,21 @@ cp -R skills/engineering/system-architecture /path/to/project/.claude/skills/
 Restart Claude Code if it was already running when a new top-level skills
 directory was created. Use `/skills` to confirm discovery.
 
+## Mods
+
+`mods/` holds Claude Code mods, plugins that change Claude Code's own
+interface rather than teach it a procedure. The repository is a plugin
+marketplace (`.claude-plugin/marketplace.json`), so each mod installs with one
+line at a Claude Code prompt.
+
+| Mod | What it does |
+| --- | --- |
+| [sysmon](mods/sysmon/README.md) | Activity Monitor in the terminal: a CPU / memory / battery status line and a `/sysmon` pane with disk, network and top processes (macOS) |
+
+```text
+/plugin install sysmon --marketplace jakegibs617/link-download-agent-skills
+```
+
 ## Select and invoke skills
 
 Claude can activate an installed skill automatically from its frontmatter

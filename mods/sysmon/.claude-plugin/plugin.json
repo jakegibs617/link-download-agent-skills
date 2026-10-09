@@ -1,0 +1,6 @@
+{
+  "name": "sysmon",
+  "version": "0.1.0",
+  "description": "Activity Monitor-style live pane: CPU, memory, disk, network, battery and top processes (macOS)",
+  "types": "./types/index.d.ts"
+}
