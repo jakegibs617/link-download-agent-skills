@@ -1,0 +1,6 @@
+{
+  "name": "clever-skills",
+  "description": "Claude Code mods from the Clever Skills catalog",
+  "owner": { "name": "Jacob Giberson" },
+  "plugins": [{ "name": "sysmon", "source": "./mods/sysmon" }]
+}
